@@ -1,0 +1,136 @@
+{
+  "id": "test_deadlock",
+  "name": "teste: sem movimentos",
+  "rows": 20,
+  "cols": 20,
+  "slots": 5,
+  "palette": {
+    "b": {
+      "name": "ceu",
+      "color": "#5BAEE8"
+    },
+    "d": {
+      "name": "folha",
+      "color": "#357F3C"
+    },
+    "g": {
+      "name": "caule",
+      "color": "#6FBF54"
+    },
+    "p": {
+      "name": "petala",
+      "color": "#E8698C"
+    },
+    "y": {
+      "name": "polen",
+      "color": "#F5C242"
+    }
+  },
+  "grid": [
+    "bbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbppbbppbbbbbbb",
+    "bbbbbbppppppppbbbbbb",
+    "bbbbbppppppppppbbbbb",
+    "bbbbppppyyyyppppbbbb",
+    "bbbbpppyyyyyypppbbbb",
+    "bbbppppyyyyyyppppbbb",
+    "bbbbpppyyyyyypppbbbb",
+    "bbbbppppyyyyppppbbbb",
+    "bbbbbppppppppppbbbbb",
+    "bbbbbbppppppppbbbbbb",
+    "bbbbbbbppbbppbbbbbbb",
+    "bbbbbbbbggbbbbbbbbbb",
+    "bbbbbdddggbbbbbbbbbb",
+    "bbbbbbdggggddbbbbbbb",
+    "bbbbbbbbggddddbbbbbb",
+    "bbbbbbbbggbbbbbbbbbb",
+    "bbbbbbbbggbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbb"
+  ],
+  "columns": [
+    [
+      {
+        "color": "b",
+        "bees": 13,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 5,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      }
+    ],
+    [
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      }
+    ],
+    [
+      {
+        "color": "b",
+        "bees": 16,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "p",
+        "bees": 6,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      }
+    ],
+    [
+      {
+        "color": "b",
+        "bees": 6,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 9,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      }
+    ],
+    [
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 22,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      }
+    ]
+  ],
+  "meta": {
+    "purpose": "teste de derrota - deck insuficiente de proposito"
+  }
+}

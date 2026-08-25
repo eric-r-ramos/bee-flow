@@ -1,0 +1,22 @@
+# Nivel de exemplo: flor com miolo de polen enterrado sob as petalas.
+# b=ceu  p=petala  y=polen  g=caule  d=folha
+bbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbb
+bbbbbbbppbbppbbbbbbb
+bbbbbbppppppppbbbbbb
+bbbbbppppppppppbbbbb
+bbbbppppyyyyppppbbbb
+bbbbpppyyyyyypppbbbb
+bbbppppyyyyyyppppbbb
+bbbbpppyyyyyypppbbbb
+bbbbppppyyyyppppbbbb
+bbbbbppppppppppbbbbb
+bbbbbbppppppppbbbbbb
+bbbbbbbppbbppbbbbbbb
+bbbbbbbbggbbbbbbbbbb
+bbbbbdddggbbbbbbbbbb
+bbbbbbdggggddbbbbbbb
+bbbbbbbbggddddbbbbbb
+bbbbbbbbggbbbbbbbbbb
+bbbbbbbbggbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbb
