@@ -159,20 +159,31 @@ isso, não a intuição.
 calibrá-los. Até lá o score serve para ordenar níveis entre si, nunca para
 prometer quanto tempo alguém vai levar.
 
-### O termo que não entrou, e por quê
+### O termo que não entrou, e a conclusão que teve de ser corrigida
 
-A primeira versão pesava o *atraso da armadilha*: quantas jogadas o jogador faz
-antes de descobrir que já perdeu. Errar e travar na jogada seguinte ensina;
-travar oito jogadas depois é punição.
+A primeira versão do score pesava o *atraso da armadilha*: quantas jogadas o
+jogador faz antes de descobrir que já perdeu. Errar e travar na jogada seguinte
+ensina; travar oito jogadas depois é punição.
 
-Medindo, todos os 44 estados fatais do nível 2 tinham a mesma forma: **o jogador
-enche o quinto e último slot e trava na hora, com zero jogadas seguintes.** Não
-existe morte lenta neste jogo. O termo seria sempre zero e só comeria escala,
-então saiu do score.
+Medindo os níveis 1 e 2, todos os 44 estados fatais tinham a mesma forma: o
+jogador enchia o quinto slot e travava na hora, com zero jogadas seguintes. Eu
+escrevi aqui que **"não existe morte lenta neste jogo"** e deixei o termo fora
+do score, mas mantive a medição como canário.
 
-Continua sendo medido, como **canário**: se um dia der diferente de zero, a
-forma de perder mudou — 6º slot por anúncio, colmeias de mobilidade limitada —
-e os pesos precisam ser repensados.
+**O nível 3 falsificou isso.** Com sete cores e a imagem inteira enterrada sob
+o céu, aparecem estados em que ainda há jogada legal e o nível já está perdido —
+o atraso medido ficou entre 0,5 e 2,0 jogadas. O canário fez exatamente o que
+existia para fazer: avisar que uma suposição minha tinha morrido.
+
+O termo segue fora do score, agora por outro motivo: os valores são rasos (0 a 2
+jogadas), e re-pesar tudo com base em três níveis seria a mesma falsa precisão
+contra a qual este documento avisa. Virou métrica normal no relatório, com aviso
+alto só acima de 3 jogadas — onde a armadilha deixaria de ser rasa e passaria a
+ser injusta de verdade.
+
+**Lição de instrumentação:** um canário que sempre dispara é um canário que se
+aprende a ignorar. Quando ele passou a tocar em toda rodada, virou métrica com
+limiar, não alarme.
 
 ## Progressão: a rota
 
@@ -195,13 +206,41 @@ Limpar a imagem também continua avançando direto para o próximo nível; o car
 de transição mostra o que vem a seguir — nome, tamanho e número de cores — e
 oferece a volta à rota.
 
-| | Primeiro Broto | Voo do Entardecer |
-|---|---|---|
-| Grid | 20×20, 400 blocos | 24×24, 576 blocos |
-| Cores | 5 | 6 |
-| Colmeias | 39 | 56 |
-| Enterro | nenhum | 0.45 |
-| Cai na heurística gulosa? | sim | **não** |
+| | Primeiro Broto | Voo do Entardecer | A Colmeia no Galho |
+|---|---|---|---|
+| Grid | 20×20, 400 blocos | 24×24, 576 blocos | 28×28, 784 blocos |
+| Cores | 5 | 6 | 7 |
+| Colmeias | 39 | 56 | 81 |
+| Enterro | nenhum | 0.45 | 0.60 |
+| Letalidade média | 0% | 23% | **29%** |
+| Nós do solver | 39 | 80 | **677** |
+| **Score** | **3,7** tutorial | **49,3** médio | **55,2** médio |
+
+### Só o que encosta na borda existe no começo
+
+A primeira versão do nível 3 tinha o galho e o chão atravessando a grade de
+ponta a ponta. Resultado: **quatro das sete cores já estavam expostas na
+largada**, quase toda pilha puxada servia, e o nível maior e mais colorido
+pontuou **35,6 — abaixo do nível 2**.
+
+A intuição "mais cores = mais difícil" estava errada, e a medição pegou. O que
+governa o perdão inicial não é o número de cores, é **quantas delas tocam a
+borda da grade**. Recuando tudo para dentro do céu — só o azul encostando na
+borda — o mesmo desenho subiu para 55,2.
+
+Regra prática para o artista: se você quer tensão, enterre. **Uma cor que toca
+a borda é uma cor de graça.**
+
+### O teto desta versão
+
+Varri sementes e intensidades de enterro; com 5 slots esta imagem satura por
+volta de 55. Os termos disponíveis já estão perto do máximo — o guloso já falha
+(20 pontos cheios) e a pressão de slots bate em ~48%.
+
+Passar disso exige as mecânicas adiadas de propósito: **mobilidade limitada da
+colmeia**, nuvem e pedra. A primeira é a mais forte, e é também a que cobra a
+dívida técnica registrada no fim deste documento — o solver vai ter que
+aprender posição.
 
 ## Em aberto
 

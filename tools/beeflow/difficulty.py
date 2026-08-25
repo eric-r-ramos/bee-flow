@@ -35,14 +35,20 @@ W_PEAK = 0.15        # quao arriscada e a PIOR decisao
 W_GREEDY = 0.20      # exige planejamento?
 W_PRESSURE = 0.25    # o jogador joga sufocado de slots?
 
-# O atraso da armadilha NAO entra no score, de proposito. Medindo os niveis
-# reais, todo estado fatal tinha a mesma forma: o jogador enche o quinto slot
-# e trava na hora, com zero jogadas seguintes. Nao da pra armar morte lenta
-# neste jogo, entao o termo seria sempre zero e so comeria escala.
+# O atraso da armadilha - quantas jogadas o jogador ainda faz antes de
+# descobrir que ja perdeu - e medido mas NAO entra no score.
 #
-# Continua sendo medido como canario: se algum dia der diferente de zero, a
-# forma de perder do jogo mudou (um 6o slot por anuncio, colmeias de
-# mobilidade limitada) e o score precisa ser repensado.
+# Historico, porque a conclusao mudou: nos niveis 1 e 2 ele deu zero em todos
+# os estados fatais, e eu escrevi que "nao existe morte lenta neste jogo". O
+# nivel 3 falsificou isso - com sete cores e a imagem toda enterrada sob o ceu,
+# aparecem estados em que ainda ha jogada legal e o nivel ja esta perdido.
+#
+# Continua fora do score por outro motivo: os valores observados sao rasos
+# (0 a 2 jogadas), e re-pesar o score inteiro com base em tres niveis seria
+# exatamente a falsa precisao contra a qual o resto deste arquivo avisa. O
+# aviso alto so dispara acima de DEEP_TRAP, onde a armadilha deixaria de ser
+# rasa e passaria a ser injusta de verdade.
+DEEP_TRAP = 3.0
 
 BANDS = [(20, "tutorial"), (40, "facil"), (60, "medio"), (80, "dificil"),
          (101, "brutal")]
@@ -175,14 +181,15 @@ def report(d: dict) -> str:
         f"                    ({d['fatal_moves']} de {d['tested_moves']} "
         f"jogadas legais matam)",
         f"    risco comeca    a {d['risk_onset']:.0%} do nivel",
+        f"    atraso da trap  {d['trap_delay']:.1f} jogadas ate o jogador perceber",
         f"    pressao slots   {d['slot_pressure']:.1%}",
         f"    ramificacao     {d['branching']:.2f} escolhas por vez, "
         f"{d['decisions']} decisoes reais em {d['moves']} jogadas",
         f"    guloso resolve  {'SIM' if d['greedy_ok'] else 'NAO'}",
     ]
-    if d["trap_delay"] > 0:
-        lines.append(f"    CANARIO: atraso da armadilha {d['trap_delay']:.1f} > 0 - "
-                     f"a forma de perder mudou, revise os pesos do score")
+    if d["trap_delay"] > DEEP_TRAP:
+        lines.append(f"    AVISO: atraso da armadilha {d['trap_delay']:.1f} - o jogador "
+                     f"perde longe do erro e nao consegue ligar causa e efeito")
     if d["unknown_moves"]:
         lines.append(f"    ATENCAO: {d['unknown_moves']} jogadas nao verificadas "
                      f"(orcamento de busca estourado)")

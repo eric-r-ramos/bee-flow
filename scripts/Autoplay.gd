@@ -103,8 +103,28 @@ func _place_next() -> void:
 	var spec: Dictionary = game.columns[best_j][0]
 	var spot := _best_spot(str(spec["color"]), float(spec["radius"]))
 	if spot.x == INF:
-		return   # cor ainda enterrada: espera outra colmeia abrir caminho
+		# Nenhum topo de pilha tem bloco exposto. O jogador humano tem que
+		# queimar um slot mesmo assim, pra desenterrar - a colmeia espera
+		# parada até a cor dela vir à tona. Sem isso o bot trava a si mesmo
+		# em níveis com cores muito enterradas.
+		if game.board.count_of(str(spec["color"])) <= 0:
+			return
+		spot = _any_spot()
+		if spot.x == INF:
+			return
 	game.place_from_deck(best_j, spot)
+
+
+## Qualquer ponto livre da zona de voo, pra estacionar uma colmeia que ainda
+## não tem o que coletar.
+func _any_spot() -> Vector2:
+	var area: Rect2 = game.board_area
+	for fy in [0.06, 0.5, 0.94]:
+		for fx in [0.06, 0.5, 0.94]:
+			var probe := area.position + Vector2(area.size.x * fx, area.size.y * fy)
+			if game.can_place_at(probe):
+				return probe
+	return Vector2(INF, INF)
 
 
 ## Melhor ponto de pouso: o que cobre mais blocos daquela cor sem cair em cima

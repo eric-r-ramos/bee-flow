@@ -1,0 +1,32 @@
+# Nivel 3: a colmeia no galho. So o ceu encosta na borda da grade -
+# todo o resto esta enterrado sob ele, e a entrada escura esta sob a
+# cera, que esta sob o ceu. Tres camadas.
+# b=ceu  n=galho  d=folha  y=cera clara  o=cera escura  k=entrada  g=chao
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbnnnnnnnnnnnnnnnnnnnnnnbbb
+bbbnnnnnnnnnnnnnnnnnnnnnnbbb
+bbbbbdddbbbbbnnbbbbbdddbbbbb
+bbbbdddddddbbnnbbdddddddbbbb
+bbbbbdddddddbnnbdddddddbbbbb
+bbbbbbbbdddyyyyyydddbbbbbbbb
+bbbbbbbbbbyyyyyyyybbbbbbbbbb
+bbbbbbbbbboooooooobbbbbbbbbb
+bbbbbbbbboooooooooobbbbbbbbb
+bbbbbbbbbyyyyyyyyyybbbbbbbbb
+bbbbbbbbyyyyyyyyyyyybbbbbbbb
+bbbbbbbboooooooooooobbbbbbbb
+bbbbbbboooooooooooooobbbbbbb
+bbbbbbbyyyyyyyyyyyyyybbbbbbb
+bbbbbbyyyyyyyyyyyyyyyybbbbbb
+bbbbbbooooookkkkoooooobbbbbb
+bbbbbboooookkkkkkooooobbbbbb
+bbbbbbyyyyyykkkkyyyyyybbbbbb
+bbbbbbyyyyyyyyyyyyyyyybbbbbb
+bbbbbboooooooooooooooobbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbggggggggggggggggggggbbbb
+bbbbggggggggggggggggggggbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb

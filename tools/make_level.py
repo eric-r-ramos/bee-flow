@@ -124,7 +124,8 @@ def main() -> int:
         print(f"  {key} {PALETTE[key]['name']:<9} blocos={counts[key]:<4} "
               f"abelhas={bees:<4} folga={bees / counts[key]:.2f}")
     print(f"  colmeias={level['meta']['hives']} em {args.columns} colunas")
-    print(f"  solucionavel=SIM  nos={report['nodes']}  seed={used_seed}")
+    print(f"  solucionavel=SIM  guloso={'SIM' if report['greedy_ok'] else 'NAO'}"
+          f"  nos={report['nodes']}  seed={used_seed}")
     if diff:
         print(report_difficulty(diff))
     return 0
