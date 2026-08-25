@@ -30,6 +30,15 @@ func _process(delta: float) -> void:
 		_finish("TIMEOUT", 1)
 		return
 	if game.state == game.State.WON:
+		# Invariante: todo bloco coletado vira exatamente um mel. Já foi violado
+		# uma vez - a vitória era declarada na última COLETA, e as abelhas ainda
+		# voltando com bloco nunca entregavam. Não dá para comparar com abelhas
+		# despachadas: quem volta de mão vazia é despachada de novo depois, e aí
+		# a conta legitimamente difere.
+		if game.honey != game.blocks_at_start:
+			_finish("MEL NAO BATE: %d de mel para %d blocos"
+				% [game.honey, game.blocks_at_start], 1)
+			return
 		if game.has_next():
 			print("[autoplay] nivel %d limpo, avancando" % (game.level_index + 1))
 			game.advance()

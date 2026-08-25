@@ -49,6 +49,7 @@ var reserved: Dictionary = {}  ## indice da celula -> abelha que ja foi buscar
 
 var honey := 0
 var bees_dispatched := 0
+var blocks_at_start := 0   ## quantos blocos o nível tinha; o mel final tem que bater
 var state := State.PLAYING
 
 var cell_size := 32.0
@@ -227,6 +228,8 @@ func restart() -> void:
 	for i in int(level.get("slots", 5)):
 		slots.append(null)
 
+	blocks_at_start = board.filled_total
+
 	_layout()
 	board_view.board = board
 	board_view.origin = board_origin
@@ -323,8 +326,22 @@ func _retire_finished() -> void:
 			hives.erase(h)
 
 
+## Abelhas ainda no ar carregando bloco.
+##
+## O bloco sai do tabuleiro na COLETA, mas vira mel na ENTREGA. Declarar
+## vitória em `board.is_clear()` cortaria o nível no instante da última coleta,
+## e as abelhas que ainda estivessem voltando nunca entregariam - o jogador
+## veria 400 blocos virarem 398 de mel. O nível acaba quando a última abelha
+## pousa, não quando o último bloco some.
+func _bees_in_flight() -> int:
+	var n := 0
+	for h in hives:
+		n += h.in_flight
+	return n
+
+
 func _check_end() -> void:
-	if board.is_clear():
+	if board.is_clear() and _bees_in_flight() == 0:
 		state = State.WON
 		progress.record(str(level.get("id", "?")), honey, bees_dispatched)
 		map_view.queue_redraw()

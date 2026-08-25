@@ -34,6 +34,12 @@ Ele verifica três caminhos:
 - `test_deadlock` — deck cortado de propósito — precisa terminar em **derrota**
   (saída 1). Se esse passar, a detecção de "sem movimentos" quebrou.
 
+O bot também guarda uma invariante: **todo bloco coletado vira exatamente um
+mel**. Ela já foi violada uma vez — a vitória era declarada na última *coleta*,
+e as abelhas que ainda voltavam com bloco nunca entregavam, então 400 blocos
+viravam 398 de mel. Note que a conta não é com abelhas *despachadas*: quem volta
+de mão vazia é despachada de novo depois, e aí os números legitimamente diferem.
+
 ## Criar um nível
 
 A imagem é arte livre: arte ASCII (`.txt`) ou PNG. A pilha de colmeias é
