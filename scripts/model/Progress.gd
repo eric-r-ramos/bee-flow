@@ -10,7 +10,14 @@ extends RefCounted
 const PATH := "user://progress.json"
 
 var cleared: Dictionary = {}   ## id do nível -> true
-var best: Dictionary = {}      ## id do nível -> {"honey": int, "bees": int}
+## id do nível -> {"time": float, "waste": int}
+##
+## O mel NÃO serve de recorde: pela invariante "todo bloco vira exatamente um
+## mel", ele é sempre igual à contagem de blocos do nível - idêntico para todo
+## jogador, em toda partida. O que varia com a habilidade é o tempo (colmeia
+## bem plantada coleta sem ficar ociosa) e as viagens perdidas (abelha que sai
+## e volta vazia porque o alvo saiu do alcance).
+var best: Dictionary = {}
 
 
 func load_from_disk() -> void:
@@ -39,14 +46,29 @@ func is_cleared(id: String) -> bool:
 	return cleared.get(id, false) == true
 
 
-func record(id: String, honey: int, bees: int) -> void:
+func record(id: String, seconds: float, waste: int) -> void:
 	cleared[id] = true
 	var prev: Dictionary = best.get(id, {})
-	# Rejogar um nível nunca piora o registro dele.
-	if not prev.has("honey") or int(prev["honey"]) < honey:
-		best[id] = {"honey": honey, "bees": bees}
+	# Rejogar um nível nunca piora o registro dele - e aqui MENOR é melhor.
+	if not prev.has("time") or float(prev["time"]) > seconds:
+		best[id] = {"time": seconds, "waste": waste}
 	save()
 
 
-func best_honey(id: String) -> int:
-	return int((best.get(id, {}) as Dictionary).get("honey", 0))
+func best_time(id: String) -> float:
+	return float((best.get(id, {}) as Dictionary).get("time", 0.0))
+
+
+func best_waste(id: String) -> int:
+	return int((best.get(id, {}) as Dictionary).get("waste", 0))
+
+
+## "41 s" ou "2:05". O tempo é acumulado em tempo DE JOGO, não de relógio,
+## então o botão ×2 não falsifica recorde: ele acelera a exibição, não a
+## simulação.
+static func format_time(seconds: float) -> String:
+	if seconds <= 0.0:
+		return ""
+	if seconds < 60.0:
+		return "%d s" % int(round(seconds))
+	return "%d:%02d" % [int(seconds) / 60, int(seconds) % 60]

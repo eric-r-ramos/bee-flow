@@ -99,7 +99,7 @@ scripts/
   Autoplay.gd        jogador automático (teste headless)
   model/Board.gd     grid + cálculo de fronteira
   model/Hive.gd      colmeia: cor, raio, abelhas, mobilidade
-  model/Progress.gd  níveis vencidos e recordes (user://progress.json)
+  model/Progress.gd  níveis vencidos e recordes de tempo (user://progress.json)
   view/MapView.gd    a rota: favos, trilha, cadeados
   view/BoardView.gd  desenha os blocos
   view/TableView.gd  zona de voo, raios, slots, pilhas

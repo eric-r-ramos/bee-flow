@@ -67,6 +67,34 @@ Cada item entra sozinho, medindo o impacto antes do próximo:
 
 Nuvem e pedra ficam pra depois — 1 a 4 já dão muita corda.
 
+## O recorde tem de poder variar
+
+A rota mostrava "recorde 676 de mel". Mas pela invariante **todo bloco vira
+exatamente um mel**, esse número é sempre igual à contagem de blocos do nível —
+idêntico para todo jogador, em toda partida. Era a contagem de blocos com outro
+nome: informação morta vestida de conquista.
+
+Medido em duas partidas do nível 1, uma bem jogada e outra remanejando colmeias
+à toa:
+
+| | jogando bem | remanejando à toa |
+|---|---|---|
+| mel | 400 | 400 |
+| viagens perdidas | 0 | 5 |
+| **tempo de jogo** | **40,7 s** | **185,9 s** |
+
+O recorde passou a ser o **tempo**, e o registro guarda também as **viagens
+perdidas** (abelha que sai e volta vazia porque o alvo saiu do alcance). Os dois
+medem a mesma coisa por ângulos diferentes: colmeia bem plantada coleta sem
+ficar ociosa e sem mandar abelha à toa.
+
+O tempo é acumulado em **tempo de jogo**, não de relógio: o botão ×2 acelera a
+exibição, não a simulação, então acelerar não falsifica recorde.
+
+**Regra geral:** antes de exibir um número como recorde, pergunte se duas
+partidas boas podem produzir valores diferentes. Se não podem, não é recorde.
+
+
 ## Mobilidade limitada
 
 O reposicionamento livre da v0 tornava o raio quase decorativo: errar o pouso

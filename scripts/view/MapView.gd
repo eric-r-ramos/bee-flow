@@ -91,8 +91,8 @@ func _node(index: int, center: Vector2) -> void:
 	if unlocked:
 		_text(label_at, str(info.get("name", "")), 34, Color(0.22, 0.17, 0.08))
 		var band := str(info.get("band", ""))
-		var honey: int = game.progress.best_honey(str(info.get("id", "")))
-		var sub := band if honey <= 0 else "%s  ·  recorde %d de mel" % [band, honey]
+		var mark := BFProgress.format_time(game.progress.best_time(str(info.get("id", ""))))
+		var sub := band if mark == "" else "%s  ·  recorde %s" % [band, mark]
 		_text(label_at + Vector2(0, 34), sub, 26, Color(0.42, 0.35, 0.22))
 	else:
 		_text(label_at, "vença o nível %d" % index, 27, Color(0.45, 0.41, 0.34))

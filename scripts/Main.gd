@@ -51,6 +51,7 @@ var reserved: Dictionary = {}  ## indice da celula -> abelha que ja foi buscar
 
 var honey := 0
 var bees_dispatched := 0
+var play_time := 0.0   ## tempo DE JOGO, imune ao botão de velocidade
 var blocks_at_start := 0   ## quantos blocos o nível tinha; o mel final tem que bater
 ## Instrumentação da mobilidade limitada: sem isso um teste que passa não
 ## distingue "a mecânica funciona" de "a mecânica nunca foi acionada".
@@ -212,6 +213,7 @@ func restart() -> void:
 	hives.clear()
 	honey = 0
 	bees_dispatched = 0
+	play_time = 0.0
 	limited_placed = 0
 	limited_exhausted = 0
 	state = State.PLAYING
@@ -279,6 +281,7 @@ func _process(delta: float) -> void:
 
 	if screen != Screen.GAME or state != State.PLAYING:
 		return
+	play_time += delta
 
 	for h in hives:
 		if h.bees_left <= 0:
@@ -351,7 +354,8 @@ func _bees_in_flight() -> int:
 func _check_end() -> void:
 	if board.is_clear() and _bees_in_flight() == 0:
 		state = State.WON
-		progress.record(str(level.get("id", "?")), honey, bees_dispatched)
+		progress.record(str(level.get("id", "?")), play_time,
+			bees_dispatched - blocks_at_start)
 		map_view.queue_redraw()
 		if has_next():
 			hud.show_banner("nivel %d concluido" % (level_index + 1), "proximo nivel")
