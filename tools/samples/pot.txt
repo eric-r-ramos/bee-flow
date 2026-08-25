@@ -1,0 +1,30 @@
+# Nivel 4: o pote de mel. So o ceu encosta na borda; o mel esta sob o
+# vidro, que esta sob o ceu. Nivel que apresenta colmeias de mobilidade
+# limitada.
+# b=ceu  n=tampa  w=vidro  y=mel claro  o=mel escuro
+bbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbnnnnnnnnnnbbbbbbbb
+bbbbbbbbnnnnnnnnnnbbbbbbbb
+bbbbbbbbbbnnnnnnbbbbbbbbbb
+bbbbbbbbbbnnnnnnbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbwwwwwwbbbbbbbbbb
+bbbbbbbbbwyyyyyywbbbbbbbbb
+bbbbbbbbwyyyyyyyywbbbbbbbb
+bbbbbbbwwoooooooowwbbbbbbb
+bbbbbbbwoooooooooowbbbbbbb
+bbbbbbbwwwwwwwwwwwwbbbbbbb
+bbbbbbwwwwwwwwwwwwwwbbbbbb
+bbbbbbwwoooooooooowwbbbbbb
+bbbbbbwwoooooooooowwbbbbbb
+bbbbbbbwyyyyyyyyyywbbbbbbb
+bbbbbbbwyyyyyyyyyywbbbbbbb
+bbbbbbbwwoooooooowwbbbbbbb
+bbbbbbbbwoooooooowbbbbbbbb
+bbbbbbbbbwyyyyyywbbbbbbbbb
+bbbbbbbbbbwwwwwwbbbbbbbbbb
+bbbbbbbbbbbyyyybbbbbbbbbbb
+bbbbbbbbbbbyyyybbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb

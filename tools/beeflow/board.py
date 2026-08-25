@@ -97,6 +97,10 @@ class Board:
                         queue.append(j)
         return mask
 
+    def outside_mask(self) -> bytearray:
+        """1 nas celulas vazias ligadas ao lado de fora da imagem."""
+        return self._outside_mask()
+
     def frontier(self) -> list[int]:
         """Indices dos blocos coletaveis agora."""
         mask = self._outside_mask()

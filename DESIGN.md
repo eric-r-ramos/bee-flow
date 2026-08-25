@@ -56,16 +56,64 @@ o nível. A solucionabilidade continua sendo um problema puro de cor + ordem.
 
 Cada item entra sozinho, medindo o impacto antes do próximo:
 
-| # | Dificultador | Efeito |
-|---|---|---|
-| 1 | **Mobilidade da colmeia** (`moves`) | `-1` livre → `N` remanejamentos → `0` fixa onde plantou. É o eixo principal: a partir daí o raio passa a valer de verdade e o solver precisa considerar posição. |
-| 2 | **Folga de abelhas** | Total de abelhas ÷ total de blocos daquela cor. `1.0` é cirúrgico, `1.3` perdoa desperdício. Knob mais forte de todos. |
-| 3 | **Profundidade do enterro** (`--bury`) | Fração de colmeias empurradas para o fundo de outra coluna, em vez da coluna da vez. |
-| 4 | **Colmeias ocultas (`?`)** | O jogador aposta sem saber o que vem. |
-| 5 | **Nuvem** | Esconde uma região; some depois de X abelhas despachadas (contador global). |
-| 6 | **Pedra** | Trava o topo de uma pilha; 1º martelo trinca, 2º estilhaça. |
+| # | Dificultador | Efeito | Estado |
+|---|---|---|---|
+| 1 | **Mobilidade da colmeia** (`moves`) | `-1` livre → `N` remanejamentos → `0` fixa onde plantou. | **em uso** (nível 4) |
+| 2 | **Folga de abelhas** (`--slack`) | Total de abelhas ÷ blocos daquela cor. | disponível |
+| 3 | **Profundidade do enterro** (`--bury`) | Fração empurrada para o fundo de outra coluna. | em uso |
+| 4 | **Colmeias ocultas (`?`)** | O jogador aposta sem saber o que vem. | pendente |
+| 5 | **Nuvem** | Esconde uma região até X abelhas serem despachadas. | pendente |
+| 6 | **Pedra** | Trava o topo de uma pilha; dois martelos. | pendente |
 
 Nuvem e pedra ficam pra depois — 1 a 4 já dão muita corda.
+
+## Mobilidade limitada
+
+O reposicionamento livre da v0 tornava o raio quase decorativo: errar o pouso
+custava tempo, nunca o nível. A partir do nível 4, uma fração das colmeias
+nasce com um orçamento de remanejamentos (`moves: 3`); as demais seguem livres
+(`moves: -1`). A fração cresce a cada nível — começa em **5%**.
+
+### Por que a garantia de solucionabilidade sobrevive
+
+O gerador esvazia **cada colmeia a partir de um único ancoradouro** — a solução
+de referência nunca reposiciona coisa nenhuma, e sobreviveria até a `moves: 0`.
+Limitar a mobilidade não pode tornar o nível insolúvel.
+
+Isso obrigou a fechar um buraco que não importava antes: o ancoradouro da
+solução de referência agora é **validado como pouso legal** (fora da silhueta).
+Com movimento livre, um ancoradouro em cima da imagem era irrelevante — o
+jogador achava outro lugar. Com movimento escasso, seria uma solução que o
+jogador não consegue executar.
+
+O que muda é do lado do jogador: agora ele **pode** tornar o nível insolúvel
+plantando mal uma colmeia limitada. Essa é a dificuldade pretendida.
+
+### As três regras que impedem que isso vire armadilha
+
+1. **O jogador sabe antes de puxar.** O token na pilha traz um selo escuro
+   `mov N`. Punir por informação escondida seria trapaça.
+2. **Toque não custa movimento.** Só arrastos acima de 0,6 célula consomem o
+   orçamento; abaixo disso nada acontece — nem move, nem gasta. E como arrastar
+   para dentro da imagem gruda de volta na borda, tentar o proibido é grátis.
+3. **A colmeia presa diz que está presa.** Ela mostra `presa` em vermelho, e
+   tentar arrastá-la explica por quê.
+
+### O que o score NÃO mede
+
+O solver ignora posição de propósito, então o número de dificuldade mede apenas
+o quebra-cabeça de cor e ordem. **Com colmeias limitadas, a dificuldade real é
+maior que o score.** O gerador imprime esse aviso junto do número; tratar o
+score como completo aqui seria mentir.
+
+### O que a instrumentação mostrou
+
+Uma campanha completa do bot no nível 4 colocou **4 colmeias limitadas e
+nenhuma esgotou os três movimentos**. A 5% e 3 remanejamentos a mecânica é
+apresentada, não cobrada — que é o certo para o nível que a ensina, e é o
+primeiro degrau de uma escada. Sem essa contagem, um teste verde não
+distinguiria "a mecânica funciona" de "a mecânica nunca foi acionada".
+
 
 ## Tipos de colmeia
 

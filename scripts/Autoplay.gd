@@ -40,7 +40,8 @@ func _process(delta: float) -> void:
 				% [game.honey, game.blocks_at_start], 1)
 			return
 		if game.has_next():
-			print("[autoplay] nivel %d limpo, avancando" % (game.level_index + 1))
+			print("[autoplay] nivel %d limpo (colmeias limitadas: %d colocadas, %d travaram), avancando"
+				% [game.level_index + 1, game.limited_placed, game.limited_exhausted])
 			game.advance()
 			return
 		_finish("VITORIA", 0)
@@ -68,6 +69,8 @@ func _finish(label: String, code: int) -> void:
 	_done = true
 	print("[autoplay] %s  mel=%d  abelhas=%d  blocos_restantes=%d  tempo=%.1fs"
 		% [label, game.honey, game.bees_dispatched, game.board.filled_total, _elapsed])
+	print("[autoplay] colmeias limitadas neste nivel: %d colocadas, %d travaram"
+		% [game.limited_placed, game.limited_exhausted])
 	game.get_tree().quit(code)
 
 
@@ -80,9 +83,27 @@ func _unstick() -> void:
 		if game.pick_target(h) >= 0:
 			continue
 		var spot := _best_spot(h.color_key, h.radius_cells)
-		if spot.x < INF:
-			h.pos = spot
-			h.moves_used += 1
+		if spot.x >= INF:
+			continue
+		# Com remanejamentos escassos, só vale mexer se o novo ponto render
+		# bem mais que o atual - senão o bot queima os três movimentos em
+		# ajustes minúsculos e trava a colmeia longe do que falta.
+		if h.moves_allowed >= 0 and _covered(h, spot) <= _covered(h, h.pos) + 2:
+			continue
+		h.pos = spot
+		h.moves_used += 1
+		if not h.can_move():
+			game.limited_exhausted += 1
+
+
+## Quantos blocos da cor dela a colmeia alcançaria a partir de `at`.
+func _covered(h, at: Vector2) -> int:
+	var reach: float = h.radius_cells * game.cell_size
+	var n := 0
+	for cell in game.board.frontier_of(h.color_key):
+		if at.distance_to(game.cell_center(cell)) <= reach:
+			n += 1
+	return n
 
 
 func _place_next() -> void:

@@ -12,6 +12,7 @@ const LEVELS := [
 	"res://levels/level_001.json",
 	"res://levels/level_002.json",
 	"res://levels/level_003.json",
+	"res://levels/level_004.json",
 ]
 
 ## `-- --level res://levels/x.json` fixa um nivel e desliga a progressao,
@@ -51,6 +52,10 @@ var reserved: Dictionary = {}  ## indice da celula -> abelha que ja foi buscar
 var honey := 0
 var bees_dispatched := 0
 var blocks_at_start := 0   ## quantos blocos o nível tinha; o mel final tem que bater
+## Instrumentação da mobilidade limitada: sem isso um teste que passa não
+## distingue "a mecânica funciona" de "a mecânica nunca foi acionada".
+var limited_placed := 0
+var limited_exhausted := 0
 var state := State.PLAYING
 
 var cell_size := 32.0
@@ -207,6 +212,8 @@ func restart() -> void:
 	hives.clear()
 	honey = 0
 	bees_dispatched = 0
+	limited_placed = 0
+	limited_exhausted = 0
 	state = State.PLAYING
 	hud.hide_banner()
 
@@ -581,8 +588,14 @@ func _end_drag(p: Vector2) -> void:
 	var at := drag_pos
 	if drag_valid:
 		if _drag_hive != null:
-			_drag_hive.pos = at
-			_drag_hive.moves_used += 1
+			# Um toque sem arrastar nao pode custar um remanejamento. Abaixo do
+			# limiar nada acontece - nem move, nem gasta -, senao daria pra
+			# atravessar o tabuleiro de graca em passinhos.
+			if _drag_hive.pos.distance_to(at) > cell_size * 0.6:
+				_drag_hive.pos = at
+				_drag_hive.moves_used += 1
+				if not _drag_hive.can_move():
+					limited_exhausted += 1
 		elif _drag_column >= 0:
 			place_from_deck(_drag_column, at)
 	_drag_hive = null
@@ -604,6 +617,8 @@ func place_from_deck(j: int, p: Vector2) -> void:
 	hive.slot = slot
 	slots[slot] = hive
 	hives.append(hive)
+	if hive.moves_allowed >= 0:
+		limited_placed += 1
 
 
 # Consultado pelo TableView pra desenhar o fantasma que segue o dedo.

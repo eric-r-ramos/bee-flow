@@ -40,6 +40,56 @@ def _anchor_for(board: Board, seed: int, radius: float) -> tuple[float, float]:
     return cx + dx / norm * push, cy + dy / norm * push
 
 
+def _legal_anchor(board: Board, seed: int, radius: float) -> tuple[float, float]:
+    """Ancoradouro plausivel E *legal*: fora da silhueta, perto do bloco.
+
+    Com reposicionamento livre isso era detalhe - o jogador achava outro lugar
+    e movia a colmeia quantas vezes quisesse. Com mobilidade limitada vira
+    fundamental: se o ancoradouro da solucao de referencia estivesse em cima da
+    imagem, a solucao seria inexecutavel, e a garantia do gerador seria falsa.
+    """
+    base = _anchor_for(board, seed, radius)
+    outside = board.outside_mask()
+
+    def legal(x: float, y: float) -> bool:
+        c, r = int(math.floor(x)), int(math.floor(y))
+        if not (0 <= r < board.rows and 0 <= c < board.cols):
+            return True                      # fora da grade: sempre livre
+        i = board.idx(r, c)
+        return board.cells[i] == EMPTY and outside[i] == 1
+
+    if legal(*base):
+        return base
+    for ring in range(1, 25):
+        rad = 0.4 * float(ring)
+        for k in range(16):
+            a = 2.0 * math.pi * float(k) / 16.0
+            probe = (base[0] + math.cos(a) * rad, base[1] + math.sin(a) * rad)
+            if legal(*probe):
+                return probe
+    return base
+
+
+def apply_mobility(seq: list[dict], rng: random.Random, frac: float,
+                   moves: int) -> int:
+    """Sorteia `frac` das colmeias para terem apenas `moves` remanejamentos.
+
+    Isso NAO quebra a garantia de solucionabilidade: o gerador esvazia cada
+    colmeia a partir de um unico ancoradouro, entao a solucao de referencia
+    nunca reposiciona coisa nenhuma - ela sobreviveria ate a `moves = 0`.
+
+    O que muda e do lado do jogador: agora ele pode tornar o nivel insoluvel
+    plantando mal uma colmeia limitada. Essa e a dificuldade pretendida, e e
+    por isso que a fracao comeca baixa.
+    """
+    if frac <= 0.0 or not seq:
+        return 0
+    n = min(len(seq), max(1, round(len(seq) * frac)))
+    for hive in rng.sample(seq, n):
+        hive["moves"] = moves
+    return n
+
+
 def _peel(board: Board, color: str, anchor: tuple[float, float],
           radius: float, want: int) -> int:
     """Coleta ate `want` blocos de `color` no alcance, recalculando a fronteira.
@@ -92,7 +142,7 @@ def derive_sequence(board: Board, rng: random.Random, min_chunk: int = 5,
         taken = 0
         for kind in kinds[first:] + kinds[:first]:
             seed = rng.choice(by_color[color])
-            anchor = _anchor_for(work, seed, kind["radius"])
+            anchor = _legal_anchor(work, seed, kind["radius"])
             want = rng.randint(min_chunk, max_chunk)
             taken = _peel(work, color, anchor, kind["radius"], want)
             if taken > 0:

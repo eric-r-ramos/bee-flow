@@ -111,8 +111,11 @@ func _draw_decks() -> void:
 
 func _draw_token(r: Rect2, spec: Dictionary, depth: int) -> void:
 	var color: Color = game.color_of(spec)
+	var limited := int(spec.get("moves", -1)) >= 0
 	draw_rect(r, color)
-	draw_rect(r, color.darkened(0.35), false, 4.0)
+	# Colmeia de mobilidade limitada tem contorno grosso e escuro: o jogador
+	# precisa saber ANTES de puxar, senao a punicao vira armadilha.
+	draw_rect(r, color.darkened(0.7 if limited else 0.35), false, 7.0 if limited else 4.0)
 
 	# O hexagono cresce com o raio: o jogador le o alcance sem precisar de texto.
 	var reach := float(spec["radius"])
@@ -122,6 +125,13 @@ func _draw_token(r: Rect2, spec: Dictionary, depth: int) -> void:
 		"%d" % int(spec["bees"]), 40, Color(0.14, 0.1, 0.02))
 	_label(Rect2(r.position + Vector2(0.0, r.size.y - 32.0), Vector2(r.size.x, 28.0)),
 		str(spec.get("kind", "")), 21, Color(0.2, 0.16, 0.06))
+	if limited:
+		# Selo escuro no canto: borda grossa sozinha e sutil demais pra decisao
+		# mais importante do jogador - saber, ANTES de puxar, que aquela colmeia
+		# so pode ser remanejada N vezes.
+		var badge := Rect2(r.position + Vector2(6.0, 5.0), Vector2(66.0, 24.0))
+		draw_rect(badge, Color(0.14, 0.10, 0.02))
+		_label(badge, "mov %d" % int(spec["moves"]), 18, Color(0.94, 0.81, 0.49))
 	if depth > 1:
 		_label(Rect2(r.position + Vector2(r.size.x - 48.0, 4.0), Vector2(44.0, 24.0)),
 			"x%d" % depth, 19, Color(0.2, 0.16, 0.06))
