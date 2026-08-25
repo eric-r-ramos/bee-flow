@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 
 echo "== gerador: a imagem de exemplo tem que produzir nivel solucionavel"
 python3 tools/make_level.py --input tools/samples/bee.txt \
-    --out /tmp/beeflow_check2.json --id check2 --name check2 --bury 0.45 --seed 3
+    --out /tmp/beeflow_check2.json --id check2 --name check2 --bury 0.45 --seed 3 --no-difficulty
 python3 tools/make_level.py --input tools/samples/flower.txt \
     --out /tmp/beeflow_check.json --id check --name check
 

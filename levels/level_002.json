@@ -465,6 +465,23 @@
     "blocks": 576,
     "hives": 56,
     "greedy_ok": false,
-    "solver_nodes": 80
+    "solver_nodes": 80,
+    "difficulty": {
+      "solvable": true,
+      "score": 49.3,
+      "band": "medio",
+      "lethality": 0.23,
+      "peak_lethality": 0.75,
+      "risk_onset": 0.1,
+      "fatal_moves": 44,
+      "tested_moves": 191,
+      "unknown_moves": 0,
+      "trap_delay": 0,
+      "slot_pressure": 0.354,
+      "branching": 3.52,
+      "decisions": 50,
+      "moves": 56,
+      "greedy_ok": false
+    }
   }
 }

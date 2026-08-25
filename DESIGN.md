@@ -81,8 +81,10 @@ de colmeias é derivada por algoritmo e verificada antes de publicar.
    criar deadlock, porque a colmeia certa pode ficar enterrada.
 3. **Verificar** — um solver (DFS com memo sobre `tabuleiro + slots + topos`)
    confirma que o deal continua solucionável. Falhou, re-deala.
-4. **Medir** — o mesmo solver dá a dificuldade de graça: resolve com heurística
-   gulosa? quantos nós precisou? Vira score, e o score vira faixa de nível.
+4. **Medir** — `difficulty.analyze()` percorre a solução e, em **cada decisão**,
+   testa todas as jogadas legais, não só a que o solver escolheu. Cada
+   alternativa vira uma nova busca. A pergunta central: *quantas das escolhas
+   legais matam o nível?*
 
 ### O enterro só vale medido
 
@@ -121,6 +123,48 @@ São a mesma coisa, o que é conveniente:
 
 Com o 6º slot existindo, deadlock deixa de ser game over e vira decisão
 econômica — o que permite ser mais agressivo na geração.
+
+## Medida de dificuldade
+
+| componente | peso | o que captura |
+|---|---|---|
+| letalidade média | 0.40 | quão arriscada é a decisão típica |
+| letalidade de pico | 0.15 | quão arriscada é a **pior** decisão |
+| não cai no guloso | 0.20 | exige planejamento |
+| pressão de slots | 0.25 | o jogador joga sufocado |
+
+Medido nos níveis reais:
+
+| | Primeiro Broto | Voo do Entardecer |
+|---|---|---|
+| **score** | **3,7 — tutorial** | **49,3 — médio** |
+| letalidade média | 0% | 23% |
+| letalidade de pico | 0% | 75% |
+| risco começa a | — | 10% do nível |
+| pressão de slots | 14,9% | 35,4% |
+
+O nível 1 tem **zero** jogadas fatais em 112 testadas: é literalmente impossível
+perder. Como tutorial, é o comportamento certo — mas foi o medidor que provou
+isso, não a intuição.
+
+**Os pesos são hipótese, não verdade.** Só telemetria de jogadores reais pode
+calibrá-los. Até lá o score serve para ordenar níveis entre si, nunca para
+prometer quanto tempo alguém vai levar.
+
+### O termo que não entrou, e por quê
+
+A primeira versão pesava o *atraso da armadilha*: quantas jogadas o jogador faz
+antes de descobrir que já perdeu. Errar e travar na jogada seguinte ensina;
+travar oito jogadas depois é punição.
+
+Medindo, todos os 44 estados fatais do nível 2 tinham a mesma forma: **o jogador
+enche o quinto e último slot e trava na hora, com zero jogadas seguintes.** Não
+existe morte lenta neste jogo. O termo seria sempre zero e só comeria escala,
+então saiu do score.
+
+Continua sendo medido, como **canário**: se um dia der diferente de zero, a
+forma de perder mudou — 6º slot por anúncio, colmeias de mobilidade limitada —
+e os pesos precisam ser repensados.
 
 ## Progressão
 

@@ -19,6 +19,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from beeflow.board import EMPTY, Board
+from beeflow.difficulty import analyze
+from beeflow.difficulty import report as report_difficulty
 from beeflow.generator import deal, derive_sequence
 from beeflow.palette import PALETTE, nearest_key
 from beeflow.solver import solve
@@ -75,6 +77,8 @@ def main() -> int:
                     help="fracao de colmeias enterradas no fundo da pilha mais alta")
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--attempts", type=int, default=12)
+    ap.add_argument("--no-difficulty", action="store_true",
+                    help="pula a analise de dificuldade (mais rapido)")
     args = ap.parse_args()
 
     board = load_board(args.input)
@@ -88,6 +92,8 @@ def main() -> int:
         print(f"FALHOU: nenhuma das {args.attempts} tentativas gerou nivel solucionavel")
         print(f"  nos explorados: {report['nodes']}  cap atingido: {report['capped']}")
         return 1
+
+    diff = None if args.no_difficulty else analyze(board, dealt, args.slots)
 
     level = {
         "id": args.id or args.out.stem,
@@ -104,6 +110,7 @@ def main() -> int:
             "hives": sum(len(c) for c in dealt),
             "greedy_ok": report["greedy_ok"],
             "solver_nodes": report["nodes"],
+            "difficulty": diff,
         },
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
@@ -117,8 +124,9 @@ def main() -> int:
         print(f"  {key} {PALETTE[key]['name']:<9} blocos={counts[key]:<4} "
               f"abelhas={bees:<4} folga={bees / counts[key]:.2f}")
     print(f"  colmeias={level['meta']['hives']} em {args.columns} colunas")
-    print(f"  solucionavel=SIM  guloso={'SIM (facil)' if report['greedy_ok'] else 'NAO'}"
-          f"  nos={report['nodes']}  seed={used_seed}")
+    print(f"  solucionavel=SIM  nos={report['nodes']}  seed={used_seed}")
+    if diff:
+        print(report_difficulty(diff))
     return 0
 
 

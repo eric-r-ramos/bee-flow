@@ -49,9 +49,36 @@ def _key(board: Board, depths: tuple[int, ...], hives: list[list]) -> str:
     return f"{board.state_key()}|{depths}|{active}"
 
 
+def legal_moves(columns: list[list[dict]], depths: tuple[int, ...],
+                hives: list[list], slots: int) -> list[int]:
+    """Pilhas que o jogador pode puxar agora."""
+    if len(hives) >= slots:
+        return []
+    return [j for j in range(len(columns)) if depths[j] < len(columns[j])]
+
+
+def apply_move(board: Board, columns: list[list[dict]], depths: tuple[int, ...],
+               hives: list[list], j: int) -> tuple[Board, tuple[int, ...], list[list]]:
+    """Puxa o topo da pilha j, poe em campo e deixa tudo coletar ate travar."""
+    spec = columns[j][depths[j]]
+    nb = board.clone()
+    nh = [list(h) for h in hives] + [[spec["color"], spec["bees"]]]
+    _drain(nb, nh)
+    nd = depths[:j] + (depths[j] + 1,) + depths[j + 1:]
+    return nb, nd, nh
+
+
 def solve(board: Board, columns: list[list[dict]], slots: int = 5,
           node_cap: int = NODE_CAP) -> dict:
-    """Busca em profundidade com memo. Devolve solucao e metricas."""
+    """Busca em profundidade com memo, do inicio. Devolve solucao e metricas."""
+    out = solve_from(board, columns, tuple(0 for _ in columns), [], slots, node_cap)
+    out["greedy_ok"] = _greedy(board, columns, slots)
+    return out
+
+
+def solve_from(board: Board, columns: list[list[dict]], depths: tuple[int, ...],
+               hives: list[list], slots: int = 5, node_cap: int = NODE_CAP) -> dict:
+    """Mesma busca, mas partindo de um estado qualquer no meio da partida."""
     seen: set[str] = set()
     stats = {"nodes": 0, "capped": False}
 
@@ -72,21 +99,14 @@ def solve(board: Board, columns: list[list[dict]], slots: int = 5,
         if len(hives) >= slots:
             return None  # slots cheios e nada drena: sem movimento
 
-        for j, col in enumerate(columns):
-            if depths[j] >= len(col):
-                continue
-            spec = col[depths[j]]
-            nb = b.clone()
-            nh = [list(h) for h in hives] + [[spec["color"], spec["bees"]]]
-            _drain(nb, nh)
-            nd = depths[:j] + (depths[j] + 1,) + depths[j + 1:]
+        for j in legal_moves(columns, depths, hives, slots):
+            nb, nd, nh = apply_move(b, columns, depths, hives, j)
             got = dfs(nb, nd, nh, path + [j])
             if got is not None:
                 return got
         return None
 
-    start_depths = tuple(0 for _ in columns)
-    solution = dfs(board.clone(), start_depths, [], [])
+    solution = dfs(board.clone(), depths, [list(h) for h in hives], [])
 
     return {
         "solvable": solution is not None,
@@ -94,7 +114,6 @@ def solve(board: Board, columns: list[list[dict]], slots: int = 5,
         "moves": len(solution) if solution else 0,
         "nodes": stats["nodes"],
         "capped": stats["capped"],
-        "greedy_ok": _greedy(board, columns, slots),
     }
 
 

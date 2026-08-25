@@ -338,6 +338,23 @@
     "blocks": 400,
     "hives": 39,
     "greedy_ok": true,
-    "solver_nodes": 39
+    "solver_nodes": 39,
+    "difficulty": {
+      "solvable": true,
+      "score": 3.7,
+      "band": "tutorial",
+      "lethality": 0.0,
+      "peak_lethality": 0.0,
+      "risk_onset": 1.0,
+      "fatal_moves": 0,
+      "tested_moves": 112,
+      "unknown_moves": 0,
+      "trap_delay": 0.0,
+      "slot_pressure": 0.149,
+      "branching": 3.05,
+      "decisions": 32,
+      "moves": 39,
+      "greedy_ok": true
+    }
   }
 }

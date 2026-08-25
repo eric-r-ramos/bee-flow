@@ -54,11 +54,22 @@ OK  levels/level_002.json
   b ceu       blocos=270  abelhas=270  folga=1.00
   ...
   colmeias=39 em 5 colunas
-  solucionavel=SIM  guloso=SIM (facil)  nos=39  seed=7
+  solucionavel=SIM  nos=39  seed=7
+  score 3.7/100  ->  TUTORIAL
+    letalidade      0.0% em media, 0% na pior decisao
+                    (0 de 112 jogadas legais matam)
+    risco comeca    a 100% do nivel
+    pressao slots   14.9%
+    ramificacao     3.05 escolhas por vez, 32 decisoes reais em 39 jogadas
+    guloso resolve  SIM
 ```
 
-`guloso=SIM` significa que o nível cai com a heurística burra "pegue a coluna
-mais à esquerda" — ou seja, é fácil. Knobs úteis:
+O **score** vem de `difficulty.analyze()`, que percorre a solução e testa todas
+as jogadas legais em cada decisão para descobrir quantas matam o nível. Custa
+alguns segundos por nível; `--no-difficulty` pula. Os pesos são hipótese até
+haver telemetria de jogadores reais — servem para ordenar níveis entre si.
+
+Knobs úteis:
 
 - `--bury` — fração de colmeias enterradas no fundo de outra coluna. É o que
   separa o nível 2 (`--bury 0.45`, `guloso=NÃO`) do nível 1.
@@ -87,7 +98,8 @@ tools/
   make_level.py      CLI: imagem -> nível verificado
   beeflow/board.py   modelo de tabuleiro (espelha model/Board.gd)
   beeflow/generator.py  deriva a pilha de colmeias jogando o nível
-  beeflow/solver.py     verifica solucionabilidade e mede dificuldade
+  beeflow/solver.py     verifica se o nível tem solução
+  beeflow/difficulty.py mede quanto o nível cobra do jogador
 levels/
   level_001.json     Primeiro Broto — 20x20, 5 cores, fácil
   level_002.json     Voo do Entardecer — 24x24, 6 cores, exige planejamento
