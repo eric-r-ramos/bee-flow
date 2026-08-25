@@ -67,6 +67,37 @@ Cada item entra sozinho, medindo o impacto antes do próximo:
 
 Nuvem e pedra ficam pra depois — 1 a 4 já dão muita corda.
 
+## Dois sistemas de coordenadas
+
+Os blocos vivem numa **grade de inteiros**. As colmeias e as abelhas vivem em
+**pixels contínuos**. Não é inconsistência: a colmeia precisa poder pousar no
+anel de folga *fora* da grade, onde não existe célula nenhuma — `cell_at()`
+devolve `-1` ali —, e o raio é um círculo medido em pixels, que arredondar para
+células destruiria.
+
+A ponte entre os dois é um par de funções: `cell_center(i)` leva grade →
+pixels, `cell_at(p)` leva pixels → grade.
+
+### O preço, que só apareceu quando foi medido
+
+Guardar a colmeia em pixels do canvas amarra a posição ao **tamanho da tela**.
+No Godot isso não morde: a resolução de projeto é fixa (1080×1920) e a engine
+escala o quadro inteiro. Na versão web o canvas acompanha a janela de verdade,
+então girar o aparelho recalcula `cell`, `ox` e `oy` — e a colmeia ficava parada
+no mesmo pixel enquanto a imagem escorregava debaixo dela.
+
+Medido: **3,26 células de deriva** ao girar o aparelho, com o raio mudando de
+significado junto, já que ele é `radius * cell`.
+
+A correção é reancorar no relayout, convertendo pixel → célula → pixel. A
+posição *em células* é a que tem significado; a posição em pixels é uma
+projeção dela para a tela atual.
+
+**Lição:** quando dois sistemas de coordenadas convivem, decida qual é a
+verdade. O outro é uma vista, e toda vista precisa ser recalculada quando a
+projeção muda.
+
+
 ## O recorde tem de poder variar
 
 A rota mostrava "recorde 676 de mel". Mas pela invariante **todo bloco vira
