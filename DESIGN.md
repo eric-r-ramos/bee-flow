@@ -29,8 +29,16 @@ queima um slot.
 **3. Cinco slots.** Slot ocupado por colmeia sem alvo é slot morto. Ficar com
 os cinco travados e nenhum bloco coletável é a derrota.
 
-**4. Raio de voo.** A colmeia só alcança o que está dentro do círculo dela. Não
-trava a solução — trava a **cobertura**. A pergunta que o raio faz não é
+**4. Raio de voo, e a colmeia fica de fora.** A colmeia só alcança o que está
+dentro do círculo dela, e só pode ser plantada **fora da silhueta da imagem** —
+nunca dentro. Não basta a célula estar vazia: ela precisa estar ligada ao lado
+de fora, então um bolsão de vazio cercado de blocos continua sendo "dentro".
+É a mesma máscara que define a fronteira, reaproveitada.
+
+Na prática o arrasto **gruda na borda**: levar o dedo para dentro da imagem faz
+a colmeia deslizar até o ponto válido mais próximo, em vez de seguir o dedo e
+receber um "não" no fim. Soltar sempre funciona. O raio não trava a solução —
+trava a **cobertura**. A pergunta que o raio faz não é
 "consigo pegar esse bloco?", é "plantando aqui, gasto as 39 abelhas ou
 desperdiço metade porque o resto do amarelo está do outro lado?"
 
@@ -166,11 +174,26 @@ Continua sendo medido, como **canário**: se um dia der diferente de zero, a
 forma de perder mudou — 6º slot por anúncio, colmeias de mobilidade limitada —
 e os pesos precisam ser repensados.
 
-## Progressão
+## Progressão: a rota
 
-A campanha é uma lista ordenada de níveis (`LEVELS` em `Main.gd`). Limpar a
-imagem avança para o próximo; o cartão de transição mostra o que vem a seguir —
-nome, tamanho e número de cores — antes do jogador entrar.
+Os níveis são um caminho de favos, do primeiro embaixo ao último em cima. Um
+nível abre quando o anterior é vencido, e **nível vencido pode ser rejogado
+quantas vezes o jogador quiser** — sem perder o desbloqueio do seguinte. O
+recorde de mel de cada um fica no favo.
+
+O Ant Flow não tem isso: lá a campanha é uma fila de mão única. A rota custa
+pouco e dá duas coisas que a fila não dá — a sensação de território percorrido,
+e permissão para voltar num nível só porque foi gostoso.
+
+Isso obrigou a introduzir o primeiro estado persistente do projeto: quais
+níveis foram limpos e o melhor resultado de cada um. Em Godot vai para
+`user://progress.json`; na versão web, para `localStorage`, com toda leitura e
+escrita em `try/catch` — janela anônima devolve erro, e nesse caso o jogo roda
+sem memória em vez de quebrar.
+
+Limpar a imagem também continua avançando direto para o próximo nível; o cartão
+de transição mostra o que vem a seguir — nome, tamanho e número de cores — e
+oferece a volta à rota.
 
 | | Primeiro Broto | Voo do Entardecer |
 |---|---|---|

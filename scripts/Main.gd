@@ -33,9 +33,14 @@ const LANE_X0 := 85.0
 const LANE_STEP := 185.0
 
 enum State { PLAYING, WON, LOST }
+enum Screen { MAP, GAME }
 
 var level: Dictionary = {}
 var level_index := 0
+var screen := Screen.MAP
+var progress := BFProgress.new()
+var catalog: Array = []          ## um resumo por nível, lido no boot
+var map_nodes: Array = []        ## centro de cada favo da rota
 var board := BFBoard.new()
 var columns: Array = []      ## Array[Array[Dictionary]] - indice 0 e o topo
 var slots: Array = []        ## BFHive ou null
@@ -59,6 +64,12 @@ var drag_pos := Vector2.ZERO
 var _drag_spec: Dictionary = {}
 var _drag_column := -1
 var _drag_hive: BFHive = null
+
+var map_view: BFMapView
+var _shots: Array = []      ## instantes (s) que ainda faltam capturar
+var _shot_prefix := ""
+var _shot_n := 0
+var _shot_clock := 0.0
 
 var board_view: BFBoardView
 var table: BFTableView       ## camada do tabuleiro (sob as abelhas)
@@ -84,16 +95,105 @@ func _ready() -> void:
 	table_ui.layer = BFTableView.Layer.UI
 	add_child(table_ui)
 
+	map_view = BFMapView.new()
+	map_view.game = self
+	add_child(map_view)
+
 	hud = BFHud.new()
 	add_child(hud)
 	hud.build(self)
 
-	restart()
+	# `-- --shot /tmp/bf --shot-at 1,4` salva PNGs, em qualquer tela.
+	var shot_at := OS.get_cmdline_user_args().find("--shot")
+	if shot_at >= 0 and shot_at + 1 < OS.get_cmdline_user_args().size():
+		_shot_prefix = OS.get_cmdline_user_args()[shot_at + 1]
+	var when := OS.get_cmdline_user_args().find("--shot-at")
+	if when >= 0 and when + 1 < OS.get_cmdline_user_args().size():
+		for piece in OS.get_cmdline_user_args()[when + 1].split(","):
+			_shots.append(float(piece))
 
-	if "--autoplay" in OS.get_cmdline_user_args():
+	progress.load_from_disk()
+	_build_catalog()
+	_layout_map()
+
+	# Os testes headless entram direto no jogo; a rota é para o jogador.
+	var args := OS.get_cmdline_user_args()
+	if "--autoplay" in args or _forced_level() != "":
+		open_level(0)
+	else:
+		go_to_map()
+
+	if "--autoplay" in args:
 		var bot: Node = preload("res://scripts/Autoplay.gd").new()
 		bot.game = self
 		add_child(bot)
+
+
+# ------------------------------------------------------------------- a rota
+
+func _build_catalog() -> void:
+	catalog = []
+	for path in LEVELS:
+		var data = JSON.parse_string(FileAccess.get_file_as_string(str(path)))
+		if typeof(data) != TYPE_DICTIONARY:
+			push_error("nível ilegível: %s" % path)
+			continue
+		var meta: Dictionary = data.get("meta", {})
+		var diff = meta.get("difficulty", null)
+		catalog.append({
+			"id": str(data.get("id", path)),
+			"name": str(data.get("name", "?")),
+			"band": str(diff["band"]) if typeof(diff) == TYPE_DICTIONARY else "",
+		})
+
+
+func _layout_map() -> void:
+	map_nodes = []
+	if catalog.is_empty():
+		return
+	# Primeiro nível embaixo, o caminho sobe alternando os lados. A pilha é
+	# centrada: com poucos níveis ela não fica amontoada num canto.
+	const SPACING := 320.0
+	var total := float(catalog.size() - 1) * SPACING
+	var bottom := DESIGN.y * 0.56 + total * 0.5
+	for i in catalog.size():
+		var x := 360.0 if i % 2 == 0 else 720.0
+		map_nodes.append(Vector2(x, bottom - float(i) * SPACING))
+
+
+func is_cleared(i: int) -> bool:
+	return i < catalog.size() and progress.is_cleared(str(catalog[i]["id"]))
+
+
+## Nível abre quando o anterior foi vencido. O primeiro sempre está aberto.
+func is_unlocked(i: int) -> bool:
+	return i == 0 or is_cleared(i - 1)
+
+
+func go_to_map() -> void:
+	screen = Screen.MAP
+	drag_active = false
+	for bee in bee_layer.get_children():
+		bee.queue_free()
+	_apply_screen()
+
+
+func open_level(index: int) -> void:
+	level_index = clampi(index, 0, LEVELS.size() - 1)
+	screen = Screen.GAME
+	restart()
+	_apply_screen()
+
+
+func _apply_screen() -> void:
+	var playing := screen == Screen.GAME
+	map_view.visible = not playing
+	board_view.visible = playing
+	table.visible = playing
+	table_ui.visible = playing
+	bee_layer.visible = playing
+	hud.set_screen(playing)
+	map_view.queue_redraw()
 
 
 # --------------------------------------------------------------- carga/layout
@@ -161,7 +261,12 @@ func _layout() -> void:
 # ------------------------------------------------------------------- loop
 
 func _process(delta: float) -> void:
-	if state != State.PLAYING:
+	_shot_clock += delta
+	if not _shots.is_empty() and _shot_clock >= float(_shots[0]):
+		_shots.pop_front()
+		_capture()
+
+	if screen != Screen.GAME or state != State.PLAYING:
 		return
 
 	for h in hives:
@@ -184,6 +289,16 @@ func _process(delta: float) -> void:
 	table.queue_redraw()
 	table_ui.queue_redraw()
 	hud.refresh()
+
+
+func _capture() -> void:
+	if _shot_prefix == "":
+		return
+	_shot_n += 1
+	var path := "%s_%d.png" % [_shot_prefix, _shot_n]
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(path)
+	print("[shot] %s" % path)
 
 
 func _spawn_bee(h: BFHive, cell: int) -> void:
@@ -211,6 +326,8 @@ func _retire_finished() -> void:
 func _check_end() -> void:
 	if board.is_clear():
 		state = State.WON
+		progress.record(str(level.get("id", "?")), honey, bees_dispatched)
+		map_view.queue_redraw()
 		if has_next():
 			hud.show_banner("nivel %d concluido" % (level_index + 1), "proximo nivel")
 		else:
@@ -336,14 +453,36 @@ func cell_at(p: Vector2) -> int:
 	return r * board.cols + c
 
 
-## A zona de voo e toda a area do tabuleiro, menos as celulas ainda ocupadas.
-## Conforme a imagem some, o jogador consegue plantar colmeias cada vez mais
-## pra dentro - o alcance curto deixa de ser um problema sozinho.
+## A colmeia pousa fora da silhueta da imagem, nunca dentro dela. Nao basta a
+## celula estar vazia: ela precisa estar ligada ao lado de fora. Um bolsao de
+## vazio cercado de blocos continua sendo "dentro da imagem".
+##
+## Conforme a imagem some, a area valida cresce sozinha - o que era miolo vira
+## lado de fora assim que a casca abre.
 func can_place_at(p: Vector2) -> bool:
 	if not board_area.has_point(p):
 		return false
 	var i := cell_at(p)
-	return i < 0 or board.cells[i] == BFBoard.EMPTY
+	if i < 0:
+		return true   # fora da grade, dentro da zona de voo
+	return board.cells[i] == BFBoard.EMPTY and board.is_outside(i)
+
+
+## Ponto valido mais proximo do dedo. Em vez de deixar o jogador arrastar pra
+## dentro da imagem e recusar no fim, a colmeia desliza pela borda e o solte
+## sempre funciona.
+func nearest_valid(p: Vector2) -> Vector2:
+	if can_place_at(p):
+		return p
+	var step := maxf(cell_size * 0.4, 6.0)
+	for ring in range(1, 41):
+		var radius := step * float(ring)
+		for k in 20:
+			var a := TAU * float(k) / 20.0
+			var probe := p + Vector2(cos(a), sin(a)) * radius
+			if can_place_at(probe):
+				return probe
+	return p
 
 
 func color_of(spec: Dictionary) -> Color:
@@ -353,6 +492,11 @@ func color_of(spec: Dictionary) -> Color:
 # ------------------------------------------------------------------- entrada
 
 func _unhandled_input(event: InputEvent) -> void:
+	if screen == Screen.MAP:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT \
+				and event.pressed:
+			_tap_map(get_global_mouse_position())
+		return
 	if state != State.PLAYING:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -361,10 +505,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			_end_drag(get_global_mouse_position())
 	elif event is InputEventMouseMotion and drag_active:
-		drag_pos = get_global_mouse_position()
-		drag_valid = can_place_at(drag_pos)
-		table.queue_redraw()
+		_track_drag(get_global_mouse_position())
 	table_ui.queue_redraw()
+
+
+func _tap_map(p: Vector2) -> void:
+	for i in map_nodes.size():
+		if p.distance_to(map_nodes[i]) <= BFMapView.NODE_R and is_unlocked(i):
+			open_level(i)
+			return
 
 
 func _begin_drag(p: Vector2) -> void:
@@ -388,22 +537,36 @@ func _begin_drag(p: Vector2) -> void:
 
 func _start_drag(p: Vector2) -> void:
 	drag_active = true
-	drag_pos = p
-	drag_valid = can_place_at(p)
+	_track_drag(p)
+
+
+## Dentro da zona de voo a colmeia gruda no ponto valido mais proximo; fora
+## dela o arrasto fica invalido, que e como o jogador cancela.
+func _track_drag(p: Vector2) -> void:
+	if board_area.has_point(p):
+		drag_pos = nearest_valid(p)
+		drag_valid = can_place_at(drag_pos)
+	else:
+		drag_pos = p
+		drag_valid = false
 	table.queue_redraw()
+	table_ui.queue_redraw()
 	table_ui.queue_redraw()
 
 
 func _end_drag(p: Vector2) -> void:
 	if not drag_active:
 		return
+	_track_drag(p)
 	drag_active = false
-	if can_place_at(p):
+	# Solta no ponto ja grudado, nao no cru do dedo.
+	var at := drag_pos
+	if drag_valid:
 		if _drag_hive != null:
-			_drag_hive.pos = p
+			_drag_hive.pos = at
 			_drag_hive.moves_used += 1
 		elif _drag_column >= 0:
-			place_from_deck(_drag_column, p)
+			place_from_deck(_drag_column, at)
 	_drag_hive = null
 	_drag_column = -1
 	_drag_spec = {}

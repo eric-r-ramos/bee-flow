@@ -4,7 +4,8 @@ Jogo mobile de puzzle em **Godot 4.3**. Abelhas desmontam uma imagem em pixel
 art, bloco a bloco. Cada colmeia só coleta blocos da cor dela, e só alcança o
 que está dentro do raio de voo dela.
 
-Dois níveis jogáveis: limpar a imagem avança para o próximo.
+Dois níveis numa rota de favos: o seguinte abre quando você vence o atual, e
+nível vencido pode ser rejogado sem perder o desbloqueio.
 
 O design completo está em [DESIGN.md](DESIGN.md).
 
@@ -86,10 +87,12 @@ paleta em `tools/beeflow/palette.py`; pixel transparente vira vazio.
 
 ```
 scripts/
-  Main.gd            loop principal, layout, entrada, vitória/derrota
+  Main.gd            loop principal, layout, entrada, vitória/derrota, rota
   Autoplay.gd        jogador automático (teste headless)
   model/Board.gd     grid + cálculo de fronteira
   model/Hive.gd      colmeia: cor, raio, abelhas, mobilidade
+  model/Progress.gd  níveis vencidos e recordes (user://progress.json)
+  view/MapView.gd    a rota: favos, trilha, cadeados
   view/BoardView.gd  desenha os blocos
   view/TableView.gd  zona de voo, raios, slots, pilhas
   view/Bee.gd        abelha: voa, coleta, entrega
@@ -109,8 +112,9 @@ levels/
 ## Estado
 
 Protótipo jogável. Já funciona: fronteira, 5 slots, pilhas com topo elegível,
-raio de voo, reposicionamento livre, coleta, vitória e derrota, x2 velocidade,
-progressão entre níveis.
+raio de voo, pouso restrito ao lado de fora da imagem com arrasto grudado,
+reposicionamento livre, coleta, vitória e derrota, x2 velocidade, rota de níveis
+com desbloqueio e progresso em disco.
 
 Ainda não: mobilidade limitada de colmeia, nuvem, pedra, economia, progressão
 entre níveis.

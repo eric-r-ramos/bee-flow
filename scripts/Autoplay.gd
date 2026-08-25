@@ -16,34 +16,16 @@ const HEARTBEAT := 5.0
 
 var game: Node
 
-var _shots: Array = []      ## instantes (s) que ainda faltam capturar
-var _shot_prefix := ""
-var _shot_n := 0
 var _clock := 0.0
 var _elapsed := 0.0
 var _beat := 0.0
 var _done := false
 
 
-func _ready() -> void:
-	# `-- --shot /tmp/beeflow --shot-at 2,12,26` salva PNGs do jogo rodando.
-	var args := OS.get_cmdline_user_args()
-	var at := args.find("--shot")
-	if at >= 0 and at + 1 < args.size():
-		_shot_prefix = args[at + 1]
-	var when := args.find("--shot-at")
-	if when >= 0 and when + 1 < args.size():
-		for piece in args[when + 1].split(","):
-			_shots.append(float(piece))
-
-
 func _process(delta: float) -> void:
 	if _done:
 		return
 	_elapsed += delta
-	if not _shots.is_empty() and _elapsed >= float(_shots[0]):
-		_shots.pop_front()
-		_capture()
 	if _elapsed > TIMEOUT_SECONDS:
 		_finish("TIMEOUT", 1)
 		return
@@ -71,17 +53,6 @@ func _process(delta: float) -> void:
 	_clock = 0.0
 	_unstick()
 	_place_next()
-
-
-func _capture() -> void:
-	if _shot_prefix == "":
-		return
-	_shot_n += 1
-	var path := "%s_%d.png" % [_shot_prefix, _shot_n]
-	await RenderingServer.frame_post_draw
-	var img := game.get_viewport().get_texture().get_image()
-	img.save_png(path)
-	print("[autoplay] screenshot %s" % path)
 
 
 func _finish(label: String, code: int) -> void:

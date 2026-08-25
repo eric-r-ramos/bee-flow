@@ -9,6 +9,9 @@ var _title: Label
 var _blocks: Label
 var _honey: Label
 var _speed: Button
+var _restart: Button
+var _map_btn: Button
+var _banner_map: Button
 var _veil: ColorRect
 var _banner: Label
 var _again: Button
@@ -33,12 +36,19 @@ func build(owner_game: Node) -> void:
 	_speed.pressed.connect(_on_speed)
 	add_child(_speed)
 
-	var restart := Button.new()
-	restart.position = Vector2(870, 84)
-	restart.size = Vector2(180, 50)
-	restart.text = "reiniciar"
-	restart.pressed.connect(func(): game.restart())
-	add_child(restart)
+	_restart = Button.new()
+	_restart.position = Vector2(870, 84)
+	_restart.size = Vector2(180, 50)
+	_restart.text = "reiniciar"
+	_restart.pressed.connect(func(): game.restart())
+	add_child(_restart)
+
+	_map_btn = Button.new()
+	_map_btn.position = Vector2(676, 18)
+	_map_btn.size = Vector2(180, 58)
+	_map_btn.text = "rota"
+	_map_btn.pressed.connect(func(): game.go_to_map())
+	add_child(_map_btn)
 
 	_veil = ColorRect.new()
 	_veil.color = Color(0.05, 0.04, 0.02, 0.62)
@@ -58,8 +68,30 @@ func build(owner_game: Node) -> void:
 	_again.pressed.connect(func(): game.advance())
 	add_child(_again)
 
+	_banner_map = Button.new()
+	_banner_map.position = Vector2(390, 1076)
+	_banner_map.size = Vector2(300, 66)
+	_banner_map.text = "voltar à rota"
+	_banner_map.visible = false
+	_banner_map.pressed.connect(func(): game.go_to_map())
+	add_child(_banner_map)
+
+
+## Na rota, só o título fica; o resto é da tela de jogo.
+func set_screen(playing: bool) -> void:
+	_blocks.visible = playing
+	_honey.visible = playing
+	_speed.visible = playing
+	_restart.visible = playing
+	_map_btn.visible = playing
+	if not playing:
+		hide_banner()
+		_title.text = "Bee Flow — escolha um nível"
+
 
 func refresh() -> void:
+	if not _blocks.visible:
+		return
 	_title.text = "%d. %s" % [game.level_index + 1, str(game.level.get("name", "Bee Flow"))]
 	_blocks.text = "blocos %d   slots livres %d" % [game.board.filled_total, game.free_slots()]
 	_honey.text = "mel %d   abelhas %d" % [game.honey, game.bees_dispatched]
@@ -72,12 +104,15 @@ func show_banner(text: String, action_label := "continuar") -> void:
 	_again.text = action_label
 	_banner.visible = true
 	_again.visible = true
+	_banner_map.visible = true
 
 
 func hide_banner() -> void:
 	_veil.visible = false
 	_banner.visible = false
 	_again.visible = false
+	if _banner_map != null:
+		_banner_map.visible = false
 
 
 func _on_speed() -> void:

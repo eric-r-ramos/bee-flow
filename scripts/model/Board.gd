@@ -21,6 +21,7 @@ var filled_total := 0
 var _dirty := true
 var _frontier: Dictionary = {}    ## chave da cor -> Array[int] de indices
 var _counts: Dictionary = {}      ## chave da cor -> quantos restam
+var _outside := PackedByteArray() ## 1 = celula vazia ligada ao lado de fora
 
 
 func setup(level_rows: int, level_cols: int, grid: Array, palette: Dictionary) -> void:
@@ -88,6 +89,7 @@ func refresh() -> void:
 				outside[j] = 1
 				queue.append(j)
 
+	_outside = outside
 	_frontier = {}
 	_counts = {}
 	filled_total = 0
@@ -143,3 +145,11 @@ func color_at(i: int) -> Color:
 func is_clear() -> bool:
 	refresh()
 	return filled_total == 0
+
+
+## Celula vazia e ligada ao lado de fora da imagem? Um bolsao de vazio cercado
+## por blocos nao conta - e a mesma mascara que define a fronteira, entao a
+## regra "colmeia so pousa fora da silhueta" sai sem calculo novo.
+func is_outside(i: int) -> bool:
+	refresh()
+	return i >= 0 and i < _outside.size() and _outside[i] == 1
