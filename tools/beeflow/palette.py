@@ -15,6 +15,7 @@ PALETTE = {
     "u": {"name": "lavanda", "color": "#9B6BC7"},
     "n": {"name": "terra", "color": "#8B5E3C"},
     "w": {"name": "nevoa", "color": "#F2EFE4"},
+    "k": {"name": "carvao", "color": "#3A2E1F"},
 }
 
 

@@ -53,22 +53,23 @@ func build(owner_game: Node) -> void:
 	_again = Button.new()
 	_again.position = Vector2(390, 980)
 	_again.size = Vector2(300, 80)
-	_again.text = "jogar de novo"
+	_again.text = "continuar"
 	_again.visible = false
-	_again.pressed.connect(func(): game.restart())
+	_again.pressed.connect(func(): game.advance())
 	add_child(_again)
 
 
 func refresh() -> void:
-	_title.text = str(game.level.get("name", "Bee Flow"))
+	_title.text = "%d. %s" % [game.level_index + 1, str(game.level.get("name", "Bee Flow"))]
 	_blocks.text = "blocos %d   slots livres %d" % [game.board.filled_total, game.free_slots()]
 	_honey.text = "mel %d   abelhas %d" % [game.honey, game.bees_dispatched]
 	_speed.text = "x2" if Engine.time_scale > 1.5 else "x1"
 
 
-func show_banner(text: String) -> void:
+func show_banner(text: String, action_label := "continuar") -> void:
 	_veil.visible = true
 	_banner.text = text
+	_again.text = action_label
 	_banner.visible = true
 	_again.visible = true
 

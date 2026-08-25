@@ -112,14 +112,28 @@ def derive_sequence(board: Board, rng: random.Random, min_chunk: int = 5,
     return seq
 
 
-def deal(seq: list[dict], n_columns: int) -> list[list[dict]]:
+def deal(seq: list[dict], n_columns: int, rng: random.Random | None = None,
+         bury: float = 0.0) -> list[list[dict]]:
     """Distribui a sequencia em colunas. Indice 0 de cada coluna e o topo.
 
-    Round-robin: a colmeia que o jogador precisa agora esta sempre no topo de
-    *alguma* coluna, mas ele tem que escolher qual - e escolher errado queima
-    um slot. E aqui que a dificuldade nasce, e por isso o solver revalida.
+    Round-robin puro deixa a colmeia necessaria sempre no topo de *alguma*
+    coluna: o jogador so precisa escolher qual, e a heuristica gulosa resolve.
+
+    `bury` (0..1) e a fracao de colmeias empurradas pro fundo da coluna mais
+    alta em vez da coluna da vez. Isso enterra o que o jogador precisa sob
+    colmeias inuteis, obrigando ele a queimar slots pra desenterrar - que e a
+    profundidade de enterro do DESIGN.md. E a unica etapa capaz de criar
+    deadlock, entao o solver revalida tudo depois.
     """
     columns: list[list[dict]] = [[] for _ in range(n_columns)]
     for i, hive in enumerate(seq):
-        columns[i % n_columns].append(hive)
+        target = i % n_columns
+        if bury > 0.0 and rng is not None and n_columns > 1 and rng.random() < bury:
+            # Qualquer coluna menos a da vez. Mandar pra "mais alta" seria pior
+            # que inutil: concentraria a sequencia numa pilha so, em ordem, e o
+            # nivel ficaria MAIS facil. Por isso o efeito e sempre medido pelo
+            # solver depois, nunca presumido.
+            options = [j for j in range(n_columns) if j != target]
+            target = rng.choice(options)
+        columns[target].append(hive)
     return columns

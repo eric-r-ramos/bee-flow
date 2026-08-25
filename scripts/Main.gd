@@ -7,15 +7,20 @@ extends Node2D
 ## dentro do raio. Slot so libera quando a colmeia esvazia (ou quando a cor dela
 ## acaba no tabuleiro). Acabou a imagem, ganhou; ficou sem movimento, perdeu.
 
-const LEVEL_PATH := "res://levels/level_001.json"
+## Ordem da campanha. O jogador avanca ao limpar a imagem.
+const LEVELS := [
+	"res://levels/level_001.json",
+	"res://levels/level_002.json",
+]
 
-## Trocavel na linha de comando: `-- --level res://levels/outro.json`
-static func _level_from_args() -> String:
+## `-- --level res://levels/x.json` fixa um nivel e desliga a progressao,
+## que e como os testes rodam um nivel isolado.
+static func _forced_level() -> String:
 	var args := OS.get_cmdline_user_args()
 	var at := args.find("--level")
 	if at >= 0 and at + 1 < args.size():
 		return args[at + 1]
-	return LEVEL_PATH
+	return ""
 
 const DESIGN := Vector2(1080.0, 1920.0)
 const HUD_H := 170.0
@@ -30,6 +35,7 @@ const LANE_STEP := 185.0
 enum State { PLAYING, WON, LOST }
 
 var level: Dictionary = {}
+var level_index := 0
 var board := BFBoard.new()
 var columns: Array = []      ## Array[Array[Dictionary]] - indice 0 e o topo
 var slots: Array = []        ## BFHive ou null
@@ -102,7 +108,8 @@ func restart() -> void:
 	state = State.PLAYING
 	hud.hide_banner()
 
-	var path := _level_from_args()
+	var forced := _forced_level()
+	var path: String = forced if forced != "" else str(LEVELS[level_index])
 	var raw := FileAccess.get_file_as_string(path)
 	var parsed = JSON.parse_string(raw)
 	if typeof(parsed) != TYPE_DICTIONARY:
@@ -204,10 +211,24 @@ func _retire_finished() -> void:
 func _check_end() -> void:
 	if board.is_clear():
 		state = State.WON
-		hud.show_banner("nivel concluido")
+		if has_next():
+			hud.show_banner("nivel %d concluido" % (level_index + 1), "proximo nivel")
+		else:
+			hud.show_banner("todos os niveis concluidos", "jogar de novo")
 	elif _is_deadlocked():
 		state = State.LOST
-		hud.show_banner("sem movimentos")
+		hud.show_banner("sem movimentos", "tentar de novo")
+
+
+## Progressao so existe quando nenhum nivel foi forcado na linha de comando.
+func has_next() -> bool:
+	return _forced_level() == "" and level_index + 1 < LEVELS.size()
+
+
+func advance() -> void:
+	if state == State.WON and has_next():
+		level_index += 1
+	restart()
 
 
 func _is_deadlocked() -> bool:

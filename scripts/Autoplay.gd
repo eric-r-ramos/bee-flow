@@ -11,7 +11,7 @@ extends Node
 ## nao azar.
 
 const STEP_INTERVAL := 0.12
-const TIMEOUT_SECONDS := 180.0
+const TIMEOUT_SECONDS := 420.0
 const HEARTBEAT := 5.0
 
 var game: Node
@@ -48,6 +48,10 @@ func _process(delta: float) -> void:
 		_finish("TIMEOUT", 1)
 		return
 	if game.state == game.State.WON:
+		if game.has_next():
+			print("[autoplay] nivel %d limpo, avancando" % (game.level_index + 1))
+			game.advance()
+			return
 		_finish("VITORIA", 0)
 		return
 	if game.state == game.State.LOST:

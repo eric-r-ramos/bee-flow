@@ -44,7 +44,7 @@ def load_board(path: Path) -> Board:
 
 
 def build(board: Board, seed: int, columns: int, slots: int, slack: float,
-          attempts: int) -> tuple[list[list[dict]], dict, int]:
+          attempts: int, bury: float) -> tuple[list[list[dict]], dict, int]:
     """Tenta varias sementes ate cair um deal verificadamente solucionavel."""
     last = None
     for attempt in range(attempts):
@@ -53,7 +53,7 @@ def build(board: Board, seed: int, columns: int, slots: int, slack: float,
         if slack > 1.0:
             for hive in seq:
                 hive["bees"] = max(1, round(hive["bees"] * slack))
-        dealt = deal(seq, columns)
+        dealt = deal(seq, columns, rng, bury)
         report = solve(board, dealt, slots=slots)
         last = (dealt, report, seed + attempt)
         if report["solvable"]:
@@ -71,6 +71,8 @@ def main() -> int:
     ap.add_argument("--columns", type=int, default=5)
     ap.add_argument("--slack", type=float, default=1.0,
                     help="folga de abelhas: 1.0 e cirurgico, 1.2 perdoa desperdicio")
+    ap.add_argument("--bury", type=float, default=0.0,
+                    help="fracao de colmeias enterradas no fundo da pilha mais alta")
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--attempts", type=int, default=12)
     args = ap.parse_args()
@@ -78,7 +80,8 @@ def main() -> int:
     board = load_board(args.input)
     counts = board.counts_by_color()
     dealt, report, used_seed = build(
-        board, args.seed, args.columns, args.slots, args.slack, args.attempts
+        board, args.seed, args.columns, args.slots, args.slack, args.attempts,
+        args.bury
     )
 
     if not report["solvable"]:

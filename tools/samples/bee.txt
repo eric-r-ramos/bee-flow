@@ -1,0 +1,27 @@
+# Nivel 2: abelha ao entardecer. O amarelo do corpo esta enterrado sob as
+# listras escuras, que por sua vez estao sob o ceu - duas camadas de tensao.
+# u=lavanda  w=nevoa  k=carvao  y=polen  r=papoula  g=caule
+uuuuuuuuuuuuuuuuuuuuuuuu
+uuuuuuuuuuuuuuuuuuuuuuuu
+uuuuuuuwwuuuuuuwwuuuuuuu
+uuuuuwwwwwuuuwwwwwuuuuuu
+uuuuwwwwwwwuwwwwwwwuuuuu
+uuuuwwwwwwwwwwwwwwwuuuuu
+uuuuuwwwwwwwwwwwwwuuuuuu
+uuuuuuuwwwwwwwwwuuuuuuuu
+uuuuuuuukkkkkkkuuuuuuuuu
+uuuuuuukyyyyyyykuuuuuuuu
+uuuuuukyyyyyyyyykuuuuuuu
+uuuuuukkkkkkkkkkkuuuuuuu
+uuuuuukyyyyyyyyykuuuuuuu
+uuuuuukyyyyyyyyykuuuuuuu
+uuuuuukkkkkkkkkkkuuuuuuu
+uuuuuuukyyyyyyykuuuuuuuu
+uuuuuuuukyyyyykuuuuuuuuu
+uuuuuuuuukkkkkuuuuuuuuuu
+uuuuuuuuuuuuuuuuuuuuuuuu
+uuuurruuuuuuuuuuuurruuuu
+uuurrrruuuurruuuurrrruuu
+uuuurruuuurrrruuuurruuuu
+uuuugguuuuugguuuuugguuuu
+uuuugguuuuugguuuuugguuuu

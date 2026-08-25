@@ -4,6 +4,8 @@ Jogo mobile de puzzle em **Godot 4.3**. Abelhas desmontam uma imagem em pixel
 art, bloco a bloco. Cada colmeia só coleta blocos da cor dela, e só alcança o
 que está dentro do raio de voo dela.
 
+Dois níveis jogáveis: limpar a imagem avança para o próximo.
+
 O design completo está em [DESIGN.md](DESIGN.md).
 
 ## Rodar
@@ -22,9 +24,12 @@ loop inteiro — colocar colmeia, coletar, liberar slot, vencer:
 GODOT=/caminho/para/godot tools/smoke.sh
 ```
 
-Ele verifica dois caminhos:
+Ele verifica três caminhos:
 
-- `level_001` precisa terminar em **vitória** (saída 0);
+- os dois geradores precisam produzir níveis solucionáveis;
+- a **campanha inteira** precisa terminar em vitória — o bot joga o nível 1,
+  atravessa a transição e limpa o nível 2, então a passagem de nível está
+  coberta por teste, não só pelo olho;
 - `test_deadlock` — deck cortado de propósito — precisa terminar em **derrota**
   (saída 1). Se esse passar, a detecção de "sem movimentos" quebrou.
 
@@ -53,8 +58,15 @@ OK  levels/level_002.json
 ```
 
 `guloso=SIM` significa que o nível cai com a heurística burra "pegue a coluna
-mais à esquerda" — ou seja, é fácil. Knobs úteis: `--slack` (folga de abelhas,
-`1.0` é cirúrgico), `--columns`, `--slots`, `--seed`.
+mais à esquerda" — ou seja, é fácil. Knobs úteis:
+
+- `--bury` — fração de colmeias enterradas no fundo de outra coluna. É o que
+  separa o nível 2 (`--bury 0.45`, `guloso=NÃO`) do nível 1.
+- `--slack` — folga de abelhas por cor. `1.0` é cirúrgico, `1.3` perdoa.
+- `--columns`, `--slots`, `--seed`.
+
+Nenhum desses knobs é monotônico por construção — sempre confira o `guloso=` na
+saída em vez de presumir que aumentar o número aumentou a dificuldade.
 
 Para PNG (`pip install Pillow`), cada pixel vira o bloco da cor mais próxima da
 paleta em `tools/beeflow/palette.py`; pixel transparente vira vazio.
@@ -77,14 +89,16 @@ tools/
   beeflow/generator.py  deriva a pilha de colmeias jogando o nível
   beeflow/solver.py     verifica solucionabilidade e mede dificuldade
 levels/
-  level_001.json     nível gerado
+  level_001.json     Primeiro Broto — 20x20, 5 cores, fácil
+  level_002.json     Voo do Entardecer — 24x24, 6 cores, exige planejamento
   test_deadlock.json nível impossível de propósito, para o teste de derrota
 ```
 
 ## Estado
 
 Protótipo jogável. Já funciona: fronteira, 5 slots, pilhas com topo elegível,
-raio de voo, reposicionamento livre, coleta, vitória e derrota, x2 velocidade.
+raio de voo, reposicionamento livre, coleta, vitória e derrota, x2 velocidade,
+progressão entre níveis.
 
 Ainda não: mobilidade limitada de colmeia, nuvem, pedra, economia, progressão
 entre níveis.

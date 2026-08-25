@@ -6,6 +6,8 @@ GODOT="${GODOT:-godot}"
 cd "$(dirname "$0")/.."
 
 echo "== gerador: a imagem de exemplo tem que produzir nivel solucionavel"
+python3 tools/make_level.py --input tools/samples/bee.txt \
+    --out /tmp/beeflow_check2.json --id check2 --name check2 --bury 0.45 --seed 3
 python3 tools/make_level.py --input tools/samples/flower.txt \
     --out /tmp/beeflow_check.json --id check --name check
 
@@ -13,6 +15,10 @@ echo
 echo "== jogo: level_001 tem que terminar em VITORIA"
 "$GODOT" --headless --path . --fixed-fps 120 -- \
     --autoplay --level res://levels/level_001.json
+
+echo
+echo "== jogo: a campanha inteira tem que terminar em VITORIA"
+"$GODOT" --headless --path . --fixed-fps 120 -- --autoplay
 
 echo
 echo "== jogo: test_deadlock tem que terminar em DERROTA"

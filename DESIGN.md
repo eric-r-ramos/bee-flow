@@ -52,7 +52,7 @@ Cada item entra sozinho, medindo o impacto antes do próximo:
 |---|---|---|
 | 1 | **Mobilidade da colmeia** (`moves`) | `-1` livre → `N` remanejamentos → `0` fixa onde plantou. É o eixo principal: a partir daí o raio passa a valer de verdade e o solver precisa considerar posição. |
 | 2 | **Folga de abelhas** | Total de abelhas ÷ total de blocos daquela cor. `1.0` é cirúrgico, `1.3` perdoa desperdício. Knob mais forte de todos. |
-| 3 | **Profundidade do enterro** | Quantas colmeias inúteis em cima da necessária. |
+| 3 | **Profundidade do enterro** (`--bury`) | Fração de colmeias empurradas para o fundo de outra coluna, em vez da coluna da vez. |
 | 4 | **Colmeias ocultas (`?`)** | O jogador aposta sem saber o que vem. |
 | 5 | **Nuvem** | Esconde uma região; some depois de X abelhas despachadas (contador global). |
 | 6 | **Pedra** | Trava o topo de uma pilha; 1º martelo trinca, 2º estilhaça. |
@@ -84,6 +84,17 @@ de colmeias é derivada por algoritmo e verificada antes de publicar.
 4. **Medir** — o mesmo solver dá a dificuldade de graça: resolve com heurística
    gulosa? quantos nós precisou? Vira score, e o score vira faixa de nível.
 
+### O enterro só vale medido
+
+A primeira versão do `--bury` mandava a colmeia para a **coluna mais alta**. O
+efeito foi o oposto do pretendido: concentrar a sequência numa pilha só preserva
+a ordem original dentro dela, e o nível ficava *mais* fácil — `guloso=SIM` em
+todas as intensidades. Mandar para uma coluna qualquer que não seja a da vez
+inverteu isso, e aí o knob passou a responder.
+
+A lição vale para todos os dificultadores: nenhum deles é confiável por
+raciocínio. O solver mede, e o número manda.
+
 Aproximação consciente do solver: com colmeias de reposicionamento livre o
 jogador sempre leva a colmeia até qualquer bloco da cor dela, então o raio não
 restringe a solução e a dimensão espacial é ignorada. **Quando entrarem colmeias
@@ -110,6 +121,20 @@ São a mesma coisa, o que é conveniente:
 
 Com o 6º slot existindo, deadlock deixa de ser game over e vira decisão
 econômica — o que permite ser mais agressivo na geração.
+
+## Progressão
+
+A campanha é uma lista ordenada de níveis (`LEVELS` em `Main.gd`). Limpar a
+imagem avança para o próximo; o cartão de transição mostra o que vem a seguir —
+nome, tamanho e número de cores — antes do jogador entrar.
+
+| | Primeiro Broto | Voo do Entardecer |
+|---|---|---|
+| Grid | 20×20, 400 blocos | 24×24, 576 blocos |
+| Cores | 5 | 6 |
+| Colmeias | 39 | 56 |
+| Enterro | nenhum | 0.45 |
+| Cai na heurística gulosa? | sim | **não** |
 
 ## Em aberto
 
