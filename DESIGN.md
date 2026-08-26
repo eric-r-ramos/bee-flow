@@ -250,78 +250,19 @@ econômica — o que permite ser mais agressivo na geração.
 
 Medido nos níveis reais:
 
-| | Primeiro Broto | Voo do Entardecer |
-|---|---|---|
-| **score** | **3,7 — tutorial** | **49,3 — médio** |
-| letalidade média | 0% | 23% |
-| letalidade de pico | 0% | 75% |
-| risco começa a | — | 10% do nível |
-| pressão de slots | 14,9% | 35,4% |
+| | 1. Primeiro Broto | 2. Voo do Entardecer | 3. A Colmeia no Galho | 4. O Pote de Mel | 5. O Girassol |
+|---|---|---|---|---|---|
+| Grid | 20² | 24² | 28² | 26² | 28² |
+| Blocos | 400 | 576 | 784 | 676 | 784 |
+| Cores | 5 | 6 | 7 | 5 | 9 |
+| Letalidade | 0% | 23% | 29% | 12% | 23% |
+| Pressão de slots | 15% | 35% | 46% | 21% | **56%** |
+| Colmeias limitadas | — | — | — | 5% | **10%** |
+| **Score (cor/ordem)** | **3,7** | **49,3** | **55,2** | **39,0** | **50,6** |
 
-O nível 1 tem **zero** jogadas fatais em 112 testadas: é literalmente impossível
-perder. Como tutorial, é o comportamento certo — mas foi o medidor que provou
-isso, não a intuição.
-
-**Os pesos são hipótese, não verdade.** Só telemetria de jogadores reais pode
-calibrá-los. Até lá o score serve para ordenar níveis entre si, nunca para
-prometer quanto tempo alguém vai levar.
-
-### O termo que não entrou, e a conclusão que teve de ser corrigida
-
-A primeira versão do score pesava o *atraso da armadilha*: quantas jogadas o
-jogador faz antes de descobrir que já perdeu. Errar e travar na jogada seguinte
-ensina; travar oito jogadas depois é punição.
-
-Medindo os níveis 1 e 2, todos os 44 estados fatais tinham a mesma forma: o
-jogador enchia o quinto slot e travava na hora, com zero jogadas seguintes. Eu
-escrevi aqui que **"não existe morte lenta neste jogo"** e deixei o termo fora
-do score, mas mantive a medição como canário.
-
-**O nível 3 falsificou isso.** Com sete cores e a imagem inteira enterrada sob
-o céu, aparecem estados em que ainda há jogada legal e o nível já está perdido —
-o atraso medido ficou entre 0,5 e 2,0 jogadas. O canário fez exatamente o que
-existia para fazer: avisar que uma suposição minha tinha morrido.
-
-O termo segue fora do score, agora por outro motivo: os valores são rasos (0 a 2
-jogadas), e re-pesar tudo com base em três níveis seria a mesma falsa precisão
-contra a qual este documento avisa. Virou métrica normal no relatório, com aviso
-alto só acima de 3 jogadas — onde a armadilha deixaria de ser rasa e passaria a
-ser injusta de verdade.
-
-**Lição de instrumentação:** um canário que sempre dispara é um canário que se
-aprende a ignorar. Quando ele passou a tocar em toda rodada, virou métrica com
-limiar, não alarme.
-
-## Progressão: a rota
-
-Os níveis são um caminho de favos, do primeiro embaixo ao último em cima. Um
-nível abre quando o anterior é vencido, e **nível vencido pode ser rejogado
-quantas vezes o jogador quiser** — sem perder o desbloqueio do seguinte. O
-recorde de mel de cada um fica no favo.
-
-O Ant Flow não tem isso: lá a campanha é uma fila de mão única. A rota custa
-pouco e dá duas coisas que a fila não dá — a sensação de território percorrido,
-e permissão para voltar num nível só porque foi gostoso.
-
-Isso obrigou a introduzir o primeiro estado persistente do projeto: quais
-níveis foram limpos e o melhor resultado de cada um. Em Godot vai para
-`user://progress.json`; na versão web, para `localStorage`, com toda leitura e
-escrita em `try/catch` — janela anônima devolve erro, e nesse caso o jogo roda
-sem memória em vez de quebrar.
-
-Limpar a imagem também continua avançando direto para o próximo nível; o cartão
-de transição mostra o que vem a seguir — nome, tamanho e número de cores — e
-oferece a volta à rota.
-
-| | Primeiro Broto | Voo do Entardecer | A Colmeia no Galho |
-|---|---|---|---|
-| Grid | 20×20, 400 blocos | 24×24, 576 blocos | 28×28, 784 blocos |
-| Cores | 5 | 6 | 7 |
-| Colmeias | 39 | 56 | 81 |
-| Enterro | nenhum | 0.45 | 0.60 |
-| Letalidade média | 0% | 23% | **29%** |
-| Nós do solver | 39 | 80 | **677** |
-| **Score** | **3,7** tutorial | **49,3** médio | **55,2** médio |
+O score mede só o eixo cor/ordem, e nele a curva **não é monótona** de
+propósito: o nível 4 alivia para ensinar a mobilidade limitada. O eixo novo —
+fração de colmeias limitadas — esse sim só cresce.
 
 ### Só o que encosta na borda existe no começo
 
@@ -337,6 +278,26 @@ borda — o mesmo desenho subiu para 55,2.
 
 Regra prática para o artista: se você quer tensão, enterre. **Uma cor que toca
 a borda é uma cor de graça.**
+
+### Quatro vezes minha intuição de arte errou
+
+Um placar honesto das minhas hipóteses sobre o que deixa um nível difícil:
+
+| hipótese | resultado medido |
+|---|---|
+| "mais cores = mais difícil" (nível 3, v1) | **35,6 — mais fácil que o nível 2** |
+| "recuar tudo para dentro do céu" (nível 3, v2) | 55,2 — certa |
+| "camadas concêntricas forçam ordem" (nível 5, v1) | **6–9, o guloso resolve** |
+| "cores minúsculas e fundas" (nível 5, v2) | 48,1 — certa |
+
+E um detalhe que fecha o argumento: aumentar uma única cor de **3 para 9
+blocos** derrubou o score de 48,1 para 7,1. Depois, varrendo doze sementes na
+mesma arte, os scores foram de 6 a 51.
+
+**Uma semente não é uma medição.** O procedimento que sobrou é: filtrar rápido
+pelo `guloso` (que é barato), medir os sobreviventes, escolher o melhor. Minha
+opinião sobre o desenho serve para gerar candidatos, nunca para escolher.
+
 
 ### O teto desta versão
 

@@ -4,7 +4,7 @@ Jogo mobile de puzzle em **Godot 4.3**. Abelhas desmontam uma imagem em pixel
 art, bloco a bloco. Cada colmeia só coleta blocos da cor dela, e só alcança o
 que está dentro do raio de voo dela.
 
-Quatro níveis numa rota de favos: o seguinte abre quando você vence o atual, e
+Cinco níveis numa rota de favos: o seguinte abre quando você vence o atual, e
 nível vencido pode ser rejogado sem perder o desbloqueio.
 
 O design completo está em [DESIGN.md](DESIGN.md).
@@ -115,7 +115,8 @@ levels/
   level_001.json     Primeiro Broto — 20x20, 5 cores, fácil
   level_002.json     Voo do Entardecer — 24x24, 6 cores, exige planejamento
   level_003.json     A Colmeia no Galho — 28x28, 7 cores, 29% das jogadas matam
-  level_004.json     O Pote de Mel — 26x26, apresenta mobilidade limitada
+  level_004.json     O Pote de Mel — 26x26, apresenta mobilidade limitada (5%)
+  level_005.json     O Girassol — 28x28, 9 cores, 10% de colmeias limitadas
   test_deadlock.json nível impossível de propósito, para o teste de derrota
 ```
 

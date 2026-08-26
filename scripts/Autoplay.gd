@@ -88,7 +88,14 @@ func _unstick() -> void:
 		# Com remanejamentos escassos, só vale mexer se o novo ponto render
 		# bem mais que o atual - senão o bot queima os três movimentos em
 		# ajustes minúsculos e trava a colmeia longe do que falta.
-		if h.moves_allowed >= 0 and _covered(h, spot) <= _covered(h, h.pos) + 2:
+		#
+		# A exceção importa: se a colmeia não alcança NADA de onde está, ela é
+		# peso morto e mover sempre vale. Sem essa cláusula o bot travava a
+		# campanha com 1 bloco restante, recusando-se a mover por um ganho de
+		# apenas um - e o nível ficava eternamente jogável mas nunca jogado.
+		var cobertura_atual := _covered(h, h.pos)
+		if h.moves_allowed >= 0 and cobertura_atual > 0 \
+				and _covered(h, spot) <= cobertura_atual + 2:
 			continue
 		h.pos = spot
 		h.moves_used += 1

@@ -1,0 +1,33 @@
+# Nivel 5: o girassol. Camadas concentricas - sementes sob o miolo, sob o
+# anel interno, sob o anel externo, sob as petalas, sob o ceu. As cores
+# minusculas e fundas (semente, brilho) sao o que gera letalidade: uma
+# colmeia parada esperando por elas trava um slot por muito tempo.
+# b=ceu r=petala y=anel o=anel-interno w=brilho n=miolo k=semente g=caule d=folha
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbrrbbbbbbbbbbbbb
+bbbbbbbbbbbbrrrrbbbbbbbbbbbb
+bbbbbbbrbbbbrrrrbbbbrbbbbbbb
+bbbbbbrrrrbbrrrrbbrrrrbbbbbb
+bbbbbbbrrrryyyyyyrrrrbbbbbbb
+bbbbbbbrryyyyooyyyyrrbbbbbbb
+bbbbbbbbryywoowooyyrbbbbbbbb
+bbbbbbbbyyoooknoooyybbbbbbbb
+bbbbbrrryywoknknooyyrrrbbbbb
+bbbbrrrryooknknknwoyrrrrbbbb
+bbbbrrrryoonknknkooyrrrrbbbb
+bbbbbrrryywonknkooyyrrrbbbbb
+bbbbbbbbyyowonkoowyybbbbbbbb
+bbbbbbbbryyowoowoyyrbbbbbbbb
+bbbbbbbrryyyyooyyyyrrbbbbbbb
+bbbbbbbrrrryyyyyyrrrrbbbbbbb
+bbbbbbrrrrbbrrrrbbrrrrbbbbbb
+bbbbbbbrbbbbrrrrbbbbrbbbbbbb
+bbbbbbbbbbbbrrrrbbbbbbbbbbbb
+bbbbbbbbbbbbbrrbbbbbbbbbbbbb
+bbbbbbbbddddbggbbbbbbbbbbbbb
+bbbbbbbddddddggbbbdbbbbbbbbb
+bbbbbbbbddddbggbdddddbbbbbbb
+bbbbbbbbbbbbbggbdddddbbbbbbb
+bbbbbbbbbbbbbbbbbbdbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
