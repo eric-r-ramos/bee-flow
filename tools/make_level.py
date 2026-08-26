@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from beeflow.board import EMPTY, Board
 from beeflow.difficulty import analyze
 from beeflow.difficulty import report as report_difficulty
-from beeflow.generator import apply_mobility, deal, derive_sequence
+from beeflow.generator import apply_mobility, apply_territory, deal, derive_sequence
 from beeflow.palette import PALETTE, nearest_key
 from beeflow.solver import solve
 
@@ -47,7 +47,7 @@ def load_board(path: Path) -> Board:
 
 def build(board: Board, seed: int, columns: int, slots: int, slack: float,
           attempts: int, bury: float, limited_frac: float,
-          limited_moves: int) -> tuple[list[list[dict]], dict, int, int]:
+          limited_moves: int, territorial_frac: float) -> tuple[list[list[dict]], dict, int, int, int]:
     """Tenta varias sementes ate cair um deal verificadamente solucionavel."""
     last = None
     for attempt in range(attempts):
@@ -57,9 +57,10 @@ def build(board: Board, seed: int, columns: int, slots: int, slack: float,
             for hive in seq:
                 hive["bees"] = max(1, round(hive["bees"] * slack))
         limited = apply_mobility(seq, rng, limited_frac, limited_moves)
+        territorial = apply_territory(seq, rng, territorial_frac)
         dealt = deal(seq, columns, rng, bury)
         report = solve(board, dealt, slots=slots)
-        last = (dealt, report, seed + attempt, limited)
+        last = (dealt, report, seed + attempt, limited, territorial)
         if report["solvable"]:
             return last
     return last
@@ -79,6 +80,8 @@ def main() -> int:
                     help="fracao de colmeias com remanejamento limitado")
     ap.add_argument("--limited-moves", type=int, default=3,
                     help="quantos remanejamentos as colmeias limitadas ganham")
+    ap.add_argument("--territorial-frac", type=float, default=0.0,
+                    help="fracao de colmeias cuja area nao pode encostar em outra")
     ap.add_argument("--bury", type=float, default=0.0,
                     help="fracao de colmeias enterradas no fundo da pilha mais alta")
     ap.add_argument("--seed", type=int, default=7)
@@ -89,9 +92,9 @@ def main() -> int:
 
     board = load_board(args.input)
     counts = board.counts_by_color()
-    dealt, report, used_seed, limited = build(
+    dealt, report, used_seed, limited, territorial = build(
         board, args.seed, args.columns, args.slots, args.slack, args.attempts,
-        args.bury, args.limited_frac, args.limited_moves
+        args.bury, args.limited_frac, args.limited_moves, args.territorial_frac
     )
 
     if not report["solvable"]:
@@ -119,6 +122,7 @@ def main() -> int:
             "difficulty": diff,
             "limited_hives": limited,
             "limited_moves": args.limited_moves if limited else 0,
+            "territorial_hives": territorial,
         },
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
@@ -138,6 +142,10 @@ def main() -> int:
         total = sum(len(c) for c in dealt)
         print(f"  mobilidade      {limited} de {total} colmeias "
               f"({limited / total:.0%}) com {args.limited_moves} remanejamentos")
+    if territorial:
+        total = sum(len(c) for c in dealt)
+        print(f"  territorio      {territorial} de {total} colmeias "
+              f"({territorial / total:.0%}) nao admitem area encostada")
     if diff:
         print(report_difficulty(diff))
         if limited:

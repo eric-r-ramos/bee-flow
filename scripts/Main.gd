@@ -17,6 +17,7 @@ const LEVELS := [
 	"res://levels/level_006.json",
 	"res://levels/level_007.json",
 	"res://levels/level_008.json",
+	"res://levels/level_009.json",
 ]
 
 ## `-- --level res://levels/x.json` fixa um nivel e desliga a progressao,
@@ -400,7 +401,9 @@ func advance() -> void:
 
 
 func _is_deadlocked() -> bool:
-	if free_slots() > 0 and _any_deck_left():
+	# Com colmeias territoriais, ter slot livre nao basta: pode nao existir
+	# nenhum ponto legal onde plantar o topo de nenhuma pilha.
+	if free_slots() > 0 and _any_placeable_deck():
 		return false
 	for h in hives:
 		if h.in_flight > 0 or h.bees_left <= 0:
@@ -414,6 +417,26 @@ func _is_deadlocked() -> bool:
 		elif pick_target(h) >= 0:
 			return false
 	return true
+
+
+## Existe algum topo de pilha que caiba em algum lugar da zona de voo?
+## Varredura grossa - so precisa achar UM ponto, nao o melhor.
+func _any_placeable_deck() -> bool:
+	for col in columns:
+		var deck: Array = col
+		if deck.is_empty():
+			continue
+		var spec: Dictionary = deck[0]
+		var reach: float = float(spec["radius"]) * cell_size
+		var terr: bool = bool(spec.get("territorial", false))
+		for fy in 12:
+			for fx in 12:
+				var probe := board_area.position + Vector2(
+					board_area.size.x * (float(fx) + 0.5) / 12.0,
+					board_area.size.y * (float(fy) + 0.5) / 12.0)
+				if can_place_at(probe, reach, terr):
+					return true
+	return false
 
 
 func _any_deck_left() -> bool:
@@ -510,20 +533,37 @@ func cell_at(p: Vector2) -> int:
 ##
 ## Conforme a imagem some, a area valida cresce sozinha - o que era miolo vira
 ## lado de fora assim que a casca abre.
-func can_place_at(p: Vector2) -> bool:
+func can_place_at(p: Vector2, reach := 0.0, territorial := false,
+		ignore: BFHive = null) -> bool:
 	if not board_area.has_point(p):
 		return false
 	var i := cell_at(p)
-	if i < 0:
-		return true   # fora da grade, dentro da zona de voo
-	return board.cells[i] == BFBoard.EMPTY and board.is_outside(i)
+	if i >= 0 and not (board.cells[i] == BFBoard.EMPTY and board.is_outside(i)):
+		return false
+	# Territorio: a colmeia territorial nao divide espaco. Ninguem pousa DENTRO
+	# do circulo dela, e ela nao pousa com ninguem dentro do circulo dela.
+	# O veto e o raio da territorial, nao a soma dos dois raios: exigir que os
+	# circulos nem se tocassem apagava ate 65% da zona de voo por colmeia, e o
+	# fim de nivel virava impasse. Ver DESIGN.md, "Territorio".
+	for h in hives:
+		if h == ignore:
+			continue
+		var veto := 0.0
+		if territorial:
+			veto = reach
+		if h.territorial:
+			veto = maxf(veto, h.radius_cells * cell_size)
+		if veto > 0.0 and p.distance_to(h.pos) < veto:
+			return false
+	return true
 
 
 ## Ponto valido mais proximo do dedo. Em vez de deixar o jogador arrastar pra
 ## dentro da imagem e recusar no fim, a colmeia desliza pela borda e o solte
 ## sempre funciona.
-func nearest_valid(p: Vector2) -> Vector2:
-	if can_place_at(p):
+func nearest_valid(p: Vector2, reach := 0.0, territorial := false,
+		ignore: BFHive = null) -> Vector2:
+	if can_place_at(p, reach, territorial, ignore):
 		return p
 	var step := maxf(cell_size * 0.4, 6.0)
 	for ring in range(1, 41):
@@ -531,7 +571,7 @@ func nearest_valid(p: Vector2) -> Vector2:
 		for k in 20:
 			var a := TAU * float(k) / 20.0
 			var probe := p + Vector2(cos(a), sin(a)) * radius
-			if can_place_at(probe):
+			if can_place_at(probe, reach, territorial, ignore):
 				return probe
 	return p
 
@@ -594,9 +634,11 @@ func _start_drag(p: Vector2) -> void:
 ## Dentro da zona de voo a colmeia gruda no ponto valido mais proximo; fora
 ## dela o arrasto fica invalido, que e como o jogador cancela.
 func _track_drag(p: Vector2) -> void:
+	var reach := drag_radius() * cell_size
+	var terr := drag_territorial()
 	if board_area.has_point(p):
-		drag_pos = nearest_valid(p)
-		drag_valid = can_place_at(drag_pos)
+		drag_pos = nearest_valid(p, reach, terr, _drag_hive)
+		drag_valid = can_place_at(drag_pos, reach, terr, _drag_hive)
 	else:
 		drag_pos = p
 		drag_valid = false
@@ -656,6 +698,12 @@ func drag_color() -> Color:
 
 func drag_radius() -> float:
 	return _drag_hive.radius_cells if _drag_hive != null else float(_drag_spec["radius"])
+
+
+func drag_territorial() -> bool:
+	if _drag_hive != null:
+		return _drag_hive.territorial
+	return bool(_drag_spec.get("territorial", false))
 
 
 func drag_bees() -> int:

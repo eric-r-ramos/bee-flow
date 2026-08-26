@@ -17,6 +17,9 @@ var bees_total: int
 var bees_left: int
 var moves_allowed: int
 var moves_used := 0
+## Colmeia territorial nao divide espaco: nenhuma outra colmeia pousa dentro
+## do circulo dela, e ela nao pousa com outra colmeia dentro do circulo dela.
+var territorial := false
 
 var pos := Vector2.ZERO
 var slot := -1
@@ -33,6 +36,7 @@ static func from_spec(spec: Dictionary, palette: Dictionary) -> BFHive:
 	h.bees_total = int(spec["bees"])
 	h.bees_left = h.bees_total
 	h.moves_allowed = int(spec.get("moves", -1))
+	h.territorial = bool(spec.get("territorial", false))
 	return h
 
 

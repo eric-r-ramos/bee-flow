@@ -81,8 +81,14 @@ Knobs úteis:
 - `--bury` — fração de colmeias enterradas no fundo de outra coluna. É o que
   separa o nível 2 (`--bury 0.45`, `guloso=NÃO`) do nível 1.
 - `--limited-frac` / `--limited-moves` — fração de colmeias com remanejamento
-  limitado e quantos movimentos elas ganham. O nível 4 usa `0.05` e `3`.
-- `--slack` — folga de abelhas por cor. `1.0` é cirúrgico, `1.3` perdoa.
+  limitado e quantos movimentos elas ganham. O nível 4 usa `0.05` e `3`; o 8 e o
+  9 usam `0.30` e `1`, que é onde a mecânica passa a morder de verdade.
+- `--territorial-frac` — fração de colmeias territoriais: ninguém pousa dentro
+  do círculo delas. O nível 9 usa `0.20`. Ver `DESIGN.md`, "Território" — a
+  primeira versão da regra tornava o fim de nível impossível.
+- `--slack` — folga de abelhas por cor. `1.0` é cirúrgico, `1.3` perdoa. Com
+  colmeias limitadas, `1.0` transforma qualquer colmeia encalhada em derrota
+  certa — os níveis 7 e 9 usam `1.10`/`1.15` por isso (ver `DESIGN.md`).
 - `--columns`, `--slots`, `--seed`.
 
 Nenhum desses knobs é monotônico por construção — sempre confira o `guloso=` na
@@ -118,7 +124,10 @@ levels/
   level_004.json     O Pote de Mel — 26x26, apresenta mobilidade limitada (5%)
   level_005.json     O Girassol — 28x28, 9 cores, 10% de colmeias limitadas
   level_006.json     A Rainha — 28x28, 20% de colmeias limitadas (3 movimentos)
-  level_007.json     O Pomar — 28x28, 20% de colmeias limitadas (2 movimentos)
+  level_007.json     O Pomar — 28x28, 20% limitadas (2 mov), folga 1.10
+  level_008.json     O Enxame — 28x28, 30% de colmeias limitadas (1 movimento)
+  level_009.json     O Favo — 32x32, 30% limitadas (1 mov) + 20% territoriais
+                     + folga 1.15 — a folga é o que absorve colmeia encalhada
   test_deadlock.json nível impossível de propósito, para o teste de derrota
 ```
 

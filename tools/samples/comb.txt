@@ -1,0 +1,40 @@
+# Nivel 9: O Favo. Parede de alveolos com a trelica de cera separando as
+# celulas. Cores agrupadas por faixa - mel em cima, polen no meio, larvas
+# embaixo - porque colmeia que nao pode se mexer precisa de cor junta.
+# b=ceu w=cera y=mel o=polen n=larva k=selado r=marcado
+# A moldura extra de ceu (+2 aneis, 46% -> 59%) nao e estetica: com o
+# favo denso demais, o fim de nivel virava migalhas de 4 cores espalhadas e
+# o bot perdia por 1 bloco em quase toda seed - ate com 0% de territoriais.
+# Ceu e espaco de manobra; a faixa saudavel medida nos niveis 1-8 e 59-71%.
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbywyyywbbbbbbbbbbbbb
+bbbbbbbbbbbwwwwwwwwwwbbbbbbbbbbb
+bbbbbbbbbyyywyyywyyywyybbbbbbbbb
+bbbbbbbbwyyywyyywyyywyyybbbbbbbb
+bbbbbbbwwwwwwwwwwwwwwwwwwbbbbbbb
+bbbbbbbyyywyyywyyywyyywyybbbbbbb
+bbbbbbwyyywyyywyyywyyywyyybbbbbb
+bbbbbbwwwwwwwwwwwwwwwwwwwwbbbbbb
+bbbbbooowooowooowooowooowoobbbbb
+bbbbbooowooowooowooowooowoobbbbb
+bbbbbwwwwwwwwwwwwwwwwwwwwwwbbbbb
+bbbbbowooowooowooowooowooowbbbbb
+bbbbbowooowooowooowooowooowbbbbb
+bbbbbwwwwwwwwwwwwwwwwwwwwwwbbbbb
+bbbbbooowooowooowooowooowoobbbbb
+bbbbbnnnwnnnwnnnwnnnwnnnwnnbbbbb
+bbbbbbwwwwwwwwwwwwwwwwwwwwbbbbbb
+bbbbbbwnnnwnnnwnnnwnnnwnnnbbbbbb
+bbbbbbbnnnwnnnwnnnwnnnwnnbbbbbbb
+bbbbbbbwwwwwwwwwwwwwwwwwwbbbbbbb
+bbbbbbbbwnnnwnnnwnnnwnnnbbbbbbbb
+bbbbbbbbbnnnwnnnwnnnwnnbbbbbbbbb
+bbbbbbbbbbbwwwwwwwwwwbbbbbbbbbbb
+bbbbbbbbbbbbbnwnnnwbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb

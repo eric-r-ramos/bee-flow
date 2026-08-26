@@ -11,6 +11,7 @@ extends Node
 ## nao azar.
 
 const STEP_INTERVAL := 0.12
+## Prazo por NIVEL, zerado a cada avanco de campanha - nao por execucao.
 const TIMEOUT_SECONDS := 420.0
 const HEARTBEAT := 5.0
 
@@ -44,6 +45,10 @@ func _process(delta: float) -> void:
 				% [game.level_index + 1, game.limited_placed, game.limited_exhausted,
 					game.limited_moves_spent])
 			game.advance()
+			# O prazo e POR NIVEL. Sem este reset a campanha inteira dividia os
+			# 420s: com 9 niveis, o nivel 8 comecava a rodada com 60s de sobra e
+			# "estourava o tempo" jogando perfeitamente bem.
+			_elapsed = 0.0
 			return
 		_finish("VITORIA", 0)
 		return
@@ -162,8 +167,13 @@ func _place_next() -> void:
 		# queimar um slot mesmo assim, pra desenterrar - a colmeia espera
 		# parada até a cor dela vir à tona. Sem isso o bot trava a si mesmo
 		# em níveis com cores muito enterradas.
-		if game.board.count_of(str(spec["color"])) <= 0:
-			return
+		#
+		# E vale TAMBÉM para colmeia de cor já limpa (count_of == 0): com folga
+		# de abelhas, a cor acaba antes das colmeias repetidas dela saírem da
+		# pilha, e essas cartas mortas entopem o topo das colunas. Colocar uma
+		# custa um instante - sem alvo e sem cor, ela é dispensada na hora e a
+		# coluna anda. Recusar era o bot parado 340s com 5 slots livres, 20
+		# cartas na pilha e 24 blocos na tela.
 		spot = _any_spot(float(spec["radius"]) * game.cell_size,
 			bool(spec.get("territorial", false)))
 		if spot.x == INF:

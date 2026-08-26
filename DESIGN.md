@@ -58,8 +58,9 @@ Cada item entra sozinho, medindo o impacto antes do próximo:
 
 | # | Dificultador | Efeito | Estado |
 |---|---|---|---|
-| 1 | **Mobilidade da colmeia** (`moves`) | `-1` livre → `N` remanejamentos → `0` fixa onde plantou. | **em uso** (nível 4) |
-| 2 | **Folga de abelhas** (`--slack`) | Total de abelhas ÷ blocos daquela cor. | disponível |
+| 1 | **Mobilidade da colmeia** (`moves`) | `-1` livre → `N` remanejamentos → `0` fixa onde plantou. | **em uso** (níveis 4–9) |
+| 1b | **Território** (`territorial`) | Ninguém pousa dentro do círculo dela. | **em uso** (nível 9) |
+| 2 | **Folga de abelhas** (`--slack`) | Total de abelhas ÷ blocos daquela cor. | **em uso** (nível 9) |
 | 3 | **Profundidade do enterro** (`--bury`) | Fração empurrada para o fundo de outra coluna. | em uso |
 | 4 | **Colmeias ocultas (`?`)** | O jogador aposta sem saber o que vem. | pendente |
 | 5 | **Nuvem** | Esconde uma região até X abelhas serem despachadas. | pendente |
@@ -195,6 +196,103 @@ impressão de escalada. **Um teste verde não distingue "a mecânica funciona" d
 "a mecânica nunca foi acionada".**
 
 
+## Território
+
+A colmeia territorial não divide espaço. **Nenhuma outra colmeia pousa dentro
+do círculo dela, e ela não pousa com outra colmeia dentro do círculo dela.**
+É o segundo eixo que faz o raio pesar: mobilidade limitada cobra *onde* plantar,
+território cobra *quantas* podem trabalhar ao mesmo tempo.
+
+O selo é uma faixa rosa no token e um anel duplo tracejado em campo; ao arrastar
+qualquer colmeia, os territórios em vigor aparecem tracejados.
+
+### A primeira versão travava o fim de nível
+
+A regra escrita ao pé da letra — "as áreas não podem se cruzar" — vetava o
+pouso quando a distância entre os centros era menor que **a soma dos dois
+raios**. Parece a leitura óbvia, e é injogável. Medido na zona de voo de um
+celular (370×480 px, célula de 12 px):
+
+| territorial | candidata | zona de voo proibida — soma dos raios | — raio da territorial |
+|---|---|---|---|
+| operária 3,5 | operária 3,5 | 12,5% | 3,1% |
+| zangão 5,5 | batedora 8,0 | **46,4%** | 16,3% |
+| batedora 8,0 | batedora 8,0 | **65,1%** | 16,3% |
+
+Uma única batedora territorial apagava **dois terços** dos pousos possíveis de
+outra batedora. Com 5 slots, duas delas em campo fechavam o tabuleiro.
+
+O bot perdeu o nível 9 com **4 blocos de 784 restando**, num impasse que nenhuma
+ordem de jogo resolve: quatro colmeias com abelhas de sobra, cada uma com
+exatamente o número de abelhas que faltava, e **nenhuma com alvo no alcance** —
+duas já tinham gastado seu único remanejamento, e as duas livres não tinham para
+onde ir porque o território alheio cobria o resto do tabuleiro. A territorial
+também não podia sair: todo mundo estava dentro do círculo dela.
+
+Trocando o veto pela versão limitada — **o raio da territorial, não a soma** — o
+mesmo nível, mesma seed, mesmo bot:
+
+| regra | resultado |
+|---|---|
+| soma dos raios (`círculos não se tocam`) | **derrota**, 3 blocos restando |
+| raio da territorial (`ninguém dentro do meu círculo`) | **vitória**, 784 de mel |
+| só entre territoriais | vitória, 784 de mel |
+
+Ficou a do meio. A terceira também passa, mas quase nunca é acionada — duas
+territoriais precisariam estar em campo ao mesmo tempo, e a 20% isso é raro
+demais para a mecânica existir.
+
+### O que isso ensinou sobre o gate de aceite
+
+Nível 9 é **solucionável por construção** — o gerador o resolve jogando pra
+frente, e a solução de referência é serial e de âncora única: nunca tem duas
+colmeias em campo, então o território nunca é acionado nela. A garantia
+sobreviveu intacta à regra que travava o jogo.
+
+**Solucionável não é o mesmo que vencível.** Só o bot jogando o nível de
+verdade, com cinco slots ocupados ao mesmo tempo, encontra esse impasse. Já
+tinha aparecido no nível 8 — 4 de 5 seeds candidatas eram invencíveis pelo bot
+— e ali a saída foi trocar a seed. Aqui a seed não era o problema: a regra era.
+
+### E não era só a regra: a cadeia inteira do nível 9
+
+Corrigida a regra, o bot continuou perdendo o nível 9 em quase toda seed — por
+**1 a 6 blocos de 784**. O teste decisivo foi rodar com **0% de territoriais**:
+perdeu do mesmo jeito. Três causas empilhadas, cada uma só visível depois de
+remover a anterior:
+
+1. **A imagem era densa demais.** O favo tinha **46% de céu** contra 59–71% de
+   todos os outros níveis. Céu é espaço de manobra: com pouco, o fim de nível
+   vira migalhas de 4 cores espalhadas pelos cantos, e colmeia limitada não
+   alcança migalha. Uma moldura de +2 anéis de céu (46% → 59%) devolveu o
+   nível à faixa saudável. Regra de artista atualizada: **céu entre 59% e
+   71%** — medido, não estimado.
+
+2. **Folga zero transforma qualquer erro em derrota.** Com `--slack 1.0`
+   (o padrão), total de abelhas = total de blocos, exato. A 30% de colmeias
+   travadas com 1 movimento, UMA colmeia encalhada com abelhas dentro já é
+   derrota garantida — os blocos dela ficam órfãos. O nível 9 estreia o
+   `--slack 1.15`: as colmeias continuam encalhando (2 a 9 por seed, a
+   mecânica morde), mas o estrago é absorvível. A folga estava na tabela de
+   dificultadores desde o começo como "disponível"; este é o nível que
+   provou por que ela existe. O nível 7 caiu na mesma armadilha depois: passava
+   sozinho e perdia por 1 bloco dentro da campanha (o relógio do bot entra em
+   cada nível com outra fase, o que muda a trajetória). Regenerado com
+   `--slack 1.10`, mesmo score (50,1 → 49,8). Regra que fica: **nível com
+   colmeia limitada precisa de folga**.
+
+3. **A folga criou carta morta — e um bug de bot.** Com abelhas sobrando, uma
+   cor termina antes de as colmeias repetidas dela saírem da pilha. Essas
+   cartas mortas entopem o topo das colunas, e o bot tinha um guard que
+   recusava colocá-las (`count_of == 0 → não coloca`): ficou **340 segundos
+   parado com 5 slots livres, 20 cartas na pilha e 24 blocos na tela**. O
+   jogo estava certo — colocar carta morta custa um instante, ela é
+   dispensada na hora e a coluna anda. O bot é que não sabia descartar.
+
+Com as três correções: **7 de 7 seeds em vitória**, média de 0,07–0,30
+remanejamento por colmeia limitada. A ordem importa: sem medir cada causa
+isolada, a tentação era "afrouxar o território" — que nunca foi o culpado.
+
 ## Tipos de colmeia
 
 O raio é o eixo de variedade que o Ant Flow não tem:
@@ -243,6 +341,9 @@ de mobilidade limitada, o solver precisa passar a considerar posição e alcance
 Nada disso afeta correção — só diversão:
 
 - 4 a 8 cores por imagem.
+- **Céu (a cor que encosta na borda) entre 59% e 71%** da imagem. Faixa medida,
+  não estimada: o favo do nível 9 nasceu com 46% e era invencível — sem céu não
+  há espaço de manobra, e o fim de nível vira migalha fora de alcance.
 - Massas contíguas de pelo menos ~6 blocos por cor; pixel isolado gera colmeia
   de 3 abelhas, que é chata.
 - Uma ou duas cores parcialmente enterradas (o "amarelo cercado de rosa"), que é

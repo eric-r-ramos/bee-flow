@@ -81,12 +81,34 @@ def apply_mobility(seq: list[dict], rng: random.Random, frac: float,
     O que muda e do lado do jogador: agora ele pode tornar o nivel insoluvel
     plantando mal uma colmeia limitada. Essa e a dificuldade pretendida, e e
     por isso que a fracao comeca baixa.
+
     """
     if frac <= 0.0 or not seq:
         return 0
     n = min(len(seq), max(1, round(len(seq) * frac)))
     for hive in rng.sample(seq, n):
         hive["moves"] = moves
+    return n
+
+
+def apply_territory(seq: list[dict], rng: random.Random, frac: float) -> int:
+    """Marca `frac` das colmeias como territoriais: a area delas nao pode
+    encostar na de nenhuma outra colmeia em campo.
+
+    A garantia de solucionabilidade sobrevive pelo mesmo argumento da
+    mobilidade limitada, so que mais forte: a solucao de referencia e SERIAL -
+    o gerador esvazia uma colmeia inteira antes de plantar a proxima. Jogando
+    assim nunca ha duas colmeias em campo ao mesmo tempo, entao nenhuma area
+    pode se cruzar e a restricao nunca chega a morder.
+
+    O que muda e do lado do jogador: usar os 5 slots ao mesmo tempo passa a
+    exigir que as areas caibam sem se tocar. Essa e a dificuldade pretendida.
+    """
+    if frac <= 0.0 or not seq:
+        return 0
+    n = min(len(seq), max(1, round(len(seq) * frac)))
+    for hive in rng.sample(seq, n):
+        hive["territorial"] = True
     return n
 
 

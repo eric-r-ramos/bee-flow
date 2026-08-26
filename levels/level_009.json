@@ -1,0 +1,846 @@
+{
+  "id": "level_009",
+  "name": "O Favo",
+  "rows": 32,
+  "cols": 32,
+  "slots": 5,
+  "palette": {
+    "b": {
+      "name": "ceu",
+      "color": "#5BAEE8"
+    },
+    "n": {
+      "name": "terra",
+      "color": "#8B5E3C"
+    },
+    "o": {
+      "name": "sol",
+      "color": "#E9803C"
+    },
+    "w": {
+      "name": "nevoa",
+      "color": "#F2EFE4"
+    },
+    "y": {
+      "name": "polen",
+      "color": "#F5C242"
+    }
+  },
+  "grid": [
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbywyyywbbbbbbbbbbbbb",
+    "bbbbbbbbbbbwwwwwwwwwwbbbbbbbbbbb",
+    "bbbbbbbbbyyywyyywyyywyybbbbbbbbb",
+    "bbbbbbbbwyyywyyywyyywyyybbbbbbbb",
+    "bbbbbbbwwwwwwwwwwwwwwwwwwbbbbbbb",
+    "bbbbbbbyyywyyywyyywyyywyybbbbbbb",
+    "bbbbbbwyyywyyywyyywyyywyyybbbbbb",
+    "bbbbbbwwwwwwwwwwwwwwwwwwwwbbbbbb",
+    "bbbbbooowooowooowooowooowoobbbbb",
+    "bbbbbooowooowooowooowooowoobbbbb",
+    "bbbbbwwwwwwwwwwwwwwwwwwwwwwbbbbb",
+    "bbbbbowooowooowooowooowooowbbbbb",
+    "bbbbbowooowooowooowooowooowbbbbb",
+    "bbbbbwwwwwwwwwwwwwwwwwwwwwwbbbbb",
+    "bbbbbooowooowooowooowooowoobbbbb",
+    "bbbbbnnnwnnnwnnnwnnnwnnnwnnbbbbb",
+    "bbbbbbwwwwwwwwwwwwwwwwwwwwbbbbbb",
+    "bbbbbbwnnnwnnnwnnnwnnnwnnnbbbbbb",
+    "bbbbbbbnnnwnnnwnnnwnnnwnnbbbbbbb",
+    "bbbbbbbwwwwwwwwwwwwwwwwwwbbbbbbb",
+    "bbbbbbbbwnnnwnnnwnnnwnnnbbbbbbbb",
+    "bbbbbbbbbnnnwnnnwnnnwnnbbbbbbbbb",
+    "bbbbbbbbbbbwwwwwwwwwwbbbbbbbbbbb",
+    "bbbbbbbbbbbbbnwnnnwbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "columns": [
+    [
+      {
+        "color": "b",
+        "bees": 10,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 13,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 1
+      },
+      {
+        "color": "b",
+        "bees": 18,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 14,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1,
+        "territorial": true
+      },
+      {
+        "color": "y",
+        "bees": 14,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 1
+      },
+      {
+        "color": "b",
+        "bees": 16,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "w",
+        "bees": 21,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 13,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 12,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 16,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "b",
+        "bees": 23,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 1
+      },
+      {
+        "color": "w",
+        "bees": 13,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 1
+      },
+      {
+        "color": "n",
+        "bees": 20,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "y",
+        "bees": 5,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1
+      },
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 1
+      },
+      {
+        "color": "b",
+        "bees": 8,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "b",
+        "bees": 9,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "y",
+        "bees": 6,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "b",
+        "bees": 1,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      }
+    ],
+    [
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "b",
+        "bees": 14,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 25,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 15,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1,
+        "territorial": true
+      },
+      {
+        "color": "b",
+        "bees": 8,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 16,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 6,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 1
+      },
+      {
+        "color": "w",
+        "bees": 10,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1
+      },
+      {
+        "color": "b",
+        "bees": 28,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 1
+      },
+      {
+        "color": "b",
+        "bees": 13,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 17,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 6,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 7,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1
+      },
+      {
+        "color": "w",
+        "bees": 15,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1
+      },
+      {
+        "color": "n",
+        "bees": 15,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 5,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1
+      },
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "n",
+        "bees": 10,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 1
+      },
+      {
+        "color": "w",
+        "bees": 10,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "o",
+        "bees": 9,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 2,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      }
+    ],
+    [
+      {
+        "color": "b",
+        "bees": 9,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 13,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 14,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "y",
+        "bees": 17,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "b",
+        "bees": 9,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 9,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 10,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 18,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 12,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "o",
+        "bees": 14,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 15,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "n",
+        "bees": 8,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "w",
+        "bees": 6,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 13,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "n",
+        "bees": 2,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 2,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "n",
+        "bees": 1,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 1,
+        "territorial": true
+      }
+    ],
+    [
+      {
+        "color": "b",
+        "bees": 9,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 10,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 9,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 13,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1
+      },
+      {
+        "color": "b",
+        "bees": 10,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 16,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1,
+        "territorial": true
+      },
+      {
+        "color": "y",
+        "bees": 3,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 1
+      },
+      {
+        "color": "w",
+        "bees": 13,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 20,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "y",
+        "bees": 12,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 12,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1
+      },
+      {
+        "color": "b",
+        "bees": 22,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "b",
+        "bees": 24,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 16,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 15,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 25,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 10,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 1
+      },
+      {
+        "color": "b",
+        "bees": 15,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 3,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 6,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1,
+        "territorial": true
+      },
+      {
+        "color": "w",
+        "bees": 2,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      }
+    ],
+    [
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 12,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1
+      },
+      {
+        "color": "w",
+        "bees": 17,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 9,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 1
+      },
+      {
+        "color": "w",
+        "bees": 9,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 16,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "n",
+        "bees": 7,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 1,
+        "territorial": true
+      },
+      {
+        "color": "b",
+        "bees": 14,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 16,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 21,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 7,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1
+      },
+      {
+        "color": "n",
+        "bees": 5,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 12,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "n",
+        "bees": 8,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1,
+        "territorial": true
+      },
+      {
+        "color": "b",
+        "bees": 6,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "y",
+        "bees": 7,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 1,
+        "territorial": true
+      },
+      {
+        "color": "b",
+        "bees": 6,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1
+      },
+      {
+        "color": "b",
+        "bees": 21,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 14,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 17,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 1,
+        "territorial": true
+      },
+      {
+        "color": "b",
+        "bees": 6,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 1
+      },
+      {
+        "color": "n",
+        "bees": 8,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "y",
+        "bees": 1,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 1
+      }
+    ]
+  ],
+  "meta": {
+    "seed": 31,
+    "blocks": 1024,
+    "hives": 103,
+    "greedy_ok": false,
+    "solver_nodes": 103,
+    "difficulty": {
+      "solvable": true,
+      "score": 33.3,
+      "band": "facil",
+      "lethality": 0.02,
+      "peak_lethality": 0.333,
+      "risk_onset": 0.704,
+      "fatal_moves": 2,
+      "tested_moves": 98,
+      "unknown_moves": 0,
+      "trap_delay": 0,
+      "slot_pressure": 0.298,
+      "branching": 3.21,
+      "decisions": 80,
+      "probed": 27,
+      "sampled": true,
+      "moves": 94,
+      "greedy_ok": false
+    },
+    "limited_hives": 31,
+    "limited_moves": 1,
+    "territorial_hives": 21
+  }
+}
