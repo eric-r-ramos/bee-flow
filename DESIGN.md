@@ -310,6 +310,26 @@ colmeia**, nuvem e pedra. A primeira é a mais forte, e é também a que cobra a
 dívida técnica registrada no fim deste documento — o solver vai ter que
 aprender posição.
 
+## Anotações de UI vindas de referência do gênero
+
+Duas já aplicadas:
+
+- **Favos menores na rota.** Nós grandes viravam uma coluna de balões e o
+  caminho sumia. O que precisa se ler à distância é a trilha, não o nó.
+- **A pilha mostra a fila de cores.** Antes as colmeias seguintes eram tocos
+  escuros: dava para ver que havia mais, não de quais cores. A ordem das cores
+  é justamente o que o jogador precisa para planejar, então esconder era
+  esconder a decisão. O nome do tipo saiu junto — o hexágono já codifica o
+  alcance, e a altura foi para a fila.
+
+Uma anotada, não construída:
+
+- **Fileira de facilitadores por anúncio.** Jogos do gênero põem uma linha de
+  boosters abaixo da fila, obtidos assistindo propaganda. Encaixa no 6º slot já
+  previsto como válvula de escape de deadlock. Precisa de SDK de anúncios, o
+  que traz rede, privacidade e classificação etária — nada disso existe hoje.
+
+
 ## Em aberto
 
 - Economia: mel offline (idle)? merge de colmeias? upgrade direto?

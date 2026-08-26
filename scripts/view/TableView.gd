@@ -100,12 +100,18 @@ func _draw_decks() -> void:
 		if deck.is_empty():
 			continue
 		var top: Rect2 = game.column_rects[j]
-		var behind: int = min(deck.size(), 5)
-		for k in range(behind - 1, 0, -1):
-			var r := Rect2(top.position + Vector2(0, float(k) * 24.0), top.size)
-			var c: Color = game.color_of(deck[k]).darkened(0.15 + 0.06 * float(k))
-			draw_rect(r, c)
-			draw_rect(r, Color(0, 0, 0, 0.18), false, 2.0)
+		# A fila do que vem, nas cores REAIS. Antes eram tocos escuros: o jogador
+		# via que havia mais colmeias, mas não de quais cores - e a ordem das
+		# cores é exatamente a informação de que ele precisa para planejar.
+		var slice := 15.0
+		var room: float = game.DECK_H - top.size.y - 10.0
+		var fila: int = mini(deck.size() - 1, int(room / slice))
+		for k in range(1, fila + 1):
+			var y := top.position.y + top.size.y + float(k - 1) * slice
+			var bar := Rect2(Vector2(top.position.x + 5.0, y),
+				Vector2(top.size.x - 10.0, slice - 2.5))
+			draw_rect(bar, game.color_of(deck[k]).darkened(0.05 * float(k) + 0.04))
+			draw_rect(bar, Color(0, 0, 0, 0.22), false, 1.5)
 		_draw_token(top, deck[0], deck.size())
 
 
@@ -123,8 +129,6 @@ func _draw_token(r: Rect2, spec: Dictionary, depth: int) -> void:
 		clampf(reach * 2.8, 13.0, 26.0), "", "")
 	_label(Rect2(r.position + Vector2(62.0, 8.0), Vector2(r.size.x - 70.0, 48.0)),
 		"%d" % int(spec["bees"]), 40, Color(0.14, 0.1, 0.02))
-	_label(Rect2(r.position + Vector2(0.0, r.size.y - 32.0), Vector2(r.size.x, 28.0)),
-		str(spec.get("kind", "")), 21, Color(0.2, 0.16, 0.06))
 	if limited:
 		# Selo escuro no canto: borda grossa sozinha e sutil demais pra decisao
 		# mais importante do jogador - saber, ANTES de puxar, que aquela colmeia

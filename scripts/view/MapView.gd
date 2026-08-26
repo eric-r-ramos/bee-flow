@@ -4,7 +4,9 @@ extends Node2D
 ## A rota: os níveis como um caminho de favos, do primeiro embaixo ao último
 ## em cima. Nível limpo pode ser rejogado; o seguinte só abre depois dele.
 
-const NODE_R := 86.0
+## Favo pequeno: com muitos níveis a rota vira uma coluna de balões e some
+## o caminho. O que precisa se ler à distância é a TRILHA, não o nó.
+const NODE_R := 58.0
 
 var game: Node
 
@@ -26,7 +28,7 @@ func _draw() -> void:
 	for i in range(nodes.size() - 1):
 		_link(nodes[i], nodes[i + 1], game.is_unlocked(i + 1))
 	var last: Vector2 = nodes[nodes.size() - 1]
-	_dotted(last + Vector2(0, -NODE_R - 12.0), last + Vector2(0, -NODE_R - 150.0), false)
+	_dotted(last + Vector2(0, -NODE_R - 10.0), last + Vector2(0, -NODE_R - 110.0), false)
 
 	for i in nodes.size():
 		_node(i, nodes[i])
@@ -47,7 +49,7 @@ func _dotted(from: Vector2, to: Vector2, lit: bool) -> void:
 		return
 	var dir := (to - from) / span
 	var tone := Color(0.62, 0.45, 0.14, 0.9) if lit else Color(0.55, 0.50, 0.42, 0.35)
-	var steps := maxi(int(span / 34.0), 1)
+	var steps := maxi(int(span / 26.0), 1)
 	for k in range(steps + 1):
 		draw_circle(from + dir * (span * float(k) / float(steps)),
 			6.0 if lit else 5.0, tone)
@@ -73,29 +75,29 @@ func _node(index: int, center: Vector2) -> void:
 	draw_polyline(pts, fill.darkened(0.4), 5.0)
 
 	if unlocked:
-		_text(center + Vector2(0, 14), "%d" % (index + 1), 58, Color(0.16, 0.11, 0.03))
+		_text(center + Vector2(0, 12), "%d" % (index + 1), 46, Color(0.16, 0.11, 0.03))
 	else:
 		# Cadeado desenhado: corpo + arco.
-		draw_rect(Rect2(center + Vector2(-22, -6), Vector2(44, 38)), Color(0.28, 0.25, 0.20))
-		draw_arc(center + Vector2(0, -6), 16.0, PI, TAU, 20, Color(0.28, 0.25, 0.20), 8.0)
+		draw_rect(Rect2(center + Vector2(-15, -4), Vector2(30, 26)), Color(0.28, 0.25, 0.20))
+		draw_arc(center + Vector2(0, -4), 11.0, PI, TAU, 20, Color(0.28, 0.25, 0.20), 6.0)
 
 	if cleared:
 		# Selo de concluído, encostado no favo.
 		var seal := center + Vector2(NODE_R * 0.72, -NODE_R * 0.72)
-		draw_circle(seal, 26.0, Color(0.29, 0.55, 0.22))
+		draw_circle(seal, 19.0, Color(0.29, 0.55, 0.22))
 		draw_polyline(PackedVector2Array([
-			seal + Vector2(-11, 0), seal + Vector2(-3, 9), seal + Vector2(12, -9)
-		]), Color(1, 1, 1), 6.0)
+			seal + Vector2(-8, 0), seal + Vector2(-2, 7), seal + Vector2(9, -7)
+		]), Color(1, 1, 1), 4.5)
 
-	var label_at := center + Vector2(0, NODE_R + 42.0)
+	var label_at := center + Vector2(0, NODE_R + 32.0)
 	if unlocked:
-		_text(label_at, str(info.get("name", "")), 34, Color(0.22, 0.17, 0.08))
+		_text(label_at, str(info.get("name", "")), 30, Color(0.22, 0.17, 0.08))
 		var band := str(info.get("band", ""))
 		var mark := BFProgress.format_time(game.progress.best_time(str(info.get("id", ""))))
 		var sub := band if mark == "" else "%s  ·  recorde %s" % [band, mark]
-		_text(label_at + Vector2(0, 34), sub, 26, Color(0.42, 0.35, 0.22))
+		_text(label_at + Vector2(0, 30), sub, 23, Color(0.42, 0.35, 0.22))
 	else:
-		_text(label_at, "vença o nível %d" % index, 27, Color(0.45, 0.41, 0.34))
+		_text(label_at, "vença o nível %d" % index, 24, Color(0.45, 0.41, 0.34))
 
 
 func _text(at: Vector2, s: String, size: int, color: Color) -> void:

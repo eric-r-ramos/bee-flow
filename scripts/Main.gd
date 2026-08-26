@@ -31,7 +31,7 @@ const SLOTS_H := 160.0
 const DECK_H := 300.0
 const MARGIN_CELLS := 1.6   ## folga em celulas ao redor da imagem: a zona de voo
 const SPAWN_INTERVAL := 0.26
-const TOKEN := Vector2(170.0, 96.0)
+const TOKEN := Vector2(170.0, 78.0)
 const LANE_X0 := 85.0
 const LANE_STEP := 185.0
 
@@ -162,7 +162,7 @@ func _layout_map() -> void:
 		return
 	# Primeiro nível embaixo, o caminho sobe alternando os lados. A pilha é
 	# centrada: com poucos níveis ela não fica amontoada num canto.
-	const SPACING := 320.0
+	const SPACING := 250.0
 	var total := float(catalog.size() - 1) * SPACING
 	var bottom := DESIGN.y * 0.56 + total * 0.5
 	for i in catalog.size():
