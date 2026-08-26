@@ -165,29 +165,32 @@ o quebra-cabeça de cor e ordem. **Com colmeias limitadas, a dificuldade real é
 maior que o score.** O gerador imprime esse aviso junto do número; tratar o
 score como completo aqui seria mentir.
 
-### O que a instrumentação mostrou: a fração não é o botão
+### O que a instrumentação mostrou: nem a fração nem o número são o botão
 
-Três níveis, três frações, e o mesmo resultado:
+Quatro níveis, quatro configurações, e o mesmo resultado:
 
-| nível | fração limitada | colocadas | **esgotaram os 3 movimentos** |
-|---|---|---|---|
-| 4 | 5% | 4 | **0** |
-| 5 | 10% | 9 | **0** |
-| 6 | 20% | 15 | **0** |
+| nível | limitadas | colocadas | **esgotaram** | remanejamentos gastos |
+|---|---|---|---|---|
+| 4 | 5% × 3 mov | 4 | **0** | — |
+| 5 | 10% × 3 mov | 9 | **0** | 2 (média **0,22**/colmeia) |
+| 6 | 20% × 3 mov | 15 | **0** | 4 (média **0,27**/colmeia) |
+| 7 | 20% × **2 mov** | 17 | **0** | 3 (média **0,18**/colmeia) |
 
-Quadruplicar a fração não mudou nada. **Três remanejamentos são folgados demais
-para que o limite exista na prática** — a colmeia quase nunca precisa de mais de
-dois, então limitá-la a três é limitar acima do uso real.
+A última coluna é a resposta que faltava. **A colmeia limitada usa cerca de
+0,2 remanejamento em média** — a esmagadora maioria é plantada uma vez e nunca
+mais tocada. Um orçamento de 2 ou 3 está uma ordem de grandeza acima do uso
+real, e por isso quadruplicar a fração e depois cortar o orçamento não mudaram
+nada.
 
-Os dois botões fazem coisas diferentes:
+**A mecânica só passa a existir em `moves: 0`** — colmeia que fica onde foi
+plantada. O eixo interessante nunca foi "quantos movimentos", e sim *que fração
+das colmeias é fixa*.
 
-- **A fração** controla *quantas decisões carregam risco*.
-- **O número de movimentos** controla *se o risco existe*.
+Ressalva honesta: 0,2 é o uso do **bot**, que economiza de propósito. Um jogador
+humano experimentando move mais. Mas mesmo dez vezes esse número raramente
+esgotaria um orçamento de 2.
 
-Estamos girando o primeiro com o segundo desligado. O próximo degrau tem de ser
-`--limited-moves 2`, e depois `1`.
-
-Sem essa contagem, três níveis seguidos teriam passado no teste dando a
+Sem essa contagem, quatro níveis seguidos teriam passado no teste dando a
 impressão de escalada. **Um teste verde não distingue "a mecânica funciona" de
 "a mecânica nunca foi acionada".**
 
@@ -268,14 +271,13 @@ econômica — o que permite ser mais agressivo na geração.
 
 Medido nos níveis reais:
 
-| | 1. Broto | 2. Entardecer | 3. Colmeia | 4. Pote | 5. Girassol | 6. Rainha |
-|---|---|---|---|---|---|---|
-| Blocos | 400 | 576 | 784 | 676 | 784 | 784 |
-| Cores | 5 | 6 | 7 | 5 | 9 | 7 |
-| Letalidade | 0% | 23% | 29% | 12% | 20% | 21% |
-| Pressão de slots | 15% | 35% | 46% | 21% | **56%** | 42% |
-| Colmeias limitadas | — | — | — | 5% | 10% | **20%** |
-| **Score (cor/ordem)** | **3,7** | **49,3** | **55,2** | **39,0** | **49,6** | **49,0** |
+| | 1 Broto | 2 Entardecer | 3 Colmeia | 4 Pote | 5 Girassol | 6 Rainha | 7 Pomar |
+|---|---|---|---|---|---|---|---|
+| Blocos | 400 | 576 | 784 | 676 | 784 | 784 | 784 |
+| Letalidade | 0% | 23% | 29% | 12% | 20% | 21% | 19% |
+| Pressão de slots | 15% | 35% | 46% | 21% | 56% | 42% | 54% |
+| Limitadas | — | — | — | 5%×3 | 10%×3 | 20%×3 | **20%×2** |
+| **Score (cor/ordem)** | **3,7** | **49,3** | **55,2** | **39,0** | **49,6** | **49,0** | **50,1** |
 
 O score mede só o eixo cor/ordem, e nele a curva **não é monótona** de
 propósito: o nível 4 alivia para ensinar a mobilidade limitada. O eixo novo —
@@ -328,6 +330,12 @@ dívida técnica registrada no fim deste documento — o solver vai ter que
 aprender posição.
 
 ## Anotações de UI vindas de referência do gênero
+
+- **Caminho irregular na rota.** O zigue-zague estrito lado-a-lado lia como
+  gerado. Agora o lado ainda alterna — é o que faz o conector em L se ler como
+  trajeto — mas a posição dentro de cada lado e a altura variam. O sorteio é um
+  **hash do índice**, não `Math.random`: a rota tem de ser idêntica em toda
+  abertura do jogo, em qualquer aparelho.
 
 Duas já aplicadas:
 

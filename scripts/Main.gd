@@ -15,6 +15,7 @@ const LEVELS := [
 	"res://levels/level_004.json",
 	"res://levels/level_005.json",
 	"res://levels/level_006.json",
+	"res://levels/level_007.json",
 ]
 
 ## `-- --level res://levels/x.json` fixa um nivel e desliga a progressao,
@@ -59,6 +60,9 @@ var blocks_at_start := 0   ## quantos blocos o nível tinha; o mel final tem que
 ## distingue "a mecânica funciona" de "a mecânica nunca foi acionada".
 var limited_placed := 0
 var limited_exhausted := 0
+## Soma dos remanejamentos gastos pelas colmeias limitadas. "Nenhuma esgotou"
+## não diz qual orçamento seria apertado; isto diz.
+var limited_moves_spent := 0
 var state := State.PLAYING
 
 var cell_size := 32.0
@@ -166,9 +170,23 @@ func _layout_map() -> void:
 	const SPACING := 250.0
 	var total := float(catalog.size() - 1) * SPACING
 	var bottom := DESIGN.y * 0.56 + total * 0.5
+	# Caminho irregular em vez de zigue-zague mecânico. O lado ainda alterna -
+	# é o que faz o conector em L se ler como trajeto -, mas a posição dentro
+	# de cada lado e a altura variam. O sorteio é um hash do índice, não
+	# randi(): a rota tem de ser idêntica em toda abertura do jogo.
 	for i in catalog.size():
-		var x := 360.0 if i % 2 == 0 else 720.0
-		map_nodes.append(Vector2(x, bottom - float(i) * SPACING))
+		var side := 0.20 if i % 2 == 0 else 0.56
+		var x := DESIGN.x * (side + 0.24 * _hash_unit(i, 1))
+		var y := bottom - float(i) * SPACING + SPACING * 0.26 * (_hash_unit(i, 2) - 0.5)
+		map_nodes.append(Vector2(x, y))
+
+
+## Ruído determinístico em [0,1) a partir de um índice. Estável entre sessões
+## e aparelhos - o que randf() não seria.
+static func _hash_unit(i: int, salt: int) -> float:
+	var h: int = ((i + 1) * 2654435761) ^ ((salt + 1) * 40503)
+	h = (h ^ (h >> 13)) * 1274126177
+	return float((h ^ (h >> 16)) & 0xFFFFFF) / 16777216.0
 
 
 func is_cleared(i: int) -> bool:
@@ -218,6 +236,7 @@ func restart() -> void:
 	play_time = 0.0
 	limited_placed = 0
 	limited_exhausted = 0
+	limited_moves_spent = 0
 	state = State.PLAYING
 	hud.hide_banner()
 
@@ -600,8 +619,10 @@ func _end_drag(p: Vector2) -> void:
 			if _drag_hive.pos.distance_to(at) > cell_size * 0.6:
 				_drag_hive.pos = at
 				_drag_hive.moves_used += 1
-				if not _drag_hive.can_move():
-					limited_exhausted += 1
+				if _drag_hive.moves_allowed >= 0:
+					limited_moves_spent += 1
+					if not _drag_hive.can_move():
+						limited_exhausted += 1
 		elif _drag_column >= 0:
 			place_from_deck(_drag_column, at)
 	_drag_hive = null

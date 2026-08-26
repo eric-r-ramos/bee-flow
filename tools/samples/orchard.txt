@@ -1,0 +1,31 @@
+# Nivel 7: O Pomar. Galhos, frutos e flores so existem no MIOLO da copa -
+# posicionados por profundidade medida (>=3 celulas da borda), nao a olho.
+# b=ceu g=copa-clara d=copa-escura k=galho r=fruto w=flor n=tronco
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbggggggggggggggggbbbbbb
+bbbbbggggggggggggggggggbbbbb
+bbbbgggggwrrkgggwrrkggggbbbb
+bbbbggggwrrkddgwrrkgggwggbbb
+bbbbggrwrrkdddwrrkgggrrggbbb
+bbbbggkrwdddwrrkdddwrkgggbbb
+bbbbbgggdrrdwrrkddrkdgggbbbb
+bbbbbggwgdkdwrrkwddwrdgbbbbb
+bbbbbggrrddrrkddddwrkdgbbbbb
+bbbbbggdkrrwrrkddkdddggbbbbb
+bbbbbbgddddddwrrkwrwggbbbbbb
+bbbbbbgdrrkrkgggwgggggbbbbbb
+bbbbbbbggddwrrkggggggbbbbbbb
+bbbbbbbbggggggggggggbbbbbbbb
+bbbbbbbbbbnggggggnbbbbbbbbbb
+bbbbbbbbbbbbbnnbbbbbbbbbbbbb
+bbbbbbbbbbbbbnnbbbbbbbbbbbbb
+bbbbbbbbbbbbbnnbbbbbbbbbbbbb
+bbbbbbbbbbbbbnnbbbbbbbbbbbbb
+bbbbbbbbbbbbbnnbbbbbbbbbbbbb
+bbbbbbbbbbbbbnnbbbbbbbbbbbbb
+bbbbbbbbbbbbbnnbbbbbbbbbbbbb
+bbbbbbbbggggggggggggbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb

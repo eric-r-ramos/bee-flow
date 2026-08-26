@@ -40,8 +40,9 @@ func _process(delta: float) -> void:
 				% [game.honey, game.blocks_at_start], 1)
 			return
 		if game.has_next():
-			print("[autoplay] nivel %d limpo (colmeias limitadas: %d colocadas, %d travaram), avancando"
-				% [game.level_index + 1, game.limited_placed, game.limited_exhausted])
+			print("[autoplay] nivel %d limpo (limitadas: %d colocadas, %d travaram, %d remanejamentos), avancando"
+				% [game.level_index + 1, game.limited_placed, game.limited_exhausted,
+					game.limited_moves_spent])
 			game.advance()
 			return
 		_finish("VITORIA", 0)
@@ -69,8 +70,11 @@ func _finish(label: String, code: int) -> void:
 	_done = true
 	print("[autoplay] %s  mel=%d  abelhas=%d  blocos_restantes=%d  tempo=%.1fs"
 		% [label, game.honey, game.bees_dispatched, game.board.filled_total, _elapsed])
-	print("[autoplay] colmeias limitadas neste nivel: %d colocadas, %d travaram"
-		% [game.limited_placed, game.limited_exhausted])
+	var media := 0.0
+	if game.limited_placed > 0:
+		media = float(game.limited_moves_spent) / float(game.limited_placed)
+	print("[autoplay] colmeias limitadas: %d colocadas, %d travaram, %d remanejamentos gastos (media %.2f por colmeia)"
+		% [game.limited_placed, game.limited_exhausted, game.limited_moves_spent, media])
 	game.get_tree().quit(code)
 
 
@@ -99,8 +103,10 @@ func _unstick() -> void:
 			continue
 		h.pos = spot
 		h.moves_used += 1
-		if not h.can_move():
-			game.limited_exhausted += 1
+		if h.moves_allowed >= 0:
+			game.limited_moves_spent += 1
+			if not h.can_move():
+				game.limited_exhausted += 1
 
 
 ## Quantos blocos da cor dela a colmeia alcançaria a partir de `at`.
