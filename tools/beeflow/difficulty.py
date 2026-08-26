@@ -27,6 +27,13 @@ from .solver import apply_move, legal_moves, solve, solve_from
 SUB_CAP = 20_000     # nos por sub-busca ("essa jogada ainda deixa vencer?")
 TRAP_CAP = 4_000     # nos por medicao de atraso da armadilha
 
+# Quantos pontos de decisao sondar. O custo e O(decisoes x jogadas x sub-busca)
+# e cresce mais que linearmente com o tamanho do nivel: a 784 blocos com muita
+# ramificacao a analise completa passa de dez minutos. Amostrar mantem a
+# ferramenta usavel, e o relatorio DIZ que amostrou - um numero estimado
+# apresentado como exato seria pior que numero nenhum.
+PROBE_BUDGET = 40
+
 # Pesos do score final. IMPORTANTE: sao uma hipotese, nao uma verdade medida.
 # So dados de jogadores reais podem calibra-los - ate la o score serve pra
 # ordenar niveis entre si, nao pra prometer quanto tempo alguem vai levar.
@@ -94,20 +101,26 @@ def analyze(board: Board, columns: list[list[dict]], slots: int = 5) -> dict:
     depths: tuple = tuple(0 for _ in columns)
     hives: list[list] = []
 
+    # Passos espacados por igual ao longo da solucao, para a amostra nao ficar
+    # so no comeco (onde quase nada e fatal) nem so no fim.
+    total_steps = len(base["solution"])
+    stride = max(1, -(-total_steps // PROBE_BUDGET))
+
     tested = fatal = unknown = 0
+    probed_steps = 0
     trap_delays: list[int] = []
     branching: list[int] = []
     free_slots: list[int] = []
     per_decision: list[float] = []   # letalidade de cada decisao, em ordem
     real_decisions = 0
 
-    for chosen in base["solution"]:
+    for step_i, chosen in enumerate(base["solution"]):
         moves = legal_moves(columns, depths, hives, slots)
         branching.append(len(moves))
         free_slots.append(slots - len(hives))
 
-        if len(moves) > 1:
-            real_decisions += 1
+        if len(moves) > 1 and step_i % stride == 0:
+            probed_steps += 1
             here_tested = here_fatal = 0
             for j in moves:
                 nb, nd, nh = apply_move(b, columns, depths, hives, j)
@@ -131,6 +144,8 @@ def analyze(board: Board, columns: list[list[dict]], slots: int = 5) -> dict:
             if here_tested:
                 per_decision.append(here_fatal / here_tested)
 
+        if len(moves) > 1:
+            real_decisions += 1
         b, depths, hives = apply_move(b, columns, depths, hives, chosen)
 
     lethality = fatal / tested if tested else 0.0
@@ -166,6 +181,8 @@ def analyze(board: Board, columns: list[list[dict]], slots: int = 5) -> dict:
         "slot_pressure": round(pressure, 3),
         "branching": round(mean(branching), 2) if branching else 0.0,
         "decisions": real_decisions,
+        "probed": probed_steps,
+        "sampled": stride > 1,
         "moves": base["moves"],
         "greedy_ok": base["greedy_ok"],
     }
@@ -187,6 +204,9 @@ def report(d: dict) -> str:
         f"{d['decisions']} decisoes reais em {d['moves']} jogadas",
         f"    guloso resolve  {'SIM' if d['greedy_ok'] else 'NAO'}",
     ]
+    if d.get("sampled"):
+        lines.insert(2, f"    (letalidade ESTIMADA: {d['probed']} de {d['decisions']} "
+                        f"decisoes sondadas)")
     if d["trap_delay"] > DEEP_TRAP:
         lines.append(f"    AVISO: atraso da armadilha {d['trap_delay']:.1f} - o jogador "
                      f"perde longe do erro e nao consegue ligar causa e efeito")

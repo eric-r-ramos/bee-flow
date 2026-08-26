@@ -1,0 +1,639 @@
+{
+  "id": "level_006",
+  "name": "A Rainha",
+  "rows": 28,
+  "cols": 28,
+  "slots": 5,
+  "palette": {
+    "b": {
+      "name": "ceu",
+      "color": "#5BAEE8"
+    },
+    "k": {
+      "name": "carvao",
+      "color": "#3A2E1F"
+    },
+    "n": {
+      "name": "terra",
+      "color": "#8B5E3C"
+    },
+    "o": {
+      "name": "sol",
+      "color": "#E9803C"
+    },
+    "r": {
+      "name": "papoula",
+      "color": "#DE4B3F"
+    },
+    "w": {
+      "name": "nevoa",
+      "color": "#F2EFE4"
+    },
+    "y": {
+      "name": "polen",
+      "color": "#F5C242"
+    }
+  },
+  "grid": [
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbobboobbobbbbbbbbbb",
+    "bbbbbbbbbboooooooobbbbbbbbbb",
+    "bbbbbbbbbboooooooobbbbbbbbbb",
+    "bbbbbbbbboooooooooobbbbbbbbb",
+    "bbbbbbbbboorrrrorrobbbbbbbbb",
+    "bbbbbbbbboooooooooobbbbbbbbb",
+    "bbbbbbbbbbbbbkkbbbbbbbbbbbbb",
+    "bbbbbbbbbbbkkkkkkbbbbbbbbbbb",
+    "bbbbbbbbbbbwwkkwwbbbbbbbbbbb",
+    "bbbbbbbbbbbwwkkwwbbbbbbbbbbb",
+    "bbbbbbbbbbbkkkkkkbbbbbbbbbbb",
+    "bbbbbbbbbbbbyyyybbbbbbbbbbbb",
+    "bbbbbbbbbbbyyyyyybbbbbbbbbbb",
+    "bbbbbwwwwbkkkkkkkkbwwwwbbbbb",
+    "bbbwwwwwwwkkkkkkkkwwwwwwwbbb",
+    "bbbwwwwwwwyyynnyyywwwwwwwbbb",
+    "bbwwwwwwwyyynnnnyyywwwwwwwbb",
+    "bbbwwwwwwkkknnnnkkkwwwwwwbbb",
+    "bbbwwwwwwwkkknnkkkwwwwwwwbbb",
+    "bbbbbwwwwbyyyyyyyybwwwwbbbbb",
+    "bbbbbbbbbbyyyyyyyybbbbbbbbbb",
+    "bbbbbbbbbbbkkkkkkbbbbbbbbbbb",
+    "bbbbbbbbbbbbkkkkbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  ],
+  "columns": [
+    [
+      {
+        "color": "b",
+        "bees": 17,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 7,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 9,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 17,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 3
+      },
+      {
+        "color": "b",
+        "bees": 18,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "r",
+        "bees": 3,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 3
+      },
+      {
+        "color": "o",
+        "bees": 4,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 16,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 14,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 8,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "k",
+        "bees": 7,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "y",
+        "bees": 10,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 16,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "r",
+        "bees": 2,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 3
+      },
+      {
+        "color": "y",
+        "bees": 1,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 17,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 3,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 1,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 3
+      },
+      {
+        "color": "b",
+        "bees": 1,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      }
+    ],
+    [
+      {
+        "color": "b",
+        "bees": 10,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 22,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 10,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 16,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 3
+      },
+      {
+        "color": "b",
+        "bees": 21,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 3
+      },
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 20,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 8,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 2,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "r",
+        "bees": 1,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "n",
+        "bees": 1,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 8,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      }
+    ],
+    [
+      {
+        "color": "b",
+        "bees": 7,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 3
+      },
+      {
+        "color": "b",
+        "bees": 16,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 3
+      },
+      {
+        "color": "b",
+        "bees": 21,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 3
+      },
+      {
+        "color": "b",
+        "bees": 23,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 17,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 7,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "k",
+        "bees": 7,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 7,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 12,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 9,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 5,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "k",
+        "bees": 11,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "y",
+        "bees": 15,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 21,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 8,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 14,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 11,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 3
+      },
+      {
+        "color": "w",
+        "bees": 12,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "k",
+        "bees": 10,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "y",
+        "bees": 6,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 4,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "o",
+        "bees": 2,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 3
+      },
+      {
+        "color": "b",
+        "bees": 11,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 4,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": 3
+      }
+    ],
+    [
+      {
+        "color": "w",
+        "bees": 13,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "k",
+        "bees": 9,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 3
+      },
+      {
+        "color": "k",
+        "bees": 9,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 10,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 10,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 11,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 11,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 20,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 16,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      }
+    ],
+    [
+      {
+        "color": "o",
+        "bees": 8,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 12,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 24,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "k",
+        "bees": 3,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": 3
+      },
+      {
+        "color": "b",
+        "bees": 17,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "w",
+        "bees": 6,
+        "radius": 8.0,
+        "kind": "batedora",
+        "moves": -1
+      },
+      {
+        "color": "b",
+        "bees": 17,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": 3
+      },
+      {
+        "color": "y",
+        "bees": 6,
+        "radius": 5.5,
+        "kind": "zangao",
+        "moves": -1
+      },
+      {
+        "color": "n",
+        "bees": 6,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      },
+      {
+        "color": "n",
+        "bees": 5,
+        "radius": 3.5,
+        "kind": "operaria",
+        "moves": -1
+      }
+    ]
+  ],
+  "meta": {
+    "seed": 7,
+    "blocks": 784,
+    "hives": 76,
+    "greedy_ok": false,
+    "solver_nodes": 101,
+    "difficulty": {
+      "solvable": true,
+      "score": 49.0,
+      "band": "medio",
+      "lethality": 0.212,
+      "peak_lethality": 0.667,
+      "risk_onset": 0.114,
+      "fatal_moves": 29,
+      "tested_moves": 137,
+      "unknown_moves": 0,
+      "trap_delay": 0,
+      "slot_pressure": 0.421,
+      "branching": 3.66,
+      "decisions": 69,
+      "probed": 35,
+      "sampled": true,
+      "moves": 76,
+      "greedy_ok": false
+    },
+    "limited_hives": 15,
+    "limited_moves": 3
+  }
+}

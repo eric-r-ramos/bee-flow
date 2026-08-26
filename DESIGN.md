@@ -165,13 +165,31 @@ o quebra-cabeça de cor e ordem. **Com colmeias limitadas, a dificuldade real é
 maior que o score.** O gerador imprime esse aviso junto do número; tratar o
 score como completo aqui seria mentir.
 
-### O que a instrumentação mostrou
+### O que a instrumentação mostrou: a fração não é o botão
 
-Uma campanha completa do bot no nível 4 colocou **4 colmeias limitadas e
-nenhuma esgotou os três movimentos**. A 5% e 3 remanejamentos a mecânica é
-apresentada, não cobrada — que é o certo para o nível que a ensina, e é o
-primeiro degrau de uma escada. Sem essa contagem, um teste verde não
-distinguiria "a mecânica funciona" de "a mecânica nunca foi acionada".
+Três níveis, três frações, e o mesmo resultado:
+
+| nível | fração limitada | colocadas | **esgotaram os 3 movimentos** |
+|---|---|---|---|
+| 4 | 5% | 4 | **0** |
+| 5 | 10% | 9 | **0** |
+| 6 | 20% | 15 | **0** |
+
+Quadruplicar a fração não mudou nada. **Três remanejamentos são folgados demais
+para que o limite exista na prática** — a colmeia quase nunca precisa de mais de
+dois, então limitá-la a três é limitar acima do uso real.
+
+Os dois botões fazem coisas diferentes:
+
+- **A fração** controla *quantas decisões carregam risco*.
+- **O número de movimentos** controla *se o risco existe*.
+
+Estamos girando o primeiro com o segundo desligado. O próximo degrau tem de ser
+`--limited-moves 2`, e depois `1`.
+
+Sem essa contagem, três níveis seguidos teriam passado no teste dando a
+impressão de escalada. **Um teste verde não distingue "a mecânica funciona" de
+"a mecânica nunca foi acionada".**
 
 
 ## Tipos de colmeia
@@ -250,15 +268,14 @@ econômica — o que permite ser mais agressivo na geração.
 
 Medido nos níveis reais:
 
-| | 1. Primeiro Broto | 2. Voo do Entardecer | 3. A Colmeia no Galho | 4. O Pote de Mel | 5. O Girassol |
-|---|---|---|---|---|---|
-| Grid | 20² | 24² | 28² | 26² | 28² |
-| Blocos | 400 | 576 | 784 | 676 | 784 |
-| Cores | 5 | 6 | 7 | 5 | 9 |
-| Letalidade | 0% | 23% | 29% | 12% | 23% |
-| Pressão de slots | 15% | 35% | 46% | 21% | **56%** |
-| Colmeias limitadas | — | — | — | 5% | **10%** |
-| **Score (cor/ordem)** | **3,7** | **49,3** | **55,2** | **39,0** | **50,6** |
+| | 1. Broto | 2. Entardecer | 3. Colmeia | 4. Pote | 5. Girassol | 6. Rainha |
+|---|---|---|---|---|---|---|
+| Blocos | 400 | 576 | 784 | 676 | 784 | 784 |
+| Cores | 5 | 6 | 7 | 5 | 9 | 7 |
+| Letalidade | 0% | 23% | 29% | 12% | 20% | 21% |
+| Pressão de slots | 15% | 35% | 46% | 21% | **56%** | 42% |
+| Colmeias limitadas | — | — | — | 5% | 10% | **20%** |
+| **Score (cor/ordem)** | **3,7** | **49,3** | **55,2** | **39,0** | **49,6** | **49,0** |
 
 O score mede só o eixo cor/ordem, e nele a curva **não é monótona** de
 propósito: o nível 4 alivia para ensinar a mobilidade limitada. O eixo novo —
@@ -328,6 +345,20 @@ Uma anotada, não construída:
   boosters abaixo da fila, obtidos assistindo propaganda. Encaixa no 6º slot já
   previsto como válvula de escape de deadlock. Precisa de SDK de anúncios, o
   que traz rede, privacidade e classificação etária — nada disso existe hoje.
+
+
+## O medidor tem um teto de escala
+
+O custo da análise é O(decisões × jogadas × sub-busca) e cresce mais que
+linearmente com o tamanho do nível: a 784 blocos com muita ramificação, a
+varredura completa passou de dez minutos e ficou inutilizável.
+
+A saída foi **amostrar**: sondar no máximo 40 pontos de decisão, espaçados por
+igual ao longo da solução. Validado contra a medição exaustiva do nível 5 —
+**49,6 estimado contra 50,6 exato**, sondando 24 de 72 decisões.
+
+O relatório sempre diz quando amostrou. Um número estimado apresentado como
+exato seria pior que número nenhum.
 
 
 ## Em aberto

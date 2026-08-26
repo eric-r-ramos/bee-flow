@@ -1,0 +1,31 @@
+# Nivel 6: A Rainha. As joias estao dentro da coroa e o saco de mel dentro
+# do corpo - cores minusculas e fundas, o perfil que produz letalidade.
+# b=ceu o=coroa r=joia k=corpo-escuro w=asa/olho y=corpo n=saco-de-mel
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbobboobbobbbbbbbbbb
+bbbbbbbbbboooooooobbbbbbbbbb
+bbbbbbbbbboooooooobbbbbbbbbb
+bbbbbbbbboooooooooobbbbbbbbb
+bbbbbbbbboorrrrorrobbbbbbbbb
+bbbbbbbbboooooooooobbbbbbbbb
+bbbbbbbbbbbbbkkbbbbbbbbbbbbb
+bbbbbbbbbbbkkkkkkbbbbbbbbbbb
+bbbbbbbbbbbwwkkwwbbbbbbbbbbb
+bbbbbbbbbbbwwkkwwbbbbbbbbbbb
+bbbbbbbbbbbkkkkkkbbbbbbbbbbb
+bbbbbbbbbbbbyyyybbbbbbbbbbbb
+bbbbbbbbbbbyyyyyybbbbbbbbbbb
+bbbbbwwwwbkkkkkkkkbwwwwbbbbb
+bbbwwwwwwwkkkkkkkkwwwwwwwbbb
+bbbwwwwwwwyyynnyyywwwwwwwbbb
+bbwwwwwwwyyynnnnyyywwwwwwwbb
+bbbwwwwwwkkknnnnkkkwwwwwwbbb
+bbbwwwwwwwkkknnkkkwwwwwwwbbb
+bbbbbwwwwbyyyyyyyybwwwwbbbbb
+bbbbbbbbbbyyyyyyyybbbbbbbbbb
+bbbbbbbbbbbkkkkkkbbbbbbbbbbb
+bbbbbbbbbbbbkkkkbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
