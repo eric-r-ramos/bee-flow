@@ -81,26 +81,36 @@ func _finish(label: String, code: int) -> void:
 ## Colmeia parada com abelhas sobrando e sem alvo no alcance: leva ela ate onde
 ## ainda ha bloco da cor dela. E exatamente o que o jogador faz com o dedo.
 func _unstick() -> void:
+	# Guardar o último movimento é bom estratégia — até o jogo parar. Se
+	# ninguém está coletando e ninguém tem alvo, esperar não traz nada: o
+	# preço de gastar mal passa a ser menor que o de nunca gastar. Sem esta
+	# cláusula o bot ficou 400 segundos imóvel com 170 blocos na tela.
+	var travado := true
+	for h in game.hives:
+		if h.in_flight > 0 or game.pick_target(h) >= 0:
+			travado = false
+			break
+
 	for h in game.hives:
 		if h.bees_left <= 0 or h.in_flight > 0 or not h.can_move():
 			continue
 		if game.pick_target(h) >= 0:
 			continue
-		var spot := _best_spot(h.color_key, h.radius_cells)
+		var spot := _best_spot(h.color_key, h.radius_cells, h.territorial, h,
+			h.moves_allowed >= 0)
 		if spot.x >= INF:
 			continue
-		# Com remanejamentos escassos, só vale mexer se o novo ponto render
-		# bem mais que o atual - senão o bot queima os três movimentos em
-		# ajustes minúsculos e trava a colmeia longe do que falta.
-		#
-		# A exceção importa: se a colmeia não alcança NADA de onde está, ela é
-		# peso morto e mover sempre vale. Sem essa cláusula o bot travava a
-		# campanha com 1 bloco restante, recusando-se a mover por um ganho de
-		# apenas um - e o nível ficava eternamente jogável mas nunca jogado.
-		var cobertura_atual := _covered(h, h.pos)
-		if h.moves_allowed >= 0 and cobertura_atual > 0 \
-				and _covered(h, spot) <= cobertura_atual + 2:
-			continue
+		# Com remanejamentos escassos, a exigência para mexer cresce conforme o
+		# orçamento encolhe. Com três movimentos dá pra ajustar por pouco; com
+		# UM, gastar cedo por um ganho pequeno é o que trava a colmeia para
+		# sempre - foi exatamente assim que o bot perdeu o nível 8 na primeira
+		# tentativa, com 7 de 24 colmeias limitadas encalhadas.
+		if h.moves_allowed >= 0:
+			var restante: int = h.moves_allowed - h.moves_used
+			var minimo: int = 1 if travado else \
+				(2 if restante >= 3 else (5 if restante == 2 else 10))
+			if _covered(h, spot) - _covered(h, h.pos) < minimo:
+				continue
 		h.pos = spot
 		h.moves_used += 1
 		if h.moves_allowed >= 0:
@@ -119,6 +129,15 @@ func _covered(h, at: Vector2) -> int:
 	return n
 
 
+## Todas as células daquela cor que ainda existem, expostas ou não.
+func _cells_of(key: String) -> Array:
+	var out := []
+	for i in game.board.cells.size():
+		if game.board.key_at(i) == key:
+			out.append(i)
+	return out
+
+
 func _place_next() -> void:
 	if game.free_slots() == 0:
 		return
@@ -135,7 +154,9 @@ func _place_next() -> void:
 	if best_j < 0:
 		return
 	var spec: Dictionary = game.columns[best_j][0]
-	var spot := _best_spot(str(spec["color"]), float(spec["radius"]))
+	var spot := _best_spot(str(spec["color"]), float(spec["radius"]),
+		bool(spec.get("territorial", false)), null,
+		int(spec.get("moves", -1)) >= 0)
 	if spot.x == INF:
 		# Nenhum topo de pilha tem bloco exposto. O jogador humano tem que
 		# queimar um slot mesmo assim, pra desenterrar - a colmeia espera
@@ -143,7 +164,8 @@ func _place_next() -> void:
 		# em níveis com cores muito enterradas.
 		if game.board.count_of(str(spec["color"])) <= 0:
 			return
-		spot = _any_spot()
+		spot = _any_spot(float(spec["radius"]) * game.cell_size,
+			bool(spec.get("territorial", false)))
 		if spot.x == INF:
 			return
 	game.place_from_deck(best_j, spot)
@@ -151,21 +173,29 @@ func _place_next() -> void:
 
 ## Qualquer ponto livre da zona de voo, pra estacionar uma colmeia que ainda
 ## não tem o que coletar.
-func _any_spot() -> Vector2:
+func _any_spot(reach := 0.0, territorial := false) -> Vector2:
 	var area: Rect2 = game.board_area
 	for fy in [0.06, 0.5, 0.94]:
 		for fx in [0.06, 0.5, 0.94]:
 			var probe := area.position + Vector2(area.size.x * fx, area.size.y * fy)
-			if game.can_place_at(probe):
+			if game.can_place_at(probe, reach, territorial):
 				return probe
 	return Vector2(INF, INF)
 
 
 ## Melhor ponto de pouso: o que cobre mais blocos daquela cor sem cair em cima
 ## de bloco nenhum.
-func _best_spot(color_key: String, radius_cells: float) -> Vector2:
+## `durable` muda o critério: em vez do que está exposto AGORA, pontua pelo que
+## ainda existe daquela cor no tabuleiro inteiro. Colmeia que não pode se mexer
+## precisa de um ponto que continue valendo quando a fronteira andar - plantar
+## pela fronteira do momento é o que encalhava as limitadas.
+func _best_spot(color_key: String, radius_cells: float, territorial := false,
+		ignore = null, durable := false) -> Vector2:
 	var frontier: Array = game.board.frontier_of(color_key)
 	if frontier.is_empty():
+		return Vector2(INF, INF)
+	var alvo: Array = _cells_of(color_key) if durable else frontier
+	if alvo.is_empty():
 		return Vector2(INF, INF)
 
 	var reach: float = radius_cells * game.cell_size
@@ -176,10 +206,10 @@ func _best_spot(color_key: String, radius_cells: float) -> Vector2:
 	for k in range(0, frontier.size(), step):
 		var center: Vector2 = game.cell_center(frontier[k])
 		for cand in _candidates(center, reach):
-			if not game.can_place_at(cand):
+			if not game.can_place_at(cand, reach, territorial, ignore):
 				continue
 			var score := 0
-			for cell in frontier:
+			for cell in alvo:
 				if cand.distance_to(game.cell_center(cell)) <= reach:
 					score += 1
 			if score > best_score:

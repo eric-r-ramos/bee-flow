@@ -1,0 +1,31 @@
+# Nivel 8: O Enxame. Abelhas e brilhos so existem no MIOLO do cacho -
+# posicionados por profundidade medida (>=3 celulas da borda).
+# b=ceu n=galho o=cacho y=cacho-claro k=abelha r=brilho w=cera d=chao
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbnnnnnnnnnnnnnnnnnnnnbbbb
+bbbbnnnnnnnnnnnnnnnnnnnnbbbb
+bbbbbbbbbbbbbnnbbbbbbbbbbbbb
+bbbbbbbbbbbbbnnbbbbbbbbbbbbb
+bbbbbbbbbbbboooobbbbbbbbbbbb
+bbbbbbbbbboooooooobbbbbbbbbb
+bbbbbbbbbyyyyowrooobbbbbbbbb
+bbbbbbbbyyrkrkoooooobbbbbbbb
+bbbbbbbbyywwrkoorroobbbbbbbb
+bbbbbbbbyyrrwyorkkoobbbbbbbb
+bbbbbbbboyyyrwrkoyoobbbbbbbb
+bbbbbbbboowworkyrryybbbbbbbb
+bbbbbbbbboorrwrkkyybbbbbbbbb
+bbbbbbbbboooorkyyyybbbbbbbbb
+bbbbbbbbboowwoorryybbbbbbbbb
+bbbbbbbbboorrwrkkyybbbbbbbbb
+bbbbbbbbboyyyrkooyobbbbbbbbb
+bbbbbbbbbbyywwrroobbbbbbbbbb
+bbbbbbbbbbbyyrkoobbbbbbbbbbb
+bbbbbbbbbbbyyyooobbbbbbbbbbb
+bbbbbbbbbbboowroobbbbbbbbbbb
+bbbbbbbbbbbboooobbbbbbbbbbbb
+bbbbbbbbbbbboooobbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbddddddddddddddddbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbb

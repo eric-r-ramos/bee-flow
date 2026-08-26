@@ -16,6 +16,7 @@ const LEVELS := [
 	"res://levels/level_005.json",
 	"res://levels/level_006.json",
 	"res://levels/level_007.json",
+	"res://levels/level_008.json",
 ]
 
 ## `-- --level res://levels/x.json` fixa um nivel e desliga a progressao,
