@@ -63,6 +63,10 @@ func _process(delta: float) -> void:
 			% [_elapsed, game.board.filled_total, game.free_slots(), game.hives.size(),
 				_deck_left()])
 
+	if _check_terminal_deadlock():
+		_finish("DEADLOCK TERMINAL: colmeia presa com abelhas sem alcance", 1)
+		return
+
 	_clock += delta
 	if _clock < STEP_INTERVAL:
 		return
@@ -242,3 +246,18 @@ func _deck_left() -> int:
 	for deck in game.columns:
 		n += (deck as Array).size()
 	return n
+
+
+## Detecta deadlock terminal: colmeia presa com abelhas mas sem alcance para nenhum bloco.
+func _check_terminal_deadlock() -> bool:
+	for h in game.hives:
+		if h.bees_left <= 0 or h.in_flight > 0:
+			continue
+		if h.can_move():
+			continue
+		# Presa (não pode se mover). Verifica se consegue alcançar algo.
+		if _covered(h, h.pos) > 0:
+			continue
+		# Presa com abelhas mas sem alcance para nada = deadlock terminal
+		return true
+	return false

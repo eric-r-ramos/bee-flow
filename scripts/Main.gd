@@ -421,8 +421,11 @@ func _is_deadlocked() -> bool:
 			# Reposicionavel: basta existir bloco da cor dela em qualquer lugar.
 			if not board.frontier_of(h.color_key).is_empty():
 				return false
-		elif pick_target(h) >= 0:
-			return false
+		else:
+			# Presa: precisa ter alvo NA FRONTEIRA para continuar coletando.
+			# Se nao tem alvo, e blocos ainda existem, e deadlock terminal.
+			if pick_target(h) >= 0:
+				return false
 	return true
 
 
