@@ -60,7 +60,7 @@ Cada item entra sozinho, medindo o impacto antes do próximo:
 |---|---|---|---|
 | 1 | **Mobilidade da colmeia** (`moves`) | `-1` livre → `N` remanejamentos → `0` fixa onde plantou. | **em uso** (níveis 4–9) |
 | 1b | **Território** (`territorial`) | Ninguém pousa dentro do círculo dela. | **em uso** (nível 9) |
-| 2 | **Folga de abelhas** (`--slack`) | Total de abelhas ÷ blocos daquela cor. | **em uso** (nível 9) |
+| 2 | **Folga de abelhas** (`--slack`) | Total de abelhas ÷ blocos daquela cor. | **vetada em playtest** — abelha sobrando facilita e confunde |
 | 3 | **Profundidade do enterro** (`--bury`) | Fração empurrada para o fundo de outra coluna. | em uso |
 | 4 | **Colmeias ocultas (`?`)** | O jogador aposta sem saber o que vem. | pendente |
 | 5 | **Nuvem** | Esconde uma região até X abelhas serem despachadas. | pendente |
@@ -268,30 +268,54 @@ remover a anterior:
    nível à faixa saudável. Regra de artista atualizada: **céu entre 59% e
    71%** — medido, não estimado.
 
-2. **Folga zero transforma qualquer erro em derrota.** Com `--slack 1.0`
-   (o padrão), total de abelhas = total de blocos, exato. A 30% de colmeias
-   travadas com 1 movimento, UMA colmeia encalhada com abelhas dentro já é
-   derrota garantida — os blocos dela ficam órfãos. O nível 9 estreia o
-   `--slack 1.15`: as colmeias continuam encalhando (2 a 9 por seed, a
-   mecânica morde), mas o estrago é absorvível. A folga estava na tabela de
-   dificultadores desde o começo como "disponível"; este é o nível que
-   provou por que ela existe. O nível 7 caiu na mesma armadilha depois: passava
-   sozinho e perdia por 1 bloco dentro da campanha (o relógio do bot entra em
-   cada nível com outra fase, o que muda a trajetória). Regenerado com
-   `--slack 1.10`, mesmo score (50,1 → 49,8). Regra que fica: **nível com
-   colmeia limitada precisa de folga**.
+2. **Folga zero transforma qualquer colmeia encalhada em derrota.** Com
+   `--slack 1.0` (o padrão), total de abelhas = total de blocos, exato. A 30%
+   de colmeias travadas com 1 movimento, UMA colmeia encalhada com abelhas
+   dentro deixa os blocos dela órfãos — derrota garantida. A primeira reação
+   foi dar folga (`--slack 1.15`), e funcionou para o bot: 7 de 7 seeds.
 
-3. **A folga criou carta morta — e um bug de bot.** Com abelhas sobrando, uma
-   cor termina antes de as colmeias repetidas dela saírem da pilha. Essas
-   cartas mortas entopem o topo das colunas, e o bot tinha um guard que
-   recusava colocá-las (`count_of == 0 → não coloca`): ficou **340 segundos
-   parado com 5 slots livres, 20 cartas na pilha e 24 blocos na tela**. O
-   jogo estava certo — colocar carta morta custa um instante, ela é
-   dispensada na hora e a coluna anda. O bot é que não sabia descartar.
+3. **A folga criou carta morta — e dois sintomas.** Com abelhas sobrando, uma
+   cor termina antes de as colmeias repetidas dela saírem da pilha. Primeiro
+   sintoma: o bot recusava colocá-las e ficou **340 segundos parado com 5
+   slots livres, 20 cartas na pilha e 24 blocos na tela** (corrigido: ele
+   agora estaciona a carta). Segundo sintoma, achado pelo *designer jogando
+   no celular*: uma colmeia de 14 abelhas para 1 bloco restante, e uma
+   colmeia arrastada para a mesa que **sumiu no mesmo quadro** — a regra de
+   liberação dispensava colmeia de cor esgotada na hora.
 
-Com as três correções: **7 de 7 seeds em vitória**, média de 0,07–0,30
-remanejamento por colmeia limitada. A ordem importa: sem medir cada causa
-isolada, a tentação era "afrouxar o território" — que nunca foi o culpado.
+### A folga foi vetada em jogo real
+
+O playtest derrubou a doutrina do item 2. Abelha sobrando **facilita e
+confunde**: capacidade que nunca vai ser usada não é válvula, é ruído — e a
+colmeia que some da mesa com abelha dentro é a versão visível desse ruído.
+Decisão de design, por cima da conveniência do teste:
+
+- **Abelha = mel, exato.** Cada abelha carrega um bloco e não volta; folga
+  vira abelha decorativa. `--slack` continua existindo no gerador, mas
+  nenhum nível da campanha o usa.
+- **Colmeia nunca some com abelha dentro.** Ela só devolve o slot quando
+  gasta a última abelha. Com folga 1.0 a cor só acaba quando as abelhas dela
+  acabam junto, então nada fica preso em nível bem gerado — e se um nível
+  mal gerado prender um slot, o clog é o sintoma visível do erro, não um
+  desaparecimento mudo.
+- **Colmeia limitada encalhada = derrota.** É a dificuldade pretendida, sem
+  amortecedor. O gate de aceite volta a ser o de sempre: só publica seed que
+  o bot vence — no favo, 41 e 53 vencem a folga 1.0; 5 e 23 perdem por 2–9
+  blocos e foram descartadas.
+
+O detalhe que fecha a conta: com abelhas == blocos, carta morta com abelha é
+**aritmeticamente impossível** (a cor só se esgota consumindo todas as
+abelhas dela). O item 3 inteiro era consequência da folga, não um problema
+próprio. A cadeia final tem duas causas de verdade — imagem densa e seed —
+e uma falsa: a folga, que criou os problemas que parecia resolver.
+
+O preço do veto, medido: **sem folga, o teto de dificuldade publicável cai.**
+No pomar (nível 7), a seed 37 — score 50,1, a mais afiada já gerada — virou
+invencível para o bot a folga 1.0; das seeds que ele vence, quase todas são
+triviais (score 3–8, guloso resolve) e só a seed 5 (29,4, guloso NÃO) tem
+substância. O gate corta exatamente os deals mais tensos. Subir esse teto de
+volta é trabalho para o *bot* (jogar melhor), não para o gerador — afrouxar o
+gate seria publicar nível que talvez ninguém vença.
 
 ## Tipos de colmeia
 

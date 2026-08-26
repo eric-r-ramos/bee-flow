@@ -348,16 +348,19 @@ func _spawn_bee(h: BFHive, cell: int) -> void:
 	bee_layer.add_child(bee)
 
 
-## Colmeia sai de campo quando esvazia ou quando a cor dela acaba no tabuleiro -
-## e a segunda condicao que permite gerar niveis com folga de abelhas sem que o
-## excedente prenda um slot pra sempre.
+## Colmeia so devolve o slot quando gasta a ultima abelha. Nunca some com
+## abelha dentro: a regra antiga ("ou quando a cor dela acaba") dispensava a
+## colmeia no mesmo quadro em que o jogador a soltava - ela simplesmente
+## desaparecia da mesa, sem explicacao. Com abelhas == blocos (folga 1.0) a
+## cor so acaba quando as abelhas dela acabaram junto, entao a regra nova nao
+## prende slot nenhum em nivel bem gerado - e em nivel mal gerado, prender o
+## slot E o sintoma visivel do erro.
 func _retire_finished() -> void:
 	for h in hives.duplicate():
-		if h.in_flight > 0:
+		if h.in_flight > 0 or h.bees_left > 0:
 			continue
-		if h.bees_left <= 0 or board.count_of(h.color_key) == 0:
-			slots[h.slot] = null
-			hives.erase(h)
+		slots[h.slot] = null
+		hives.erase(h)
 
 
 ## Abelhas ainda no ar carregando bloco.
@@ -406,10 +409,14 @@ func _is_deadlocked() -> bool:
 	if free_slots() > 0 and _any_placeable_deck():
 		return false
 	for h in hives:
-		if h.in_flight > 0 or h.bees_left <= 0:
+		if h.in_flight > 0:
 			return false
-		if board.count_of(h.color_key) == 0:
+		if h.bees_left <= 0:
 			return false   # vai se aposentar e liberar o slot
+		if board.count_of(h.color_key) == 0:
+			# Estacionada para sempre: tem abelha mas a cor dela nao existe
+			# mais. Ocupa o slot e nao destrava nada - nao e esperanca.
+			continue
 		if h.can_move():
 			# Reposicionavel: basta existir bloco da cor dela em qualquer lugar.
 			if not board.frontier_of(h.color_key).is_empty():

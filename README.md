@@ -86,9 +86,10 @@ Knobs úteis:
 - `--territorial-frac` — fração de colmeias territoriais: ninguém pousa dentro
   do círculo delas. O nível 9 usa `0.20`. Ver `DESIGN.md`, "Território" — a
   primeira versão da regra tornava o fim de nível impossível.
-- `--slack` — folga de abelhas por cor. `1.0` é cirúrgico, `1.3` perdoa. Com
-  colmeias limitadas, `1.0` transforma qualquer colmeia encalhada em derrota
-  certa — os níveis 7 e 9 usam `1.10`/`1.15` por isso (ver `DESIGN.md`).
+- `--slack` — folga de abelhas por cor. `1.0` é cirúrgico e é o que a campanha
+  inteira usa: em playtest, abelha sobrando facilitou e confundiu (14 abelhas
+  para 1 bloco), e criava colmeia que sumia da mesa com abelha dentro. Ver
+  `DESIGN.md`, "A folga foi vetada em jogo real".
 - `--columns`, `--slots`, `--seed`.
 
 Nenhum desses knobs é monotônico por construção — sempre confira o `guloso=` na
@@ -124,10 +125,9 @@ levels/
   level_004.json     O Pote de Mel — 26x26, apresenta mobilidade limitada (5%)
   level_005.json     O Girassol — 28x28, 9 cores, 10% de colmeias limitadas
   level_006.json     A Rainha — 28x28, 20% de colmeias limitadas (3 movimentos)
-  level_007.json     O Pomar — 28x28, 20% limitadas (2 mov), folga 1.10
+  level_007.json     O Pomar — 28x28, 20% de colmeias limitadas (2 movimentos)
   level_008.json     O Enxame — 28x28, 30% de colmeias limitadas (1 movimento)
   level_009.json     O Favo — 32x32, 30% limitadas (1 mov) + 20% territoriais
-                     + folga 1.15 — a folga é o que absorve colmeia encalhada
   test_deadlock.json nível impossível de propósito, para o teste de derrota
 ```
 

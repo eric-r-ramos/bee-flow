@@ -168,11 +168,10 @@ func _place_next() -> void:
 		# parada até a cor dela vir à tona. Sem isso o bot trava a si mesmo
 		# em níveis com cores muito enterradas.
 		#
-		# E vale TAMBÉM para colmeia de cor já limpa (count_of == 0): com folga
-		# de abelhas, a cor acaba antes das colmeias repetidas dela saírem da
-		# pilha, e essas cartas mortas entopem o topo das colunas. Colocar uma
-		# custa um instante - sem alvo e sem cor, ela é dispensada na hora e a
-		# coluna anda. Recusar era o bot parado 340s com 5 slots livres, 20
+		# E vale TAMBÉM para colmeia de cor já limpa (count_of == 0), que com
+		# abelhas == blocos (folga 1.0) nem deveria existir - mas se um nível
+		# fora do padrão criar uma, colocá-la estaciona a carta e a coluna
+		# anda. Recusar já foi o bot parado 340s com 5 slots livres, 20
 		# cartas na pilha e 24 blocos na tela.
 		spot = _any_spot(float(spec["radius"]) * game.cell_size,
 			bool(spec.get("territorial", false)))
