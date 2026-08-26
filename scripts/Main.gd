@@ -387,6 +387,9 @@ func _check_end() -> void:
 			hud.show_banner("nivel %d concluido" % (level_index + 1), "proximo nivel")
 		else:
 			hud.show_banner("todos os niveis concluidos", "jogar de novo")
+	elif _bee_shortage() != "":
+		state = State.LOST
+		hud.show_banner("colmeia presa sem alcance", "tentar de novo")
 	elif _is_deadlocked():
 		state = State.LOST
 		hud.show_banner("sem movimentos", "tentar de novo")
@@ -421,12 +424,75 @@ func _is_deadlocked() -> bool:
 			# Reposicionavel: basta existir bloco da cor dela em qualquer lugar.
 			if not board.frontier_of(h.color_key).is_empty():
 				return false
-		else:
-			# Presa: precisa ter alvo NA FRONTEIRA para continuar coletando.
-			# Se nao tem alvo, e blocos ainda existem, e deadlock terminal.
-			if pick_target(h) >= 0:
-				return false
+		elif pick_target(h) >= 0:
+			return false
 	return true
+
+
+## Abelha encalhada e derrota na hora.
+##
+## O nivel traz uma abelha por bloco, cor a cor - folga zero. Entao toda abelha
+## que nunca mais vai voar e um bloco que ninguem vai coletar: o final feliz ja
+## e impossivel, por mais slot livre que ainda sobre. Sem esta conta o jogador
+## seguia jogando meia partida ate travar de vez, e so entao descobria que a
+## derrota tinha sido decidida vinte jogadas antes - foi o que aconteceu no
+## teste com uma colmeia presa no meio do tabuleiro.
+##
+## Encalha a colmeia PRESA (sem remanejamento) que nao tem nenhum bloco da cor
+## dela dentro do raio - enterrado conta, o miolo ainda pode abrir. Colmeia que
+## ainda anda alcanca qualquer bloco da cor dela, em qualquer lugar, entao nunca
+## encalha enquanto a cor existir. Como o tabuleiro so encolhe, a condicao nunca
+## se desfaz: da pra declarar na hora.
+##
+## Devolve a chave da cor que ficou a descoberto, ou "" se ninguem esta faltando.
+func _bee_shortage() -> String:
+	# A varredura completa so roda quando existe candidata a encalhada, que e o
+	# caso raro. No quadro normal isto sai na primeira linha.
+	var suspeita := false
+	for h in hives:
+		if h.bees_left > 0 and (not h.can_move() or board.count_of(h.color_key) == 0):
+			suspeita = true
+			break
+	if not suspeita:
+		return ""
+
+	var need := {}
+	var have := {}
+	for k in board.color_keys:
+		need[k] = 0
+		have[k] = 0
+	var reach := {}
+	for h in hives:
+		reach[h] = 0
+	for i in board.cells.size():
+		if board.cells[i] == BFBoard.EMPTY:
+			continue
+		var k := board.key_at(i)
+		need[k] += 1
+		var c := cell_center(i)
+		for h in hives:
+			if h.color_key != k or reach[h] > 0:
+				continue
+			if h.can_move() or c.distance_to(h.pos) <= h.radius_cells * cell_size:
+				reach[h] = 1
+
+	for h in hives:
+		if reach[h] > 0:
+			have[h.color_key] += h.bees_left
+	for node in bee_layer.get_children():
+		var bee := node as BFBee
+		if bee == null or bee.phase == BFBee.Phase.CARRYING:
+			continue   # o bloco dela ja saiu do tabuleiro: nao esta em `need`
+		if int(reach.get(bee.hive, 0)) > 0:
+			have[bee.hive.color_key] += 1
+	for col in columns:
+		for spec in col:
+			have[str(spec["color"])] += int(spec["bees"])
+
+	for k in need:
+		if need[k] > have[k]:
+			return k
+	return ""
 
 
 ## Existe algum topo de pilha que caiba em algum lugar da zona de voo?

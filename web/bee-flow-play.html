@@ -1,0 +1,1096 @@
+<title>Bee Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Karla:wght@400;600;700&display=swap">
+<style>
+  /* Paleta: interior de colmeia. Escolha unica e deliberada - a cera e o mel
+     nao tem versao clara, entao a pagina nao troca de tema, so pinta tudo. */
+  :root {
+    --hive:   #211705;
+    --hive-2: #2E2109;
+    --wax:    #F0CE7C;
+    --comb:   #C08A2A;
+    --paper:  #E7E0CE;
+    --text:   #F6EDD9;
+    --muted:  #A08D6C;
+    --good:   #7FBF5A;
+    --bad:    #D96A4A;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--hive);
+    color: var(--text);
+    font-family: "Karla", ui-sans-serif, system-ui, sans-serif;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+  #app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+
+  #hud {
+    flex: 0 0 auto;
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px 4px;
+  }
+  #brand {
+    font-family: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 800; font-size: 19px; line-height: 1.05;
+    color: var(--wax); letter-spacing: .01em;
+    min-width: 0; flex: 0 1 auto;
+  }
+  #brand span {
+    display: block; font-family: "Karla", sans-serif; font-weight: 400;
+    font-size: 11px; color: var(--muted); letter-spacing: .04em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #stats {
+    margin-right: auto; display: flex; align-items: baseline; gap: 4px;
+    font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  #stats b {
+    font-family: "Baloo 2", sans-serif; font-weight: 600;
+    font-size: 16px; color: var(--text);
+  }
+  #stats b#sLevel { color: var(--wax); }
+  #stats i { width: 1px; height: 13px; background: #4A3A18; display: inline-block; margin: 0 3px; }
+
+  #ctl { display: flex; gap: 6px; }
+  button {
+    font-family: "Karla", sans-serif; font-weight: 700; font-size: 11.5px;
+    color: var(--wax); background: var(--hive-2);
+    border: 1px solid #4A3A18; border-radius: 8px;
+    padding: 7px 9px; cursor: pointer; touch-action: manipulation;
+    white-space: nowrap;
+  }
+  button:active { background: #3B2B0C; }
+  button:focus-visible { outline: 2px solid var(--wax); outline-offset: 2px; }
+  button.on { background: var(--comb); color: #24190A; border-color: var(--wax); }
+
+  #game { flex: 1 1 auto; width: 100%; display: block; touch-action: none; }
+
+  #tip {
+    flex: 0 0 auto; padding: 5px 14px 10px; text-align: center;
+    font-size: 11.5px; color: var(--muted); min-height: 28px;
+  }
+
+  #over {
+    position: fixed; inset: 0; display: none;
+    align-items: center; justify-content: center;
+    background: rgba(20, 13, 2, .82); backdrop-filter: blur(3px);
+    padding: 24px;
+  }
+  #over.show { display: flex; }
+  #card {
+    background: var(--hive-2); border: 1px solid #4A3A18; border-radius: 16px;
+    padding: 26px 24px; text-align: center; max-width: 320px;
+  }
+  #oStep {
+    font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--comb); margin: 0 0 8px; font-weight: 700;
+  }
+  #over.show #card { animation: rise .3s cubic-bezier(.2,.8,.3,1) both; }
+  @keyframes rise { from { transform: translateY(16px) scale(.95); opacity: 0; } }
+  #card h2 {
+    font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 27px;
+    margin: 0 0 6px; text-wrap: balance;
+  }
+  #card p { margin: 0 0 18px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+  #card p b { color: var(--text); font-variant-numeric: tabular-nums; }
+  #card button { font-size: 14px; padding: 11px 22px; }
+  #card #oMap { display: block; margin: 10px auto 0; background: none;
+                border-color: transparent; color: var(--muted); font-weight: 600; }
+  #card #oMap:active { background: var(--hive); }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+    #over.show #card { animation: none; }
+  }
+</style>
+
+<div id="app">
+  <div id="hud">
+    <div id="brand">Bee Flow<span>PRIMEIRO BROTO</span></div>
+    <div id="stats"><b id="sLevel">1</b><i></i><b id="sBlocks">0</b>blocos<i></i><b id="sHoney">0</b>mel</div>
+    <div id="ctl">
+      <button id="bMap" type="button">rota</button>
+      <button id="bSpeed" type="button" aria-pressed="false">&times;1</button>
+      <button id="bAgain" type="button">reiniciar</button>
+    </div>
+  </div>
+  <canvas id="game"></canvas>
+  <div id="tip">Arraste uma colmeia de baixo at&eacute; perto dos blocos da cor dela</div>
+</div>
+
+<div id="over" role="dialog" aria-modal="true">
+  <div id="card">
+    <p id="oStep">—</p>
+    <h2 id="oTitle">—</h2>
+    <p id="oBody">—</p>
+    <button id="oAgain" type="button">jogar de novo</button>
+    <button id="oMap" class="ghost" type="button">voltar &agrave; rota</button>
+  </div>
+</div>
+
+<script>
+const LEVELS = [{"id":"level_001","name":"Primeiro Broto","rows":20,"cols":20,"slots":5,"palette":{"b":{"name":"ceu","color":"#5BAEE8"},"d":{"name":"folha","color":"#357F3C"},"g":{"name":"caule","color":"#6FBF54"},"p":{"name":"petala","color":"#E8698C"},"y":{"name":"polen","color":"#F5C242"}},"grid":["bbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbb","bbbbbbbppbbppbbbbbbb","bbbbbbppppppppbbbbbb","bbbbbppppppppppbbbbb","bbbbppppyyyyppppbbbb","bbbbpppyyyyyypppbbbb","bbbppppyyyyyyppppbbb","bbbbpppyyyyyypppbbbb","bbbbppppyyyyppppbbbb","bbbbbppppppppppbbbbb","bbbbbbppppppppbbbbbb","bbbbbbbppbbppbbbbbbb","bbbbbbbbggbbbbbbbbbb","bbbbbdddggbbbbbbbbbb","bbbbbbdggggddbbbbbbb","bbbbbbbbggddddbbbbbb","bbbbbbbbggbbbbbbbbbb","bbbbbbbbggbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbb"],"columns":[[{"color":"b","bees":13,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":17,"radius":3.5,"kind":"operaria","moves":-1},{"color":"p","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"p","bees":13,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":14,"radius":8.0,"kind":"batedora","moves":-1},{"color":"d","bees":4,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":5,"radius":8.0,"kind":"batedora","moves":-1}],[{"color":"b","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":22,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":15,"radius":8.0,"kind":"batedora","moves":-1},{"color":"g","bees":14,"radius":5.5,"kind":"zangao","moves":-1},{"color":"p","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":2,"radius":8.0,"kind":"batedora","moves":-1}],[{"color":"b","bees":16,"radius":8.0,"kind":"batedora","moves":-1},{"color":"p","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":16,"radius":8.0,"kind":"batedora","moves":-1},{"color":"p","bees":14,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":10,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":3,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"b","bees":6,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":9,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":22,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"p","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"d","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":2,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"b","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":22,"radius":8.0,"kind":"batedora","moves":-1},{"color":"p","bees":21,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":10,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":6,"radius":3.5,"kind":"operaria","moves":-1}]],"meta":{"seed":7,"blocks":400,"hives":39,"greedy_ok":true,"solver_nodes":39,"difficulty":{"solvable":true,"score":3.7,"band":"tutorial","lethality":0.0,"peak_lethality":0.0,"risk_onset":1.0,"fatal_moves":0,"tested_moves":112,"unknown_moves":0,"trap_delay":0.0,"slot_pressure":0.149,"branching":3.05,"decisions":32,"moves":39,"greedy_ok":true}}},{"id":"level_002","name":"Voo do Entardecer","rows":24,"cols":24,"slots":5,"palette":{"g":{"name":"caule","color":"#6FBF54"},"k":{"name":"carvao","color":"#3A2E1F"},"r":{"name":"papoula","color":"#DE4B3F"},"u":{"name":"lavanda","color":"#9B6BC7"},"w":{"name":"nevoa","color":"#F2EFE4"},"y":{"name":"polen","color":"#F5C242"}},"grid":["uuuuuuuuuuuuuuuuuuuuuuuu","uuuuuuuuuuuuuuuuuuuuuuuu","uuuuuuuwwuuuuuuwwuuuuuuu","uuuuuwwwwwuuuwwwwwuuuuuu","uuuuwwwwwwwuwwwwwwwuuuuu","uuuuwwwwwwwwwwwwwwwuuuuu","uuuuuwwwwwwwwwwwwwuuuuuu","uuuuuuuwwwwwwwwwuuuuuuuu","uuuuuuuukkkkkkkuuuuuuuuu","uuuuuuukyyyyyyykuuuuuuuu","uuuuuukyyyyyyyyykuuuuuuu","uuuuuukkkkkkkkkkkuuuuuuu","uuuuuukyyyyyyyyykuuuuuuu","uuuuuukyyyyyyyyykuuuuuuu","uuuuuukkkkkkkkkkkuuuuuuu","uuuuuuukyyyyyyykuuuuuuuu","uuuuuuuukyyyyykuuuuuuuuu","uuuuuuuuukkkkkuuuuuuuuuu","uuuuuuuuuuuuuuuuuuuuuuuu","uuuurruuuuuuuuuuuurruuuu","uuurrrruuuurruuuurrrruuu","uuuurruuuurrrruuuurruuuu","uuuugguuuuugguuuuugguuuu","uuuugguuuuugguuuuugguuuu"],"columns":[[{"color":"u","bees":9,"radius":8.0,"kind":"batedora","moves":-1},{"color":"r","bees":8,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":9,"radius":8.0,"kind":"batedora","moves":-1},{"color":"k","bees":23,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"k","bees":8,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":6,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":16,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"u","bees":10,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":5,"radius":3.5,"kind":"operaria","moves":-1}],[{"color":"u","bees":20,"radius":8.0,"kind":"batedora","moves":-1},{"color":"r","bees":3,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"u","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":21,"radius":5.5,"kind":"zangao","moves":-1},{"color":"k","bees":2,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":18,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":17,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":5,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"g","bees":8,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":5,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"u","bees":18,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":13,"radius":3.5,"kind":"operaria","moves":-1},{"color":"k","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":10,"radius":8.0,"kind":"batedora","moves":-1},{"color":"g","bees":1,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":5,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":20,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":19,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":24,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":2,"radius":8.0,"kind":"batedora","moves":-1}],[{"color":"r","bees":11,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":13,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":11,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":20,"radius":3.5,"kind":"operaria","moves":-1},{"color":"u","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"u","bees":13,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":18,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":15,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":9,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"u","bees":1,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":4,"radius":3.5,"kind":"operaria","moves":-1}],[{"color":"g","bees":3,"radius":8.0,"kind":"batedora","moves":-1},{"color":"k","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"u","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":10,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"u","bees":16,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":13,"radius":8.0,"kind":"batedora","moves":-1}]],"meta":{"seed":3,"blocks":576,"hives":56,"greedy_ok":false,"solver_nodes":80,"difficulty":{"solvable":true,"score":49.3,"band":"medio","lethality":0.23,"peak_lethality":0.75,"risk_onset":0.1,"fatal_moves":44,"tested_moves":191,"unknown_moves":0,"trap_delay":0,"slot_pressure":0.354,"branching":3.52,"decisions":50,"moves":56,"greedy_ok":false}}},{"id":"level_003","name":"A Colmeia no Galho","rows":28,"cols":28,"slots":5,"palette":{"b":{"name":"ceu","color":"#5BAEE8"},"d":{"name":"folha","color":"#357F3C"},"g":{"name":"caule","color":"#6FBF54"},"k":{"name":"carvao","color":"#3A2E1F"},"n":{"name":"terra","color":"#8B5E3C"},"o":{"name":"sol","color":"#E9803C"},"y":{"name":"polen","color":"#F5C242"}},"grid":["bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbnnnnnnnnnnnnnnnnnnnnnnbbb","bbbnnnnnnnnnnnnnnnnnnnnnnbbb","bbbbbdddbbbbbnnbbbbbdddbbbbb","bbbbdddddddbbnnbbdddddddbbbb","bbbbbdddddddbnnbdddddddbbbbb","bbbbbbbbdddyyyyyydddbbbbbbbb","bbbbbbbbbbyyyyyyyybbbbbbbbbb","bbbbbbbbbboooooooobbbbbbbbbb","bbbbbbbbboooooooooobbbbbbbbb","bbbbbbbbbyyyyyyyyyybbbbbbbbb","bbbbbbbbyyyyyyyyyyyybbbbbbbb","bbbbbbbboooooooooooobbbbbbbb","bbbbbbboooooooooooooobbbbbbb","bbbbbbbyyyyyyyyyyyyyybbbbbbb","bbbbbbyyyyyyyyyyyyyyyybbbbbb","bbbbbbooooookkkkoooooobbbbbb","bbbbbboooookkkkkkooooobbbbbb","bbbbbbyyyyyykkkkyyyyyybbbbbb","bbbbbbyyyyyyyyyyyyyyyybbbbbb","bbbbbboooooooooooooooobbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbggggggggggggggggggggbbbb","bbbbggggggggggggggggggggbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb"],"columns":[[{"color":"g","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":14,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":11,"radius":8.0,"kind":"batedora","moves":-1},{"color":"o","bees":6,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":13,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"d","bees":4,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"o","bees":3,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"n","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"n","bees":3,"radius":5.5,"kind":"zangao","moves":-1},{"color":"d","bees":4,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":20,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":16,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":21,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":10,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":9,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":15,"radius":3.5,"kind":"operaria","moves":-1},{"color":"o","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":13,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":13,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":11,"radius":8.0,"kind":"batedora","moves":-1},{"color":"g","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":4,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":3,"radius":8.0,"kind":"batedora","moves":-1},{"color":"d","bees":9,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":3,"radius":3.5,"kind":"operaria","moves":-1},{"color":"d","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":2,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":4,"radius":5.5,"kind":"zangao","moves":-1},{"color":"g","bees":2,"radius":5.5,"kind":"zangao","moves":-1},{"color":"n","bees":2,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":3,"radius":3.5,"kind":"operaria","moves":-1}],[{"color":"b","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":23,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"g","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"d","bees":16,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":23,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":11,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":17,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"g","bees":4,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":8,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":3,"radius":8.0,"kind":"batedora","moves":-1}],[{"color":"b","bees":17,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":12,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":14,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":2,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"k","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"k","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"g","bees":1,"radius":8.0,"kind":"batedora","moves":-1}],[{"color":"n","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"g","bees":10,"radius":8.0,"kind":"batedora","moves":-1},{"color":"o","bees":20,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":4,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":14,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":15,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":13,"radius":5.5,"kind":"zangao","moves":-1},{"color":"n","bees":12,"radius":5.5,"kind":"zangao","moves":-1}]],"meta":{"seed":2,"blocks":784,"hives":81,"greedy_ok":false,"solver_nodes":677,"difficulty":{"solvable":true,"score":55.2,"band":"medio","lethality":0.292,"peak_lethality":0.8,"risk_onset":0.059,"fatal_moves":80,"tested_moves":274,"unknown_moves":0,"trap_delay":1.98,"slot_pressure":0.462,"branching":3.54,"decisions":68,"moves":81,"greedy_ok":false}}},{"id":"level_004","name":"O Pote de Mel","rows":26,"cols":26,"slots":5,"palette":{"b":{"name":"ceu","color":"#5BAEE8"},"n":{"name":"terra","color":"#8B5E3C"},"o":{"name":"sol","color":"#E9803C"},"w":{"name":"nevoa","color":"#F2EFE4"},"y":{"name":"polen","color":"#F5C242"}},"grid":["bbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbnnnnnnnnnnbbbbbbbb","bbbbbbbbnnnnnnnnnnbbbbbbbb","bbbbbbbbbbnnnnnnbbbbbbbbbb","bbbbbbbbbbnnnnnnbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbwwwwwwbbbbbbbbbb","bbbbbbbbbwyyyyyywbbbbbbbbb","bbbbbbbbwyyyyyyyywbbbbbbbb","bbbbbbbwwoooooooowwbbbbbbb","bbbbbbbwoooooooooowbbbbbbb","bbbbbbbwwwwwwwwwwwwbbbbbbb","bbbbbbwwwwwwwwwwwwwwbbbbbb","bbbbbbwwoooooooooowwbbbbbb","bbbbbbwwoooooooooowwbbbbbb","bbbbbbbwyyyyyyyyyywbbbbbbb","bbbbbbbwyyyyyyyyyywbbbbbbb","bbbbbbbwwoooooooowwbbbbbbb","bbbbbbbbwoooooooowbbbbbbbb","bbbbbbbbbwyyyyyywbbbbbbbbb","bbbbbbbbbbwwwwwwbbbbbbbbbb","bbbbbbbbbbbyyyybbbbbbbbbbb","bbbbbbbbbbbyyyybbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbb"],"columns":[[{"color":"b","bees":8,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":8,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":6,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":8,"radius":3.5,"kind":"operaria","moves":3},{"color":"y","bees":14,"radius":8.0,"kind":"batedora","moves":3},{"color":"b","bees":18,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":9,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":16,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":1,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":4,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":13,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":2,"radius":3.5,"kind":"operaria","moves":-1}],[{"color":"b","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":6,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"o","bees":21,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":19,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":13,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":3,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":11,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":15,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":7,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"n","bees":17,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":8,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":10,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":14,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":4,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":2,"radius":3.5,"kind":"operaria","moves":-1},{"color":"n","bees":4,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":14,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":2,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":17,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":1,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":2,"radius":3.5,"kind":"operaria","moves":-1}],[{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":6,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":16,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"n","bees":11,"radius":8.0,"kind":"batedora","moves":3},{"color":"b","bees":22,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":8,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":15,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":2,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":15,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":4,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":2,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":2,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":23,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":5,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":18,"radius":8.0,"kind":"batedora","moves":-1}],[{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":4,"radius":3.5,"kind":"operaria","moves":3},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"o","bees":11,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":4,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":6,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":2,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":1,"radius":8.0,"kind":"batedora","moves":-1}]],"meta":{"seed":31,"blocks":676,"hives":74,"greedy_ok":false,"solver_nodes":103,"difficulty":{"solvable":true,"score":39.0,"band":"facil","lethality":0.121,"peak_lethality":0.6,"risk_onset":0.156,"fatal_moves":29,"tested_moves":240,"unknown_moves":0,"trap_delay":0,"slot_pressure":0.205,"branching":3.38,"decisions":64,"moves":74,"greedy_ok":false},"limited_hives":4,"limited_moves":3}},{"id":"level_005","name":"O Girassol","rows":28,"cols":28,"slots":5,"palette":{"b":{"name":"ceu","color":"#5BAEE8"},"d":{"name":"folha","color":"#357F3C"},"g":{"name":"caule","color":"#6FBF54"},"k":{"name":"carvao","color":"#3A2E1F"},"n":{"name":"terra","color":"#8B5E3C"},"o":{"name":"sol","color":"#E9803C"},"r":{"name":"papoula","color":"#DE4B3F"},"w":{"name":"nevoa","color":"#F2EFE4"},"y":{"name":"polen","color":"#F5C242"}},"grid":["bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbrrbbbbbbbbbbbbb","bbbbbbbbbbbbrrrrbbbbbbbbbbbb","bbbbbbbrbbbbrrrrbbbbrbbbbbbb","bbbbbbrrrrbbrrrrbbrrrrbbbbbb","bbbbbbbrrrryyyyyyrrrrbbbbbbb","bbbbbbbrryyyyooyyyyrrbbbbbbb","bbbbbbbbryywoowooyyrbbbbbbbb","bbbbbbbbyyoooknoooyybbbbbbbb","bbbbbrrryywoknknooyyrrrbbbbb","bbbbrrrryooknknknwoyrrrrbbbb","bbbbrrrryoonknknkooyrrrrbbbb","bbbbbrrryywonknkooyyrrrbbbbb","bbbbbbbbyyowonkoowyybbbbbbbb","bbbbbbbbryyowoowoyyrbbbbbbbb","bbbbbbbrryyyyooyyyyrrbbbbbbb","bbbbbbbrrrryyyyyyrrrrbbbbbbb","bbbbbbrrrrbbrrrrbbrrrrbbbbbb","bbbbbbbrbbbbrrrrbbbbrbbbbbbb","bbbbbbbbbbbbrrrrbbbbbbbbbbbb","bbbbbbbbbbbbbrrbbbbbbbbbbbbb","bbbbbbbbddddbggbbbbbbbbbbbbb","bbbbbbbddddddggbbbdbbbbbbbbb","bbbbbbbbddddbggbdddddbbbbbbb","bbbbbbbbbbbbbggbdddddbbbbbbb","bbbbbbbbbbbbbbbbbbdbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb"],"columns":[[{"color":"b","bees":23,"radius":5.5,"kind":"zangao","moves":-1},{"color":"r","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"r","bees":8,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":19,"radius":8.0,"kind":"batedora","moves":-1},{"color":"r","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"r","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"d","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"r","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"d","bees":6,"radius":8.0,"kind":"batedora","moves":-1},{"color":"n","bees":6,"radius":8.0,"kind":"batedora","moves":-1},{"color":"o","bees":5,"radius":5.5,"kind":"zangao","moves":3},{"color":"g","bees":8,"radius":8.0,"kind":"batedora","moves":-1},{"color":"n","bees":3,"radius":5.5,"kind":"zangao","moves":-1},{"color":"d","bees":6,"radius":3.5,"kind":"operaria","moves":3},{"color":"w","bees":2,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":1,"radius":3.5,"kind":"operaria","moves":-1}],[{"color":"b","bees":19,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":20,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":14,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":11,"radius":8.0,"kind":"batedora","moves":-1},{"color":"o","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"r","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":9,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":13,"radius":3.5,"kind":"operaria","moves":-1},{"color":"r","bees":13,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":8,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":9,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"k","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":11,"radius":3.5,"kind":"operaria","moves":-1},{"color":"d","bees":8,"radius":3.5,"kind":"operaria","moves":-1},{"color":"n","bees":3,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":2,"radius":3.5,"kind":"operaria","moves":-1},{"color":"r","bees":2,"radius":3.5,"kind":"operaria","moves":-1}],[{"color":"b","bees":19,"radius":5.5,"kind":"zangao","moves":3},{"color":"b","bees":19,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"r","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":5,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"o","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"r","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":6,"radius":3.5,"kind":"operaria","moves":3},{"color":"b","bees":11,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":3,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":15,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":1,"radius":3.5,"kind":"operaria","moves":-1}],[{"color":"b","bees":18,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":8,"radius":3.5,"kind":"operaria","moves":-1},{"color":"r","bees":8,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":3},{"color":"b","bees":1,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":11,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":21,"radius":5.5,"kind":"zangao","moves":3},{"color":"r","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"r","bees":8,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":1,"radius":5.5,"kind":"zangao","moves":-1},{"color":"k","bees":2,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":4,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":1,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":4,"radius":3.5,"kind":"operaria","moves":-1}],[{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":9,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":10,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":14,"radius":3.5,"kind":"operaria","moves":-1},{"color":"r","bees":3,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":7,"radius":8.0,"kind":"batedora","moves":3},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":3,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":17,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":5,"radius":8.0,"kind":"batedora","moves":3},{"color":"b","bees":15,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":3,"radius":3.5,"kind":"operaria","moves":-1},{"color":"k","bees":5,"radius":8.0,"kind":"batedora","moves":3},{"color":"o","bees":1,"radius":8.0,"kind":"batedora","moves":-1}]],"meta":{"seed":11,"blocks":784,"hives":92,"greedy_ok":false,"solver_nodes":158,"difficulty":{"solvable":true,"score":50.6,"band":"medio","lethality":0.23,"peak_lethality":0.5,"risk_onset":0.208,"fatal_moves":70,"tested_moves":305,"unknown_moves":0,"trap_delay":0,"slot_pressure":0.559,"branching":3.53,"decisions":72,"moves":92,"greedy_ok":false},"limited_hives":9,"limited_moves":3}},{"id":"level_006","name":"A Rainha","rows":28,"cols":28,"slots":5,"palette":{"b":{"name":"ceu","color":"#5BAEE8"},"k":{"name":"carvao","color":"#3A2E1F"},"n":{"name":"terra","color":"#8B5E3C"},"o":{"name":"sol","color":"#E9803C"},"r":{"name":"papoula","color":"#DE4B3F"},"w":{"name":"nevoa","color":"#F2EFE4"},"y":{"name":"polen","color":"#F5C242"}},"grid":["bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbobboobbobbbbbbbbbb","bbbbbbbbbboooooooobbbbbbbbbb","bbbbbbbbbboooooooobbbbbbbbbb","bbbbbbbbboooooooooobbbbbbbbb","bbbbbbbbboorrrrorrobbbbbbbbb","bbbbbbbbboooooooooobbbbbbbbb","bbbbbbbbbbbbbkkbbbbbbbbbbbbb","bbbbbbbbbbbkkkkkkbbbbbbbbbbb","bbbbbbbbbbbwwkkwwbbbbbbbbbbb","bbbbbbbbbbbwwkkwwbbbbbbbbbbb","bbbbbbbbbbbkkkkkkbbbbbbbbbbb","bbbbbbbbbbbbyyyybbbbbbbbbbbb","bbbbbbbbbbbyyyyyybbbbbbbbbbb","bbbbbwwwwbkkkkkkkkbwwwwbbbbb","bbbwwwwwwwkkkkkkkkwwwwwwwbbb","bbbwwwwwwwyyynnyyywwwwwwwbbb","bbwwwwwwwyyynnnnyyywwwwwwwbb","bbbwwwwwwkkknnnnkkkwwwwwwbbb","bbbwwwwwwwkkknnkkkwwwwwwwbbb","bbbbbwwwwbyyyyyyyybwwwwbbbbb","bbbbbbbbbbyyyyyyyybbbbbbbbbb","bbbbbbbbbbbkkkkkkbbbbbbbbbbb","bbbbbbbbbbbbkkkkbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb"],"columns":[[{"color":"b","bees":17,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":9,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":17,"radius":5.5,"kind":"zangao","moves":3},{"color":"b","bees":18,"radius":5.5,"kind":"zangao","moves":-1},{"color":"r","bees":3,"radius":5.5,"kind":"zangao","moves":3},{"color":"o","bees":4,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":16,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":14,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":8,"radius":3.5,"kind":"operaria","moves":-1},{"color":"k","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":10,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":16,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"r","bees":2,"radius":3.5,"kind":"operaria","moves":3},{"color":"y","bees":1,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":17,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":3,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":1,"radius":3.5,"kind":"operaria","moves":3},{"color":"b","bees":1,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":22,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"o","bees":16,"radius":5.5,"kind":"zangao","moves":3},{"color":"b","bees":21,"radius":8.0,"kind":"batedora","moves":3},{"color":"b","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":20,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":8,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":2,"radius":3.5,"kind":"operaria","moves":-1},{"color":"r","bees":1,"radius":8.0,"kind":"batedora","moves":-1},{"color":"n","bees":1,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":8,"radius":3.5,"kind":"operaria","moves":-1}],[{"color":"b","bees":7,"radius":8.0,"kind":"batedora","moves":3},{"color":"b","bees":16,"radius":8.0,"kind":"batedora","moves":3},{"color":"b","bees":21,"radius":8.0,"kind":"batedora","moves":3},{"color":"b","bees":23,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":17,"radius":8.0,"kind":"batedora","moves":-1},{"color":"o","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"k","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":5,"radius":8.0,"kind":"batedora","moves":-1},{"color":"k","bees":11,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":15,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":8,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":14,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":11,"radius":3.5,"kind":"operaria","moves":3},{"color":"w","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"k","bees":10,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":6,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":4,"radius":8.0,"kind":"batedora","moves":-1},{"color":"o","bees":2,"radius":8.0,"kind":"batedora","moves":3},{"color":"b","bees":11,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":4,"radius":8.0,"kind":"batedora","moves":3}],[{"color":"w","bees":13,"radius":3.5,"kind":"operaria","moves":-1},{"color":"k","bees":9,"radius":5.5,"kind":"zangao","moves":3},{"color":"k","bees":9,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":11,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":11,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":20,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":16,"radius":8.0,"kind":"batedora","moves":-1}],[{"color":"o","bees":8,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":24,"radius":8.0,"kind":"batedora","moves":-1},{"color":"k","bees":3,"radius":3.5,"kind":"operaria","moves":3},{"color":"b","bees":17,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":6,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":17,"radius":5.5,"kind":"zangao","moves":3},{"color":"y","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"n","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"n","bees":5,"radius":3.5,"kind":"operaria","moves":-1}]],"meta":{"seed":7,"blocks":784,"hives":76,"greedy_ok":false,"solver_nodes":101,"difficulty":{"solvable":true,"score":49.0,"band":"medio","lethality":0.212,"peak_lethality":0.667,"risk_onset":0.114,"fatal_moves":29,"tested_moves":137,"unknown_moves":0,"trap_delay":0,"slot_pressure":0.421,"branching":3.66,"decisions":69,"probed":35,"sampled":true,"moves":76,"greedy_ok":false},"limited_hives":15,"limited_moves":3}},{"id":"level_007","name":"O Pomar","rows":28,"cols":28,"slots":5,"palette":{"b":{"name":"ceu","color":"#5BAEE8"},"d":{"name":"folha","color":"#357F3C"},"g":{"name":"caule","color":"#6FBF54"},"k":{"name":"carvao","color":"#3A2E1F"},"n":{"name":"terra","color":"#8B5E3C"},"r":{"name":"papoula","color":"#DE4B3F"},"w":{"name":"nevoa","color":"#F2EFE4"}},"grid":["bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbggggggggggggggggbbbbbb","bbbbbggggggggggggggggggbbbbb","bbbbgggggwrrkgggwrrkggggbbbb","bbbbggggwrrkddgwrrkgggwggbbb","bbbbggrwrrkdddwrrkgggrrggbbb","bbbbggkrwdddwrrkdddwrkgggbbb","bbbbbgggdrrdwrrkddrkdgggbbbb","bbbbbggwgdkdwrrkwddwrdgbbbbb","bbbbbggrrddrrkddddwrkdgbbbbb","bbbbbggdkrrwrrkddkdddggbbbbb","bbbbbbgddddddwrrkwrwggbbbbbb","bbbbbbgdrrkrkgggwgggggbbbbbb","bbbbbbbggddwrrkggggggbbbbbbb","bbbbbbbbggggggggggggbbbbbbbb","bbbbbbbbbbnggggggnbbbbbbbbbb","bbbbbbbbbbbbbnnbbbbbbbbbbbbb","bbbbbbbbbbbbbnnbbbbbbbbbbbbb","bbbbbbbbbbbbbnnbbbbbbbbbbbbb","bbbbbbbbbbbbbnnbbbbbbbbbbbbb","bbbbbbbbbbbbbnnbbbbbbbbbbbbb","bbbbbbbbbbbbbnnbbbbbbbbbbbbb","bbbbbbbbbbbbbnnbbbbbbbbbbbbb","bbbbbbbbggggggggggggbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb"],"columns":[[{"color":"g","bees":11,"radius":3.5,"kind":"operaria","moves":-1},{"color":"g","bees":10,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":16,"radius":5.5,"kind":"zangao","moves":-1},{"color":"r","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"k","bees":2,"radius":3.5,"kind":"operaria","moves":-1},{"color":"d","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":9,"radius":5.5,"kind":"zangao","moves":2},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"d","bees":14,"radius":8.0,"kind":"batedora","moves":2},{"color":"n","bees":8,"radius":5.5,"kind":"zangao","moves":-1},{"color":"g","bees":4,"radius":5.5,"kind":"zangao","moves":-1},{"color":"r","bees":3,"radius":3.5,"kind":"operaria","moves":-1},{"color":"k","bees":2,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":23,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":4,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"b","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"g","bees":9,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"d","bees":4,"radius":5.5,"kind":"zangao","moves":-1},{"color":"r","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"k","bees":9,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":15,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"g","bees":14,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":13,"radius":5.5,"kind":"zangao","moves":-1},{"color":"r","bees":10,"radius":8.0,"kind":"batedora","moves":-1},{"color":"r","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"g","bees":9,"radius":5.5,"kind":"zangao","moves":2},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":2},{"color":"b","bees":9,"radius":8.0,"kind":"batedora","moves":-1},{"color":"r","bees":2,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"b","bees":16,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":11,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"g","bees":17,"radius":5.5,"kind":"zangao","moves":2},{"color":"k","bees":4,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":19,"radius":8.0,"kind":"batedora","moves":2},{"color":"w","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":17,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":15,"radius":8.0,"kind":"batedora","moves":2},{"color":"b","bees":20,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":4,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":1,"radius":5.5,"kind":"zangao","moves":-1},{"color":"n","bees":2,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"b","bees":6,"radius":5.5,"kind":"zangao","moves":2},{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":11,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":17,"radius":8.0,"kind":"batedora","moves":-1},{"color":"g","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"g","bees":2,"radius":5.5,"kind":"zangao","moves":2},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":15,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":17,"radius":8.0,"kind":"batedora","moves":2},{"color":"b","bees":14,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":8,"radius":8.0,"kind":"batedora","moves":2},{"color":"d","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"g","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":19,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":4,"radius":5.5,"kind":"zangao","moves":-1},{"color":"g","bees":2,"radius":8.0,"kind":"batedora","moves":2},{"color":"k","bees":5,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":2},{"color":"b","bees":8,"radius":5.5,"kind":"zangao","moves":-1},{"color":"g","bees":1,"radius":3.5,"kind":"operaria","moves":-1},{"color":"r","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"g","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"r","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":14,"radius":8.0,"kind":"batedora","moves":2},{"color":"d","bees":6,"radius":3.5,"kind":"operaria","moves":2},{"color":"b","bees":9,"radius":5.5,"kind":"zangao","moves":2},{"color":"g","bees":10,"radius":8.0,"kind":"batedora","moves":-1},{"color":"g","bees":18,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"n","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":4,"radius":3.5,"kind":"operaria","moves":-1},{"color":"g","bees":2,"radius":8.0,"kind":"batedora","moves":2},{"color":"b","bees":16,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":2,"radius":5.5,"kind":"zangao","moves":-1}]],"meta":{"seed":5,"blocks":784,"hives":83,"greedy_ok":false,"solver_nodes":86,"difficulty":{"solvable":true,"score":29.4,"band":"facil","lethality":0.013,"peak_lethality":0.2,"risk_onset":0.091,"fatal_moves":1,"tested_moves":79,"unknown_moves":0,"trap_delay":0,"slot_pressure":0.236,"branching":3.01,"decisions":66,"probed":22,"sampled":true,"moves":83,"greedy_ok":false},"limited_hives":17,"limited_moves":2,"territorial_hives":0}},{"id":"level_008","name":"O Enxame","rows":28,"cols":28,"slots":5,"palette":{"b":{"name":"ceu","color":"#5BAEE8"},"d":{"name":"folha","color":"#357F3C"},"k":{"name":"carvao","color":"#3A2E1F"},"n":{"name":"terra","color":"#8B5E3C"},"o":{"name":"sol","color":"#E9803C"},"r":{"name":"papoula","color":"#DE4B3F"},"w":{"name":"nevoa","color":"#F2EFE4"},"y":{"name":"polen","color":"#F5C242"}},"grid":["bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbnnnnnnnnnnnnnnnnnnnnbbbb","bbbbnnnnnnnnnnnnnnnnnnnnbbbb","bbbbbbbbbbbbbnnbbbbbbbbbbbbb","bbbbbbbbbbbbbnnbbbbbbbbbbbbb","bbbbbbbbbbbboooobbbbbbbbbbbb","bbbbbbbbbboooooooobbbbbbbbbb","bbbbbbbbbyyyyowrooobbbbbbbbb","bbbbbbbbyyrkrkoooooobbbbbbbb","bbbbbbbbyywwrkoorroobbbbbbbb","bbbbbbbbyyrrwyorkkoobbbbbbbb","bbbbbbbboyyyrwrkoyoobbbbbbbb","bbbbbbbboowworkyrryybbbbbbbb","bbbbbbbbboorrwrkkyybbbbbbbbb","bbbbbbbbboooorkyyyybbbbbbbbb","bbbbbbbbboowwoorryybbbbbbbbb","bbbbbbbbboorrwrkkyybbbbbbbbb","bbbbbbbbboyyyrkooyobbbbbbbbb","bbbbbbbbbbyywwrroobbbbbbbbbb","bbbbbbbbbbbyyrkoobbbbbbbbbbb","bbbbbbbbbbbyyyooobbbbbbbbbbb","bbbbbbbbbbboowroobbbbbbbbbbb","bbbbbbbbbbbboooobbbbbbbbbbbb","bbbbbbbbbbbboooobbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbddddddddddddddddbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbb"],"columns":[[{"color":"b","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":6,"radius":3.5,"kind":"operaria","moves":1},{"color":"b","bees":20,"radius":8.0,"kind":"batedora","moves":1},{"color":"n","bees":8,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":21,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":9,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"d","bees":8,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":11,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":7,"radius":3.5,"kind":"operaria","moves":1},{"color":"b","bees":13,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":9,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":5,"radius":8.0,"kind":"batedora","moves":-1},{"color":"o","bees":1,"radius":8.0,"kind":"batedora","moves":1},{"color":"w","bees":1,"radius":8.0,"kind":"batedora","moves":-1}],[{"color":"b","bees":7,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":19,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":24,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":16,"radius":8.0,"kind":"batedora","moves":-1},{"color":"n","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":8,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":14,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":23,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":6,"radius":5.5,"kind":"zangao","moves":1}],[{"color":"d","bees":8,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"n","bees":16,"radius":8.0,"kind":"batedora","moves":-1},{"color":"n","bees":5,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":1},{"color":"b","bees":14,"radius":8.0,"kind":"batedora","moves":1},{"color":"o","bees":9,"radius":3.5,"kind":"operaria","moves":-1},{"color":"o","bees":4,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":20,"radius":8.0,"kind":"batedora","moves":-1},{"color":"n","bees":6,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":19,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":10,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":11,"radius":5.5,"kind":"zangao","moves":1},{"color":"r","bees":1,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"k","bees":12,"radius":8.0,"kind":"batedora","moves":1},{"color":"r","bees":6,"radius":5.5,"kind":"zangao","moves":1},{"color":"r","bees":12,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":1,"radius":8.0,"kind":"batedora","moves":1},{"color":"k","bees":2,"radius":3.5,"kind":"operaria","moves":-1}],[{"color":"b","bees":14,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":23,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":6,"radius":3.5,"kind":"operaria","moves":-1},{"color":"r","bees":9,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":10,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":7,"radius":8.0,"kind":"batedora","moves":-1},{"color":"o","bees":3,"radius":3.5,"kind":"operaria","moves":1},{"color":"w","bees":1,"radius":3.5,"kind":"operaria","moves":1},{"color":"w","bees":5,"radius":5.5,"kind":"zangao","moves":-1},{"color":"n","bees":4,"radius":8.0,"kind":"batedora","moves":-1},{"color":"o","bees":2,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"b","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":11,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":12,"radius":5.5,"kind":"zangao","moves":1},{"color":"b","bees":9,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":21,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":15,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":13,"radius":3.5,"kind":"operaria","moves":-1},{"color":"o","bees":5,"radius":3.5,"kind":"operaria","moves":1},{"color":"b","bees":2,"radius":5.5,"kind":"zangao","moves":1},{"color":"o","bees":13,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":14,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":2,"radius":3.5,"kind":"operaria","moves":-1},{"color":"o","bees":16,"radius":8.0,"kind":"batedora","moves":1},{"color":"y","bees":5,"radius":5.5,"kind":"zangao","moves":1},{"color":"y","bees":3,"radius":5.5,"kind":"zangao","moves":1}]],"meta":{"seed":37,"blocks":784,"hives":80,"greedy_ok":false,"solver_nodes":86,"difficulty":{"solvable":true,"score":39.3,"band":"facil","lethality":0.052,"peak_lethality":0.4,"risk_onset":0.25,"fatal_moves":6,"tested_moves":116,"unknown_moves":0,"trap_delay":0,"slot_pressure":0.448,"branching":3.05,"decisions":63,"probed":32,"sampled":true,"moves":80,"greedy_ok":false},"limited_hives":24,"limited_moves":1,"territorial_hives":0}},{"id":"level_009","name":"O Favo","rows":32,"cols":32,"slots":5,"palette":{"b":{"name":"ceu","color":"#5BAEE8"},"n":{"name":"terra","color":"#8B5E3C"},"o":{"name":"sol","color":"#E9803C"},"w":{"name":"nevoa","color":"#F2EFE4"},"y":{"name":"polen","color":"#F5C242"}},"grid":["bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbywyyywbbbbbbbbbbbbb","bbbbbbbbbbbwwwwwwwwwwbbbbbbbbbbb","bbbbbbbbbyyywyyywyyywyybbbbbbbbb","bbbbbbbbwyyywyyywyyywyyybbbbbbbb","bbbbbbbwwwwwwwwwwwwwwwwwwbbbbbbb","bbbbbbbyyywyyywyyywyyywyybbbbbbb","bbbbbbwyyywyyywyyywyyywyyybbbbbb","bbbbbbwwwwwwwwwwwwwwwwwwwwbbbbbb","bbbbbooowooowooowooowooowoobbbbb","bbbbbooowooowooowooowooowoobbbbb","bbbbbwwwwwwwwwwwwwwwwwwwwwwbbbbb","bbbbbowooowooowooowooowooowbbbbb","bbbbbowooowooowooowooowooowbbbbb","bbbbbwwwwwwwwwwwwwwwwwwwwwwbbbbb","bbbbbooowooowooowooowooowoobbbbb","bbbbbnnnwnnnwnnnwnnnwnnnwnnbbbbb","bbbbbbwwwwwwwwwwwwwwwwwwwwbbbbbb","bbbbbbwnnnwnnnwnnnwnnnwnnnbbbbbb","bbbbbbbnnnwnnnwnnnwnnnwnnbbbbbbb","bbbbbbbwwwwwwwwwwwwwwwwwwbbbbbbb","bbbbbbbbwnnnwnnnwnnnwnnnbbbbbbbb","bbbbbbbbbnnnwnnnwnnnwnnbbbbbbbbb","bbbbbbbbbbbwwwwwwwwwwbbbbbbbbbbb","bbbbbbbbbbbbbnwnnnwbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"],"columns":[[{"color":"b","bees":12,"radius":5.5,"kind":"zangao","moves":-1,"territorial":true},{"color":"b","bees":20,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":18,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":12,"radius":8.0,"kind":"batedora","moves":1},{"color":"n","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":10,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":3,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":9,"radius":3.5,"kind":"operaria","moves":1},{"color":"w","bees":9,"radius":3.5,"kind":"operaria","moves":1},{"color":"b","bees":9,"radius":5.5,"kind":"zangao","moves":-1,"territorial":true},{"color":"w","bees":7,"radius":5.5,"kind":"zangao","moves":1},{"color":"n","bees":6,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":2,"radius":8.0,"kind":"batedora","moves":1},{"color":"o","bees":2,"radius":5.5,"kind":"zangao","moves":1}],[{"color":"b","bees":14,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":18,"radius":8.0,"kind":"batedora","moves":1,"territorial":true},{"color":"b","bees":5,"radius":8.0,"kind":"batedora","moves":-1,"territorial":true},{"color":"b","bees":13,"radius":5.5,"kind":"zangao","moves":1},{"color":"b","bees":8,"radius":8.0,"kind":"batedora","moves":1},{"color":"n","bees":13,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":24,"radius":8.0,"kind":"batedora","moves":-1,"territorial":true},{"color":"b","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":12,"radius":5.5,"kind":"zangao","moves":-1,"territorial":true},{"color":"w","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":18,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":11,"radius":5.5,"kind":"zangao","moves":1},{"color":"y","bees":16,"radius":3.5,"kind":"operaria","moves":-1},{"color":"o","bees":7,"radius":5.5,"kind":"zangao","moves":-1,"territorial":true},{"color":"w","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"y","bees":8,"radius":5.5,"kind":"zangao","moves":1},{"color":"b","bees":2,"radius":5.5,"kind":"zangao","moves":-1},{"color":"y","bees":13,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":1,"radius":8.0,"kind":"batedora","moves":-1},{"color":"y","bees":9,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":1,"radius":5.5,"kind":"zangao","moves":-1}],[{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":5,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":12,"radius":5.5,"kind":"zangao","moves":-1,"territorial":true},{"color":"b","bees":10,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":7,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":13,"radius":8.0,"kind":"batedora","moves":1,"territorial":true},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1,"territorial":true},{"color":"b","bees":8,"radius":5.5,"kind":"zangao","moves":1},{"color":"b","bees":24,"radius":8.0,"kind":"batedora","moves":-1,"territorial":true},{"color":"w","bees":8,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":24,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":9,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":8,"radius":3.5,"kind":"operaria","moves":1},{"color":"b","bees":8,"radius":8.0,"kind":"batedora","moves":1},{"color":"y","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"o","bees":2,"radius":8.0,"kind":"batedora","moves":1}],[{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":17,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":23,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":9,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":24,"radius":5.5,"kind":"zangao","moves":-1,"territorial":true},{"color":"b","bees":8,"radius":8.0,"kind":"batedora","moves":1,"territorial":true},{"color":"b","bees":11,"radius":5.5,"kind":"zangao","moves":-1},{"color":"n","bees":3,"radius":3.5,"kind":"operaria","moves":-1,"territorial":true},{"color":"w","bees":10,"radius":3.5,"kind":"operaria","moves":1},{"color":"b","bees":9,"radius":3.5,"kind":"operaria","moves":-1,"territorial":true},{"color":"n","bees":19,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":19,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":11,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":6,"radius":3.5,"kind":"operaria","moves":1},{"color":"b","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":15,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":17,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":10,"radius":8.0,"kind":"batedora","moves":1,"territorial":true},{"color":"b","bees":16,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":8,"radius":5.5,"kind":"zangao","moves":-1,"territorial":true},{"color":"o","bees":10,"radius":8.0,"kind":"batedora","moves":1},{"color":"b","bees":5,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":5,"radius":8.0,"kind":"batedora","moves":1},{"color":"o","bees":7,"radius":5.5,"kind":"zangao","moves":-1,"territorial":true},{"color":"w","bees":3,"radius":8.0,"kind":"batedora","moves":-1}],[{"color":"b","bees":10,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":10,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":7,"radius":3.5,"kind":"operaria","moves":-1},{"color":"w","bees":7,"radius":3.5,"kind":"operaria","moves":-1,"territorial":true},{"color":"b","bees":8,"radius":5.5,"kind":"zangao","moves":-1},{"color":"n","bees":21,"radius":8.0,"kind":"batedora","moves":-1},{"color":"w","bees":13,"radius":5.5,"kind":"zangao","moves":-1},{"color":"w","bees":4,"radius":3.5,"kind":"operaria","moves":-1,"territorial":true},{"color":"w","bees":18,"radius":8.0,"kind":"batedora","moves":-1},{"color":"o","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":12,"radius":5.5,"kind":"zangao","moves":-1},{"color":"b","bees":12,"radius":3.5,"kind":"operaria","moves":-1},{"color":"b","bees":6,"radius":5.5,"kind":"zangao","moves":1},{"color":"y","bees":3,"radius":3.5,"kind":"operaria","moves":-1},{"color":"o","bees":6,"radius":3.5,"kind":"operaria","moves":1},{"color":"n","bees":4,"radius":5.5,"kind":"zangao","moves":-1},{"color":"o","bees":3,"radius":8.0,"kind":"batedora","moves":-1},{"color":"b","bees":1,"radius":8.0,"kind":"batedora","moves":-1}]],"meta":{"seed":41,"blocks":1024,"hives":99,"greedy_ok":false,"solver_nodes":101,"difficulty":{"solvable":true,"score":29.4,"band":"facil","lethality":0.0,"peak_lethality":0.0,"risk_onset":1.0,"fatal_moves":0,"tested_moves":93,"unknown_moves":0,"trap_delay":0.0,"slot_pressure":0.376,"branching":2.97,"decisions":81,"probed":27,"sampled":true,"moves":99,"greedy_ok":false},"limited_hives":30,"limited_moves":1,"territorial_hives":20}}];
+let li = 0, LEVEL = LEVELS[0];
+
+/* ---------------------------------------------------------------- tabuleiro
+   Mesmas regras do projeto Godot: um bloco so e coletavel se estiver ligado
+   ao lado de fora por um caminho de celulas vazias. */
+let KEYS = [], COLOR = {}, IDX = {}, ROWS = 0, COLS = 0, N = 0;
+const SPAWN = 0.26;
+
+function useLevel(i) {
+  li = i;
+  LEVEL = LEVELS[i];
+  KEYS = Object.keys(LEVEL.palette);
+  COLOR = {}; IDX = {};
+  KEYS.forEach((k, n) => { COLOR[k] = LEVEL.palette[k].color; IDX[k] = n + 1; });
+  ROWS = LEVEL.rows; COLS = LEVEL.cols; N = ROWS * COLS;
+  document.getElementById("sLevel").textContent = "N" + (i + 1);
+}
+
+let cells, filled, filledAtStart, frontier, counts, dirty, outsideMask;
+let columns, slots, hives, bees, reserved, honey, dispatched, phase, playTime;
+let cell = 10, ox = 0, oy = 0, boardRect, slotRects = [], deckRects = [];
+let drag = null, speed = 1;
+let screen = "map", mapNodes = [], deckSpace = 0, progress = { cleared: {}, best: {} };
+
+// O único estado que sobrevive ao fechar a aba. Toda leitura e escrita vão em
+// try/catch: janela anônima ou site data bloqueado devolvem erro, e nesse caso
+// o jogo roda sem memória em vez de quebrar.
+const SAVE_KEY = "beeflow.progress.v1";
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return { cleared: {}, best: {} };
+    const p = JSON.parse(raw);
+    return { cleared: p.cleared || {}, best: p.best || {} };
+  } catch (_) { return { cleared: {}, best: {} }; }
+}
+function saveProgress() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(progress)); } catch (_) {}
+}
+const beesInFlight = () => hives.reduce((n, h) => n + h.flight, 0);
+const isCleared = i => progress.cleared[LEVELS[i].id] === true;
+const isUnlocked = i => i === 0 || isCleared(i - 1);
+
+// O mel NÃO serve de recorde: pela invariante "todo bloco vira exatamente um
+// mel", ele é sempre igual à contagem de blocos — idêntico para todo jogador,
+// em toda partida. O que varia com a habilidade é o tempo (colmeia bem
+// plantada coleta sem ficar ociosa) e as viagens perdidas (abelha que sai e
+// volta vazia porque o alvo saiu do alcance).
+const bestTime = i => (progress.best[LEVELS[i].id] || {}).time || 0;
+
+// Tempo DE JOGO, não de relógio: o botão ×2 acelera a exibição, não a
+// simulação, então não dá para falsificar recorde acelerando.
+function fmtTime(s) {
+  if (!s) return "";
+  if (s < 60) return Math.round(s) + " s";
+  return Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+}
+
+function loadBoard() {
+  cells = new Uint8Array(N);
+  LEVEL.grid.forEach((line, r) => {
+    for (let c = 0; c < COLS; c++) cells[r * COLS + c] = IDX[line[c]] || 0;
+  });
+  dirty = true; refresh();
+}
+
+function refresh() {
+  if (!dirty) return;
+  dirty = false;
+  const outside = new Uint8Array(N), q = new Int32Array(N);
+  let qt = 0, qh = 0;
+  const push = i => { if (!outside[i] && cells[i] === 0) { outside[i] = 1; q[qt++] = i; } };
+  for (let c = 0; c < COLS; c++) { push(c); push((ROWS - 1) * COLS + c); }
+  for (let r = 0; r < ROWS; r++) { push(r * COLS); push(r * COLS + COLS - 1); }
+  while (qh < qt) {
+    const i = q[qh++], r = (i / COLS) | 0, c = i % COLS;
+    if (r > 0) push(i - COLS);
+    if (r < ROWS - 1) push(i + COLS);
+    if (c > 0) push(i - 1);
+    if (c < COLS - 1) push(i + 1);
+  }
+  outsideMask = outside;
+  frontier = {}; counts = {}; filled = 0;
+  for (let i = 0; i < N; i++) {
+    const v = cells[i];
+    if (!v) continue;
+    filled++;
+    const k = KEYS[v - 1];
+    counts[k] = (counts[k] || 0) + 1;
+    const r = (i / COLS) | 0, c = i % COLS;
+    let open = r === 0 || r === ROWS - 1 || c === 0 || c === COLS - 1;
+    if (!open) open = !!(outside[i - COLS] || outside[i + COLS] || outside[i - 1] || outside[i + 1]);
+    if (open) (frontier[k] = frontier[k] || []).push(i);
+  }
+}
+const frontierOf = k => (refresh(), frontier[k] || []);
+const countOf = k => (refresh(), counts[k] || 0);
+const centerOf = i => ({ x: ox + ((i % COLS) + .5) * cell, y: oy + (((i / COLS) | 0) + .5) * cell });
+
+/* -------------------------------------------------------------------- setup */
+function showMap() {
+  screen = "map";
+  drag = null;
+  over.classList.remove("show");
+  syncChrome();
+}
+
+function openLevel(i) {
+  screen = "game";
+  reset(i);
+  syncChrome();
+}
+
+// Na rota, só o título fica; o resto é da tela de jogo.
+function syncChrome() {
+  const playing = screen === "game";
+  for (const id of ["bSpeed", "bAgain", "bMap"])
+    document.getElementById(id).style.display = playing ? "" : "none";
+  document.getElementById("stats").style.display = playing ? "flex" : "none";
+  document.getElementById("brand").style.display = playing ? "none" : "";
+  if (!playing)
+    document.getElementById("brand").innerHTML =
+      "Bee Flow<span>ESCOLHA UM N&Iacute;VEL</span>";
+  tip.textContent = defaultTip();
+}
+
+function reset(index) {
+  useLevel(index === undefined ? li : index);
+  loadBoard();
+  filledAtStart = filled;
+  columns = LEVEL.columns.map(c => c.slice());
+  slots = new Array(LEVEL.slots).fill(null);
+  hives = []; bees = []; reserved = new Set();
+  honey = 0; dispatched = 0; playTime = 0; phase = "play";
+  drag = null; loseColor = null;
+  over.classList.remove("show");
+  layout();
+}
+
+const canMove = h => h.moves < 0 || h.used < h.moves;
+const freeSlot = () => slots.indexOf(null);
+const deckLeft = () => columns.some(c => c.length > 0);
+
+/* ------------------------------------------------------------------ layout */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+let W = 0, H = 0;
+
+function layout() {
+  // Colmeias e abelhas vivem em pixels do canvas, mas a grade se move e muda
+  // de escala quando a janela muda (girar o aparelho, redimensionar a aba).
+  // Sem remapear, a colmeia fica parada no mesmo pixel enquanto a imagem
+  // escorrega debaixo dela - medi 3,26 células de deriva ao girar o aparelho,
+  // e o raio, que é `radius * cell`, muda de significado junto.
+  const antes = { ox, oy, cell };
+
+  const box = canvas.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = Math.round(box.width); H = Math.round(box.height);
+  canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const pad = 10, gap = 9;
+  const slotH = Math.min(70, H * .10), deckH = Math.min(120, H * .19);
+  const bw = W - pad * 2;
+  const bh = H - slotH - deckH - gap * 2 - 6;
+  boardRect = { x: pad, y: 0, w: bw, h: bh };
+
+  // Folga em celulas ao redor da imagem: e a unica area onde da pra plantar
+  // colmeia enquanto a imagem ainda esta inteira. Anel fino demais e o jogador
+  // nao consegue posicionar nada no comeco de um nivel grande.
+  const M = 1.4;
+  cell = Math.min(bw / (COLS + M * 2), bh / (ROWS + M * 2));
+  ox = pad + (bw - COLS * cell) / 2;
+  oy = (bh - ROWS * cell) / 2;
+
+  const row = (n, y, h) => {
+    const g = 5, tw = (bw - g * (n - 1)) / n, out = [];
+    for (let i = 0; i < n; i++) out.push({ x: pad + i * (tw + g), y, w: tw, h });
+    return out;
+  };
+  // Reancorar tudo que estava posicionado no layout anterior. A conversão é
+  // pixel -> célula -> pixel: a posição em células é a que tem significado.
+  if (antes.cell && cell !== antes.cell || ox !== antes.ox || oy !== antes.oy) {
+    const remap = o => {
+      o.x = ox + (o.x - antes.ox) / antes.cell * cell;
+      o.y = oy + (o.y - antes.oy) / antes.cell * cell;
+    };
+    if (antes.cell) {
+      (hives || []).forEach(remap);
+      (bees || []).forEach(remap);
+    }
+  }
+
+  const sy = bh + gap, dy = sy + slotH + gap;
+  slotRects = row(slots.length, sy, slotH);
+  deckRects = row(columns.length, dy, Math.min(62, deckH * .5));
+  deckSpace = deckH;   // altura total da faixa; o que sobra vira fila de cores
+
+  // A rota: primeiro nível embaixo, o caminho sobe alternando os lados. A
+  // pilha é centrada, senão com poucos níveis ela fica amontoada num canto.
+  // Favo pequeno: com muitos níveis a rota vira uma coluna de balões e some o
+  // caminho. O que precisa se ler à distância é a TRILHA, não o nó.
+  const R = Math.min(34, W * .095);
+  const spacing = Math.min(150, (H - 130) / Math.max(LEVELS.length, 1.7));
+  const total = (LEVELS.length - 1) * spacing;
+  const bottom = H * .55 + total / 2;
+  // Caminho irregular em vez de zigue-zague mecânico. O lado ainda alterna —
+  // é o que faz o conector em L se ler como trajeto —, mas a posição dentro
+  // de cada lado e a altura variam. O sorteio é um hash do índice, não
+  // Math.random: a rota tem de ser idêntica em toda abertura do jogo.
+  mapNodes = LEVELS.map((_, i) => {
+    const lado = i % 2 === 0 ? .20 : .56;
+    return {
+      x: W * (lado + .24 * hashUnit(i, 1)),
+      y: bottom - i * spacing + spacing * .26 * (hashUnit(i, 2) - .5),
+      r: R,
+    };
+  });
+}
+
+/* ------------------------------------------------------------------ abelhas */
+function pickTarget(h) {
+  const reach = h.radius * cell;
+  let best = -1, bd = Infinity;
+  for (const i of frontierOf(h.key)) {
+    if (reserved.has(i)) continue;
+    const c = centerOf(i), d = Math.hypot(c.x - h.x, c.y - h.y);
+    if (d <= reach && d < bd) { bd = d; best = i; }
+  }
+  return best;
+}
+
+function targetValid(b) {
+  const i = b.cell;
+  if (i < 0 || cells[i] === 0 || KEYS[cells[i] - 1] !== b.h.key) return false;
+  const c = centerOf(i);
+  return Math.hypot(c.x - b.h.x, c.y - b.h.y) <= b.h.radius * cell;
+}
+
+function retarget(b) {
+  reserved.delete(b.cell);
+  const t = pickTarget(b.h);
+  b.cell = t;
+  if (t < 0) return false;
+  reserved.add(t);
+  return true;
+}
+
+function step(dt) {
+  playTime += dt;
+  for (const h of hives) {
+    if (h.bees <= 0) continue;
+    h.clock += dt;
+    if (h.clock < SPAWN) continue;
+    const t = pickTarget(h);
+    if (t < 0) continue;          // sem alvo: segura o relogio, sai assim que aparecer
+    h.clock = 0; h.bees--; h.flight++; dispatched++;
+    reserved.add(t);
+    bees.push({ h, cell: t, ph: 0, x: h.x, y: h.y, carried: null, wob: Math.random() * 6 });
+  }
+
+  const sp = cell * 10.5;
+  for (const b of bees) {
+    b.wob += dt * 13;
+    if (b.ph === 0 && !targetValid(b) && !retarget(b)) b.ph = 2;
+    const d0 = b.ph === 0 ? centerOf(b.cell) : b.h;
+    const vx = d0.x - b.x, vy = d0.y - b.y, d = Math.hypot(vx, vy), mv = sp * dt;
+    if (d <= mv) { b.x = d0.x; b.y = d0.y; arrive(b); }
+    else { b.x += vx / d * mv; b.y += vy / d * mv; }
+  }
+  bees = bees.filter(b => !b.dead);
+
+  // A colmeia só devolve o slot quando gasta a última abelha. Nunca some com
+  // abelha dentro: "cor esgotada" dispensava a colmeia no mesmo quadro em que
+  // o jogador a soltava — ela simplesmente desaparecia da mesa.
+  hives = hives.filter(h => {
+    if (h.flight > 0 || h.bees > 0) return true;
+    slots[h.slot] = null; return false;
+  });
+
+  // O bloco sai do tabuleiro na COLETA, mas vira mel na ENTREGA. Terminar em
+  // `filled === 0` cortaria o nível no instante da última coleta, e as abelhas
+  // que ainda estivessem voltando nunca entregariam — o jogador veria 400
+  // blocos virarem 398 de mel. Acaba quando a última abelha pousa.
+  if (filled === 0) { if (!beesInFlight()) finish("win"); }
+  else {
+    loseColor = beeShortage();
+    if (loseColor || deadlocked()) finish("lose");
+  }
+}
+
+function arrive(b) {
+  if (b.ph === 0) {
+    if (cells[b.cell] === 0) { b.ph = 2; return; }
+    b.carried = COLOR[KEYS[cells[b.cell] - 1]];
+    reserved.delete(b.cell);
+    cells[b.cell] = 0; dirty = true; refresh();
+    b.ph = 1;
+  } else if (b.ph === 1) {
+    b.h.flight--; honey++; b.dead = true;
+  } else {
+    // Voltou vazia: devolve a vaga. Reposicionar nunca custa abelhas.
+    b.h.flight--; b.h.bees++; b.dead = true;
+  }
+}
+
+// Existe algum topo de pilha que caiba em algum lugar? Com colmeias
+// territoriais, ter slot livre não basta. Varredura grossa: só precisa achar
+// UM ponto, não o melhor.
+function anyPlaceableDeck() {
+  for (const deck of columns) {
+    if (!deck.length) continue;
+    const spec = deck[0], reach = spec.radius * cell, terr = !!spec.territorial;
+    for (let fy = 0; fy < 12; fy++)
+      for (let fx = 0; fx < 12; fx++) {
+        const x = boardRect.x + boardRect.w * (fx + .5) / 12;
+        const y = boardRect.y + boardRect.h * (fy + .5) / 12;
+        if (canPlace(x, y, reach, terr)) return true;
+      }
+  }
+  return false;
+}
+
+// Abelha encalhada é derrota na hora.
+//
+// O nível traz uma abelha por bloco, cor a cor — folga zero. Então toda abelha
+// que nunca mais vai voar é um bloco que ninguém vai coletar: o final feliz já
+// é impossível, por mais slot livre que ainda sobre. Sem esta conta o jogador
+// seguia jogando meia partida até travar de vez, e só então descobria que a
+// derrota tinha sido decidida vinte jogadas antes.
+//
+// Encalha a colmeia PRESA (sem remanejamento) que não tem nenhum bloco da cor
+// dela dentro do raio — enterrado conta, o miolo ainda pode abrir. Colmeia que
+// ainda anda alcança qualquer bloco da cor dela, em qualquer lugar, então nunca
+// encalha enquanto a cor existir. Como o tabuleiro só encolhe, a condição nunca
+// se desfaz: dá para declarar na hora.
+//
+// Devolve a cor que ficou a descoberto, ou null se ninguém está faltando.
+let loseColor = null;
+function beeShortage() {
+  // A varredura completa só roda quando existe candidata a encalhada, que é o
+  // caso raro. No quadro normal isto sai na primeira linha.
+  let suspeita = false;
+  for (const h of hives)
+    if (h.bees > 0 && (!canMove(h) || countOf(h.key) === 0)) { suspeita = true; break; }
+  if (!suspeita) return null;
+
+  refresh();
+  const need = {}, have = {}, reach = new Map();
+  for (const k of KEYS) { need[k] = 0; have[k] = 0; }
+  for (const h of hives) reach.set(h, 0);
+  for (let i = 0; i < N; i++) {
+    const v = cells[i];
+    if (!v) continue;
+    const k = KEYS[v - 1];
+    need[k]++;
+    const c = centerOf(i);
+    for (const h of hives) {
+      if (h.key !== k || reach.get(h)) continue;
+      if (canMove(h) || Math.hypot(c.x - h.x, c.y - h.y) <= h.radius * cell) reach.set(h, 1);
+    }
+  }
+
+  for (const h of hives) if (reach.get(h)) have[h.key] += h.bees;
+  // Abelha carregando já tirou o bloco do tabuleiro: não está em `need`.
+  for (const b of bees) if (b.ph !== 1 && reach.get(b.h)) have[b.h.key]++;
+  for (const deck of columns) for (const c of deck) have[c.color] += c.bees;
+
+  for (const k of KEYS) if (need[k] > have[k]) return k;
+  return null;
+}
+
+function deadlocked() {
+  if (freeSlot() >= 0 && anyPlaceableDeck()) return false;
+  for (const h of hives) {
+    if (h.flight > 0) return false;
+    if (h.bees <= 0) return false;      // vai se aposentar e liberar o slot
+    // Colmeia COM abelha mas de cor extinta fica estacionada para sempre:
+    // ocupa o slot e não destrava nada. Não é esperança — pula.
+    if (countOf(h.key) === 0) continue;
+    if (canMove(h)) { if (frontierOf(h.key).length) return false; }
+    else if (pickTarget(h) >= 0) return false;
+  }
+  return true;
+}
+
+/* ---------------------------------------------------------------- interacao */
+const inRect = (r, x, y) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+
+function cellAt(x, y) {
+  const c = Math.floor((x - ox) / cell), r = Math.floor((y - oy) / cell);
+  if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return -1;
+  return r * COLS + c;
+}
+
+// A colmeia pousa FORA da silhueta, nunca dentro. Não basta a célula estar
+// vazia: ela precisa estar ligada ao lado de fora. Um bolsão de vazio cercado
+// de blocos continua sendo "dentro da imagem" — é a mesma máscara que define
+// a fronteira, então a regra sai sem cálculo novo.
+function canPlace(x, y, reach = 0, territorial = false, ignore = null) {
+  if (!inRect(boardRect, x, y)) return false;
+  const i = cellAt(x, y);
+  if (i >= 0) {
+    refresh();
+    if (!(cells[i] === 0 && outsideMask[i] === 1)) return false;
+  }
+  // Território: a colmeia territorial não divide espaço. Ninguém pousa DENTRO
+  // do círculo dela, e ela não pousa com ninguém dentro do círculo dela.
+  // O veto é o raio da territorial, não a soma dos dois raios: exigir que os
+  // círculos nem se tocassem apagava até 65% da zona de voo por colmeia, e o
+  // fim de nível virava impasse. Ver DESIGN.md, "Território".
+  for (const h of hives) {
+    if (h === ignore) continue;
+    let veto = 0;
+    if (territorial) veto = reach;
+    if (h.territorial) veto = Math.max(veto, h.radius * cell);
+    if (veto > 0 && Math.hypot(x - h.x, y - h.y) < veto) return false;
+  }
+  return true;
+}
+
+// Ponto válido mais próximo do dedo. Em vez de deixar arrastar para dentro da
+// imagem e recusar no fim, a colmeia desliza pela borda e o soltar sempre vale.
+function nearestValid(x, y, reach, territorial, ignore) {
+  if (canPlace(x, y, reach, territorial, ignore)) return [x, y];
+  const step = Math.max(cell * 0.4, 6);
+  for (let ring = 1; ring <= 40; ring++) {
+    for (let k = 0; k < 20; k++) {
+      const a = k * Math.PI / 10, r = step * ring;
+      const px = x + Math.cos(a) * r, py = y + Math.sin(a) * r;
+      if (canPlace(px, py, reach, territorial, ignore)) return [px, py];
+    }
+  }
+  return [x, y];
+}
+
+const dragReach = () => (drag.hive ? drag.hive.radius : drag.spec.radius) * cell;
+const dragTerr = () => !!(drag.hive ? drag.hive.territorial : drag.spec.territorial);
+
+// Dentro da zona de voo a colmeia gruda no ponto válido mais próximo; fora
+// dela o arrasto fica inválido, que é como o jogador cancela.
+function trackDrag(p) {
+  if (!drag) return;
+  if (inRect(boardRect, p.x, p.y)) {
+    const reach = dragReach(), terr = dragTerr(), ign = drag.hive || null;
+    const [x, y] = nearestValid(p.x, p.y, reach, terr, ign);
+    drag.x = x; drag.y = y; drag.ok = canPlace(x, y, reach, terr, ign);
+  } else {
+    drag.x = p.x; drag.y = p.y; drag.ok = false;
+  }
+}
+
+function pointFrom(e) {
+  const b = canvas.getBoundingClientRect();
+  return { x: e.clientX - b.left, y: e.clientY - b.top };
+}
+
+canvas.addEventListener("pointerdown", e => {
+  const p0 = pointFrom(e);
+  if (screen === "map") {
+    for (let i = 0; i < mapNodes.length; i++) {
+      const n = mapNodes[i];
+      if (Math.hypot(p0.x - n.x, p0.y - n.y) <= n.r && isUnlocked(i)) openLevel(i);
+    }
+    return;
+  }
+  if (phase !== "play") return;
+  const p = pointFrom(e);
+  canvas.setPointerCapture(e.pointerId);
+  for (const h of hives) {
+    if (Math.hypot(p.x - h.x, p.y - h.y) > cell * 1.5) continue;
+    if (!canMove(h)) {
+      hint("Essa colmeia gastou os remanejamentos dela — está presa aí.");
+      return;
+    }
+    {
+      drag = { hive: h, x: p.x, y: p.y, ok: false };
+      trackDrag(p);
+      return;
+    }
+  }
+  if (freeSlot() < 0) { hint("Todos os slots ocupados — espere uma colmeia esvaziar."); return; }
+  for (let j = 0; j < deckRects.length; j++) {
+    if (columns[j].length && inRect(deckRects[j], p.x, p.y)) {
+      drag = { col: j, spec: columns[j][0], x: p.x, y: p.y, ok: false };
+      trackDrag(p);
+      return;
+    }
+  }
+});
+
+canvas.addEventListener("pointermove", e => {
+  if (!drag) return;
+  e.preventDefault();
+  trackDrag(pointFrom(e));
+});
+
+function endDrag(e) {
+  if (!drag) return;
+  trackDrag(pointFrom(e));
+  const { x, y, ok } = drag;      // solta no ponto já grudado, não no cru do dedo
+  if (ok) {
+    if (drag.hive) {
+      // Toque sem arrastar não pode custar um remanejamento. Abaixo do limiar
+      // nada acontece — nem move, nem gasta —, senão daria para atravessar o
+      // tabuleiro de graça em passinhos.
+      if (Math.hypot(x - drag.hive.x, y - drag.hive.y) > cell * .6) {
+        drag.hive.x = x; drag.hive.y = y; drag.hive.used++;
+      }
+    }
+    else {
+      const s = freeSlot();
+      if (s >= 0) {
+        const spec = columns[drag.col].shift();
+        const h = {
+          key: spec.color, color: COLOR[spec.color], kind: spec.kind,
+          radius: spec.radius, bees: spec.bees, moves: spec.moves ?? -1,
+          territorial: !!spec.territorial,
+          used: 0, x, y, slot: s, flight: 0, clock: SPAWN
+        };
+        slots[s] = h; hives.push(h);
+      }
+    }
+  }
+  drag = null;
+}
+canvas.addEventListener("pointerup", endDrag);
+canvas.addEventListener("pointercancel", () => { drag = null; });
+
+/* -------------------------------------------------------------------- draw */
+const HEX = a => { const p = []; for (let i = 0; i < 6; i++) { const t = Math.PI / 6 + i * Math.PI / 3; p.push([Math.cos(t) * a, Math.sin(t) * a]); } return p; };
+function hexPath(x, y, r) {
+  ctx.beginPath();
+  HEX(r).forEach(([dx, dy], i) => i ? ctx.lineTo(x + dx, y + dy) : ctx.moveTo(x + dx, y + dy));
+  ctx.closePath();
+}
+function label(t, r, size, color, weight, dy) {
+  ctx.fillStyle = color;
+  ctx.font = `${weight} ${size}px "Baloo 2", ui-sans-serif, sans-serif`;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(t, r.x + r.w / 2, r.y + r.h * dy);
+}
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+
+function drawHive(x, y, color, r, text, size, moves) {
+  hexPath(x, y, r);
+  ctx.fillStyle = color; ctx.fill();
+  ctx.lineWidth = Math.max(1.5, r * (moves >= 0 ? .18 : .1));
+  ctx.strokeStyle = shade(color, moves >= 0 ? -.65 : -.38);
+  ctx.stroke();
+  if (text) label(text, { x: x - r, y: y - r, w: r * 2, h: r * 2 }, size, "#241A06", 800, .5);
+  if (moves >= 0) {
+    // Quantos remanejamentos ainda restam. Zero = a colmeia está presa ali.
+    label(moves > 0 ? "mov " + moves : "presa",
+      { x: x - r * 1.6, y: y + r * .55, w: r * 3.2, h: r }, Math.max(9, r * .42),
+      moves > 0 ? "#241A06" : "#7C2A14", 700, .8);
+  }
+}
+
+function shade(hex, amt) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = c => Math.max(0, Math.min(255, Math.round(amt < 0 ? c * (1 + amt) : c + (255 - c) * amt)));
+  return `rgb(${f(n >> 16 & 255)},${f(n >> 8 & 255)},${f(n & 255)})`;
+}
+
+let comb = null;
+function buildComb() {
+  comb = document.createElement("canvas");
+  comb.width = W; comb.height = H;
+  const g = comb.getContext("2d");
+  g.strokeStyle = "rgba(240,206,124,.055)"; g.lineWidth = 1;
+  const r = 26, dx = r * Math.sqrt(3), dy = r * 1.5;
+  for (let row = -1, y = -r; y < H + r; row++, y += dy) {
+    for (let x = (row % 2 ? dx / 2 : 0) - dx; x < W + dx; x += dx) {
+      g.beginPath();
+      HEX(r).forEach(([a, b], i) => i ? g.lineTo(x + a, y + b) : g.moveTo(x + a, y + b));
+      g.closePath(); g.stroke();
+    }
+  }
+}
+
+// Ruído determinístico em [0,1) a partir de um índice. Estável entre sessões,
+// aparelhos e quadros — o que Math.random não seria.
+function hashUnit(i, salt) {
+  let h = Math.imul(i + 1, 2654435761) ^ Math.imul(salt + 1, 40503);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+function drawMap() {
+  ctx.clearRect(0, 0, W, H);
+  if (comb) ctx.drawImage(comb, 0, 0);
+  for (let i = 0; i < mapNodes.length - 1; i++)
+    link(mapNodes[i], mapNodes[i + 1], isUnlocked(i + 1));
+  const last = mapNodes[mapNodes.length - 1];
+  dotted(last.x, last.y - last.r - 8, last.x, last.y - last.r - 66, false);
+  mapNodes.forEach(mapNode);
+}
+
+// Liga dois favos em L: sobe reto e depois atravessa. Uma diagonal passaria
+// bem por cima do nome do nível de destino, que fica logo abaixo dele.
+function link(a, b, lit) {
+  dotted(a.x, a.y - a.r - 10, a.x, b.y, lit);
+  const side = Math.sign(b.x - a.x);
+  dotted(a.x, b.y, b.x - side * (b.r + 10), b.y, lit);
+}
+
+function dotted(x1, y1, x2, y2, lit) {
+  const span = Math.hypot(x2 - x1, y2 - y1);
+  if (span < 14) return;
+  const steps = Math.max(1, Math.round(span / 17));
+  ctx.fillStyle = lit ? "rgba(240,206,124,.85)" : "rgba(240,206,124,.2)";
+  for (let k = 0; k <= steps; k++) {
+    const t = k / steps;
+    ctx.beginPath();
+    ctx.arc(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t, lit ? 3 : 2.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function mapNode(n, i) {
+  const done = isCleared(i), open = isUnlocked(i);
+  hexPath(n.x, n.y, n.r);
+  ctx.fillStyle = done ? "#C9922E" : open ? "#F0CE7C" : "#3A2C11";
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = done ? "#8A6216" : open ? "#C9922E" : "#4A3A18";
+  ctx.stroke();
+
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  if (open) {
+    ctx.fillStyle = "#241A06";
+    ctx.font = `800 ${n.r * .86}px "Baloo 2", ui-sans-serif, sans-serif`;
+    ctx.fillText(String(i + 1), n.x, n.y + n.r * .04);
+  } else {
+    ctx.fillStyle = "#8A7B5E";
+    ctx.fillRect(n.x - n.r * .21, n.y - n.r * .04, n.r * .42, n.r * .34);
+    ctx.strokeStyle = "#8A7B5E"; ctx.lineWidth = n.r * .1;
+    ctx.beginPath(); ctx.arc(n.x, n.y - n.r * .04, n.r * .15, Math.PI, 0); ctx.stroke();
+  }
+
+  if (done) {
+    const sx = n.x + n.r * .72, sy = n.y - n.r * .72;
+    ctx.fillStyle = "#4A7A38";
+    ctx.beginPath(); ctx.arc(sx, sy, n.r * .3, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = n.r * .1; ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(sx - n.r * .13, sy);
+    ctx.lineTo(sx - n.r * .03, sy + n.r * .11);
+    ctx.lineTo(sx + n.r * .14, sy - n.r * .11);
+    ctx.stroke(); ctx.lineCap = "butt";
+  }
+
+  if (open) {
+    ctx.fillStyle = "#F6EDD9";
+    ctx.font = `700 ${Math.max(12.5, n.r * .42)}px "Karla", ui-sans-serif, sans-serif`;
+    ctx.fillText(LEVELS[i].name, n.x, n.y + n.r + 15);
+    const rec = fmtTime(bestTime(i)), band = (LEVELS[i].meta || {}).band || "";
+    ctx.fillStyle = "#A08D6C";
+    ctx.font = `400 ${Math.max(10, n.r * .32)}px "Karla", ui-sans-serif, sans-serif`;
+    ctx.fillText(rec ? `${band} \u00b7 recorde ${rec}` : band, n.x, n.y + n.r + 31);
+  } else {
+    ctx.fillStyle = "#8A7B5E";
+    ctx.font = `600 ${Math.max(10.5, n.r * .34)}px "Karla", ui-sans-serif, sans-serif`;
+    ctx.fillText(`ven\u00e7a o n\u00edvel ${i}`, n.x, n.y + n.r + 15);
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  if (comb) ctx.drawImage(comb, 0, 0);
+
+  // Zona de voo
+  roundRect(boardRect.x, boardRect.y, boardRect.w, boardRect.h, 12);
+  ctx.fillStyle = "rgba(231,224,206,.93)"; ctx.fill();
+
+  ctx.save();
+  roundRect(boardRect.x, boardRect.y, boardRect.w, boardRect.h, 12);
+  ctx.clip();   // segura os circulos de raio dentro do tabuleiro
+
+  const g = Math.max(.5, cell * .07), s = cell - g;
+  for (let i = 0; i < N; i++) {
+    const v = cells[i];
+    if (!v) continue;
+    const x = ox + (i % COLS) * cell + g / 2, y = oy + ((i / COLS) | 0) * cell + g / 2;
+    const base = COLOR[KEYS[v - 1]];
+    ctx.fillStyle = base; ctx.fillRect(x, y, s, s);
+    ctx.fillStyle = shade(base, .22); ctx.fillRect(x, y, s, s * .2);
+    ctx.fillStyle = shade(base, -.16); ctx.fillRect(x, y + s * .8, s, s * .2);
+  }
+
+  for (const h of hives) ring(h.x, h.y, h.radius * cell, h.color, h.territorial);
+  if (drag) {
+    ring(drag.x, drag.y, dragReach(),
+      drag.hive ? drag.hive.color : COLOR[drag.spec.color], dragTerr());
+    // Enquanto arrasta, mostra as áreas que barram o pouso — o mesmo veto que
+    // canPlace aplica, senão o tracejado promete um pouso que a regra recusa.
+    for (const h of hives) {
+      if (h === drag.hive) continue;
+      let veto = 0;
+      if (dragTerr()) veto = dragReach();
+      if (h.territorial) veto = Math.max(veto, h.radius * cell);
+      if (veto <= 0) continue;
+      ctx.beginPath();
+      ctx.arc(h.x, h.y, veto, 0, Math.PI * 2);
+      ctx.setLineDash([4, 6]); ctx.strokeStyle = "rgba(217,106,74,.8)";
+      ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+    }
+  }
+
+  for (const b of bees) drawBee(b);
+  for (const h of hives)
+    drawHive(h.x, h.y, h.color, cell * .92, String(h.bees), cell * .78,
+      h.moves < 0 ? -1 : h.moves - h.used);
+
+  if (drag) {
+    const col = drag.hive ? drag.hive.color : COLOR[drag.spec.color];
+    const nb = drag.hive ? drag.hive.bees : drag.spec.bees;
+    drawHive(drag.x, drag.y, col, cell * 1.02, String(nb), cell * .82,
+      drag.hive ? drag.hive.moves - drag.hive.used
+                : ((drag.spec.moves ?? -1) < 0 ? -1 : drag.spec.moves));
+    ctx.beginPath(); ctx.arc(drag.x, drag.y, cell * 1.35, 0, Math.PI * 2);
+    ctx.strokeStyle = drag.ok ? "#7FBF5A" : "#D96A4A"; ctx.lineWidth = 3; ctx.stroke();
+  }
+  ctx.restore();
+
+  drawSlots(); drawDecks();
+}
+
+function ring(x, y, r, color, territorial) {
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = shade(color, .0).replace("rgb", "rgba").replace(")", ",.10)");
+  ctx.fill();
+  ctx.strokeStyle = shade(color, -.15); ctx.globalAlpha = .55;
+  ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = 1;
+  if (territorial) {
+    // Anel duplo tracejado: "esta área não divide espaço com ninguém".
+    ctx.beginPath(); ctx.arc(x, y, Math.max(4, r - 5), 0, Math.PI * 2);
+    ctx.setLineDash([7, 5]); ctx.strokeStyle = "#E8698C"; ctx.globalAlpha = .85;
+    ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+}
+
+function drawBee(b) {
+  const r = Math.max(4.5, cell * .3), y = b.y + Math.sin(b.wob) * r * .25, ink = "#241A06";
+  ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(b.x, y, r * 1.2, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = b.h.color; ctx.beginPath(); ctx.arc(b.x, y, r, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = ink; ctx.lineWidth = Math.max(1, r * .22);
+  ctx.beginPath(); ctx.moveTo(b.x - r * .4, y - r * .7); ctx.lineTo(b.x - r * .4, y + r * .7);
+  ctx.moveTo(b.x + r * .2, y - r * .8); ctx.lineTo(b.x + r * .2, y + r * .8); ctx.stroke();
+  ctx.fillStyle = "rgba(255,255,255,.55)";
+  ctx.beginPath(); ctx.arc(b.x - r * .5, y - r * .85, r * .62, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(b.x + r * .45, y - r * .9, r * .62, 0, Math.PI * 2); ctx.fill();
+  if (b.ph === 1 && b.carried) {
+    const s = r * 1.5;
+    ctx.fillStyle = b.carried; ctx.fillRect(b.x - s / 2, y - r * 2.3, s, s);
+    ctx.strokeStyle = ink; ctx.lineWidth = 1.5; ctx.strokeRect(b.x - s / 2, y - r * 2.3, s, s);
+  }
+}
+
+function drawSlots() {
+  slotRects.forEach((r, i) => {
+    const h = slots[i];
+    roundRect(r.x, r.y, r.w, r.h, 9);
+    if (!h) {
+      ctx.fillStyle = "rgba(240,206,124,.07)"; ctx.fill();
+      ctx.strokeStyle = "rgba(240,206,124,.28)"; ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 4]); ctx.stroke(); ctx.setLineDash([]);
+      label("livre", r, 11, "rgba(240,206,124,.5)", 600, .56);
+    } else {
+      ctx.fillStyle = shade(h.color, -.62); ctx.fill();
+      ctx.strokeStyle = h.color; ctx.lineWidth = 1.5; ctx.stroke();
+      drawHive(r.x + r.w / 2, r.y + r.h * .42, h.color, r.h * .28, String(h.bees), r.h * .26);
+      label(h.kind, { x: r.x, y: r.y, w: r.w, h: r.h }, 9.5, "rgba(246,237,217,.62)", 600, .85);
+    }
+  });
+}
+
+function drawDecks() {
+  deckRects.forEach((r, j) => {
+    const deck = columns[j];
+    if (!deck.length) {
+      roundRect(r.x, r.y, r.w, r.h, 9);
+      ctx.strokeStyle = "rgba(240,206,124,.15)"; ctx.lineWidth = 1.5; ctx.stroke();
+      return;
+    }
+
+    // A fila do que vem, nas cores REAIS. Antes eram tocos escuros: o jogador
+    // via que havia mais colmeias, mas não de quais cores — e a ordem das
+    // cores é exatamente a informação de que ele precisa para planejar.
+    const slice = Math.max(7, r.h * .17);
+    const room = Math.max(0, deckSpace - r.h - 4);
+    const fila = Math.min(deck.length - 1, Math.floor(room / slice));
+    for (let k = 1; k <= fila; k++) {
+      const y = r.y + r.h + (k - 1) * slice;
+      roundRect(r.x + 3, y, r.w - 6, slice - 1.5, 3);
+      ctx.fillStyle = shade(COLOR[deck[k].color], -.05 * k - .04);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,.22)"; ctx.lineWidth = 1; ctx.stroke();
+    }
+
+    const spec = deck[0], col = COLOR[spec.color];
+    const limited = (spec.moves ?? -1) >= 0;
+    roundRect(r.x, r.y, r.w, r.h, 9);
+    ctx.fillStyle = col; ctx.fill();
+    // Contorno grosso e escuro marca mobilidade limitada.
+    ctx.strokeStyle = shade(col, limited ? -.7 : -.35);
+    ctx.lineWidth = limited ? 4 : 2;
+    ctx.stroke();
+    // O hexágono cresce com o raio: o alcance se lê sem texto, e por isso o
+    // nome do tipo saiu — era redundante e comia a altura da fila.
+    drawHive(r.x + r.w * .2, r.y + r.h * .44, shade(col, .3),
+      Math.max(6, Math.min(r.h * .27, spec.radius * 1.9)), "", 0);
+    const n = String(spec.bees);
+    label(n, { x: r.x + r.w * .4, y: r.y, w: r.w * .54, h: r.h },
+      r.h * (n.length > 1 ? .38 : .46), "#241A06", 800, .58);
+    if (spec.territorial) {
+      // Faixa rosa no pé do token: marca território ANTES de o jogador puxar.
+      roundRect(r.x + 3, r.y + r.h - 7, r.w - 6, 4, 2);
+      ctx.fillStyle = "#E8698C"; ctx.fill();
+    }
+    if (limited) {
+      roundRect(r.x + 4, r.y + 3, 40, 15, 4);
+      ctx.fillStyle = "#241A06"; ctx.fill();
+      label("mov " + spec.moves, { x: r.x + 4, y: r.y + 3, w: 40, h: 15 },
+        9, "#F0CE7C", 700, .76);
+    }
+    if (deck.length > 1)
+      label("x" + deck.length, { x: r.x + r.w - 21, y: r.y + 2, w: 19, h: 14 },
+        9, "rgba(36,26,6,.72)", 700, .72);
+  });
+}
+
+/* --------------------------------------------------------------------- app */
+const over = document.getElementById("over");
+const tip = document.getElementById("tip");
+let tipHold = 0;
+function hint(t) { tip.textContent = t; tipHold = 2.5; }
+
+function finish(kind) {
+  if (phase !== "play") return;
+  phase = kind;
+  const t = document.getElementById("oTitle");
+  const body = document.getElementById("oBody");
+  const btn = document.getElementById("oAgain");
+  const step = document.getElementById("oStep");
+  step.textContent = "N\u00edvel " + (li + 1) + " de " + LEVELS.length;
+
+  if (kind === "win") {
+    progress.cleared[LEVEL.id] = true;
+    const prev = progress.best[LEVEL.id];
+    // Aqui MENOR é melhor, ao contrário do mel.
+    if (!prev || !prev.time || prev.time > playTime)
+      progress.best[LEVEL.id] = { time: playTime, waste: dispatched - filledAtStart };
+    saveProgress();
+  }
+
+  if (kind === "win" && li < LEVELS.length - 1) {
+    const nx = LEVELS[li + 1];
+    t.textContent = "N\u00edvel " + (li + 1) + " limpo";
+    body.innerHTML = `<b>${honey}</b> de mel com <b>${dispatched}</b> abelhas.<br>`
+      + `A seguir: <b>${nx.name}</b> — ${nx.rows}&times;${nx.cols}, `
+      + `${Object.keys(nx.palette).length} cores.`;
+    btn.textContent = "N\u00edvel " + (li + 2) + " \u2192";
+    btn.dataset.act = "next";
+  } else if (kind === "win") {
+    t.textContent = "Campanha limpa";
+    body.innerHTML = `Voc&ecirc; fechou os ${LEVELS.length} n&iacute;veis do prot&oacute;tipo `
+      + `com <b>${honey}</b> de mel neste \u00faltimo.`;
+    btn.textContent = "come\u00e7ar de novo";
+    btn.dataset.act = "first";
+  } else if (loseColor) {
+    // Derrota anunciada no instante em que fica decidida, não vinte jogadas
+    // depois: cada abelha presa é um bloco que ninguém mais coleta.
+    const nome = (LEVEL.palette[loseColor] || {}).name || loseColor;
+    t.textContent = "Colmeia presa";
+    body.innerHTML = `Uma colmeia sem remanejamento ficou fora do alcance da cor dela. `
+      + `As abelhas presas n&atilde;o voam mais, e sem elas os blocos de `
+      + `<b>${nome}</b> n&atilde;o t&ecirc;m quem colete — o n&iacute;vel tem uma abelha `
+      + `por bloco, exatamente. Sobraram <b>${filled}</b> blocos.`;
+    btn.textContent = "tentar de novo";
+    btn.dataset.act = "retry";
+  } else {
+    t.textContent = "Sem movimentos";
+    body.innerHTML = `Sobraram <b>${filled}</b> blocos. Os slots travaram com colmeias que `
+      + `n&atilde;o alcan&ccedil;am nenhuma cor dispon&iacute;vel — a ordem em que voc&ecirc; `
+      + `puxa as pilhas &eacute; o jogo.`;
+    btn.textContent = "tentar de novo";
+    btn.dataset.act = "retry";
+  }
+  over.classList.add("show");
+}
+
+let last = 0;
+// Gancho de teste: dt fixo torna a simulação determinística, como o
+// --fixed-fps do Godot. Jogo real (fixedDt = 0) segue o relógio de verdade.
+let fixedDt = 0;
+// Gancho de teste: avança n quadros de simulação sincronamente, sem rAF e sem
+// desenhar. Com fixedDt, o teste dirige o jogo inteiro de forma determinística.
+function tick(n) {
+  const dt = (fixedDt > 0 ? fixedDt : 1 / 60) * speed;
+  for (let i = 0; i < n && phase === "play"; i++) step(dt);
+}
+function frame(t) {
+  const dt = (fixedDt > 0 ? fixedDt : Math.min(0.05, (t - last) / 1000)) * speed;
+  last = t;
+  if (screen === "game") {
+    // Com fixedDt ativo (teste), o rAF só desenha - tick() é o único motor.
+    // Senão o relógio de parede pisaria na simulação junto com o teste.
+    if (phase === "play" && fixedDt === 0) step(dt);
+    draw();
+    document.getElementById("sBlocks").textContent = filled;
+    document.getElementById("sHoney").textContent = honey;
+  } else {
+    drawMap();
+  }
+  if (tipHold > 0) { tipHold -= dt; if (tipHold <= 0) tip.textContent = defaultTip(); }
+  requestAnimationFrame(frame);
+}
+
+function defaultTip() {
+  if (screen === "map")
+    return "Toque num favo para jogar. O pr\u00f3ximo abre quando voc\u00ea vencer o atual.";
+  if (phase !== "play") return "";
+  if (!hives.length) return "Arraste uma colmeia at\u00e9 fora da imagem, perto da cor dela";
+  if (freeSlot() < 0) return "Slots cheios — arraste uma colmeia parada para outro ponto";
+  return "Só blocos da borda saem — o miolo abre sozinho conforme a imagem encolhe";
+}
+
+document.getElementById("bSpeed").onclick = e => {
+  speed = speed > 1.5 ? 1 : 2;
+  e.target.innerHTML = speed > 1.5 ? "&times;2" : "&times;1";
+  e.target.classList.toggle("on", speed > 1.5);
+  e.target.setAttribute("aria-pressed", speed > 1.5);
+};
+document.getElementById("bAgain").onclick = () => reset();
+document.getElementById("bMap").onclick = () => showMap();
+document.getElementById("oMap").onclick = () => showMap();
+document.getElementById("oAgain").onclick = e => {
+  const act = e.currentTarget.dataset.act;
+  if (act === "next") reset(li + 1);
+  else if (act === "first") reset(0);
+  else reset();
+};
+
+function boot() {
+  progress = loadProgress();
+  reset(0); buildComb(); layout(); buildComb();
+  showMap();
+  requestAnimationFrame(t => { last = t; frame(t); });
+}
+addEventListener("resize", () => { layout(); buildComb(); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(boot); else boot();
+</script>
