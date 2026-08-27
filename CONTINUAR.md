@@ -28,7 +28,15 @@ autocontido (`web/bee-flow-play.html`) que é o que roda no celular.
 
 **Godot 4.3** (headless serve; não precisa do editor):
 baixe de https://godotengine.org/download — o binário `linux.x86_64` ou o
-equivalente do seu sistema. Nada mais é preciso: o projeto não usa addons.
+equivalente do seu sistema. O projeto não usa addons, mas em clone novo rode
+UMA vez a importação antes de qualquer gate:
+
+    godot --headless --path . --import
+
+Sem isso não existe o cache de classes globais, `Main.gd` falha no parse
+(`BFBee não declarado` etc.), o engine sobe sem cena nenhuma e — como
+`--fixed-fps` desliga a sincronização com o relógio — fica num loop vazio a
+100% de CPU que nunca termina. Parece o gate rodando; não é.
 
 **Python 3** para o gerador. Sem dependências, exceto Pillow, e só se você for
 gerar nível a partir de `.png` (arte em `.txt` não precisa).
