@@ -1,5 +1,10 @@
-import asyncio, json
+import asyncio, json, os, pathlib
 from playwright.async_api import async_playwright
+
+# No contêiner da sessão web o Chromium fica fora do cache padrão do
+# Playwright; em máquina local o Playwright acha o dele sozinho.
+_EXE = "/opt/pw-browsers/chromium"
+CHROMIUM = {"executable_path": _EXE} if os.path.exists(_EXE) else {}
 
 BOT = """() => {
   if (phase !== 'play') return;
@@ -98,11 +103,11 @@ async def play(pg, tag):
 
 async def main():
     async with async_playwright() as p:
-        b = await p.chromium.launch(executable_path="/opt/pw-browsers/chromium")
+        b = await p.chromium.launch(**CHROMIUM)
         pg = await b.new_page(viewport={"width": 390, "height": 780}, device_scale_factor=2)
         errs = []
         pg.on("pageerror", lambda e: errs.append(f"pageerror: {e}"))
-        await pg.goto("file:///tmp/claude-0/-home-user-elo-pojo/9cc940d3-fc07-5d41-b9b2-13ad986b213f/scratchpad/bee-flow-play.html")
+        await pg.goto(pathlib.Path("web/bee-flow-play.html").resolve().as_uri())
         await pg.wait_for_timeout(1200)
         print("cabecalho inicial:", (await pg.inner_text("#brand")).replace("\n", " / "))
 

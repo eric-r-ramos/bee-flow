@@ -7,10 +7,15 @@ vez de deixar o jogador seguir meia partida ate travar de vez.
 Testa tambem os dois lados negativos, que sao onde um falso positivo doeria:
 colmeia presa mas COM alvo no raio, e colmeia livre no mesmo ponto ruim.
 """
-import asyncio, json
+import asyncio, json, os
 from playwright.async_api import async_playwright
 
 URL = "http://127.0.0.1:8731/web/bee-flow-play.html"
+
+# No contêiner da sessão web o Chromium fica fora do cache padrão do
+# Playwright; em máquina local o Playwright acha o dele sozinho.
+_EXE = "/opt/pw-browsers/chromium"
+CHROMIUM = {"executable_path": _EXE} if os.path.exists(_EXE) else {}
 
 # Tira a carta do topo da coluna e planta a colmeia num ponto dado, do mesmo
 # jeito que o bot faz. Tirar a carta da pilha e essencial: sao as abelhas DELA
@@ -76,7 +81,7 @@ async def cenario(pg, nivel, moves, onde):
 
 async def main():
     async with async_playwright() as p:
-        b = await p.chromium.launch(executable_path="/opt/pw-browsers/chromium")
+        b = await p.chromium.launch(**CHROMIUM)
         ctx = await b.new_context(viewport={"width": 390, "height": 780}, device_scale_factor=2)
         pg = await ctx.new_page()
         errs = []

@@ -1,7 +1,12 @@
-import asyncio, json
+import asyncio, json, os
 from playwright.async_api import async_playwright
 
 BOT = open("tools/test_web_bot.py").read().split('BOT = """')[1].split('"""')[0]
+
+# No contêiner da sessão web o Chromium fica fora do cache padrão do
+# Playwright; em máquina local o Playwright acha o dele sozinho.
+_EXE = "/opt/pw-browsers/chromium"
+CHROMIUM = {"executable_path": _EXE} if os.path.exists(_EXE) else {}
 
 # O jogador humano tem "tentar de novo"; o bot tambem tem. Cada tentativa usa
 # uma cadencia diferente (determinismo por tentativa), porque nivel de fio de
@@ -28,7 +33,7 @@ async def play(pg):
 
 async def main():
     async with async_playwright() as p:
-        b = await p.chromium.launch(executable_path="/opt/pw-browsers/chromium")
+        b = await p.chromium.launch(**CHROMIUM)
         ctx = await b.new_context(viewport={"width": 390, "height": 780}, device_scale_factor=2)
         pg = await ctx.new_page()
         errs = []
