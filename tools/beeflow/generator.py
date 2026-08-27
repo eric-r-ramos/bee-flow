@@ -113,15 +113,21 @@ def apply_territory(seq: list[dict], rng: random.Random, frac: float) -> int:
 
 
 def _peel(board: Board, color: str, anchor: tuple[float, float],
-          radius: float, want: int) -> int:
+          radius: float, want: int) -> list[int]:
     """Coleta ate `want` blocos de `color` no alcance, recalculando a fronteira.
 
     Descascar de fora pra dentro expoe blocos novos a cada remocao - e por isso
     que o raio nao precisa alcancar o miolo da imagem no inicio.
+
+    Devolve QUAIS blocos sairam, nao so quantos: essa lista e a atribuicao que
+    torna a solucao de referencia executavel. Sem ela, duas colmeias da mesma
+    cor com raios sobrepostos disputam os mesmos blocos no replay, a primeira
+    come os da segunda e a segunda encalha - foi o que fez o certificado
+    espacial falhar a 83% do caminho na primeira versao.
     """
     ax, ay = anchor
-    taken = 0
-    while taken < want:
+    taken: list[int] = []
+    while len(taken) < want:
         candidates = []
         for i in board.frontier():
             if board.cells[i] != color:
@@ -134,7 +140,7 @@ def _peel(board: Board, color: str, anchor: tuple[float, float],
             break
         candidates.sort()
         board.remove(candidates[0][1])
-        taken += 1
+        taken.append(candidates[0][1])
     return taken
 
 
@@ -167,16 +173,27 @@ def derive_sequence(board: Board, rng: random.Random, min_chunk: int = 5,
             anchor = _legal_anchor(work, seed, kind["radius"])
             want = rng.randint(min_chunk, max_chunk)
             taken = _peel(work, color, anchor, kind["radius"], want)
-            if taken > 0:
+            if taken:
                 seq.append({
                     "color": color,
-                    "bees": taken,
+                    "bees": len(taken),
                     "radius": kind["radius"],
                     "kind": kind["kind"],
                     "moves": -1,  # v0: reposicionamento livre
+                    # Ancoradouro de onde esta colmeia esvaziou as `taken`
+                    # abelhas dela. Ate agora era descartado, e com isso a
+                    # prova de que o nivel e jogavel morria dentro do gerador:
+                    # o solver so conferia ordem de pilha, nunca posicao. Com
+                    # colmeia presa (moves = 0) essa prova e o nivel inteiro,
+                    # entao ela viaja junto - o jogo nao le, quem le e o
+                    # verificador espacial.
+                    "anchor": [round(anchor[0], 3), round(anchor[1], 3)],
+                    # Os blocos exatos que esta colmeia descascou. Serve so ao
+                    # verificador espacial e e removido antes de publicar.
+                    "cells": taken,
                 })
                 break
-        if taken == 0:
+        if not taken:
             raise RuntimeError(f"nao consegui coletar nenhum bloco '{color}'")
 
     if not work.is_clear():

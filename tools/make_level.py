@@ -23,7 +23,7 @@ from beeflow.difficulty import analyze
 from beeflow.difficulty import report as report_difficulty
 from beeflow.generator import apply_mobility, apply_territory, deal, derive_sequence
 from beeflow.palette import PALETTE, nearest_key
-from beeflow.solver import solve
+from beeflow.solver import solve, solve_spatial
 
 
 def load_board(path: Path) -> Board:
@@ -59,7 +59,22 @@ def build(board: Board, seed: int, columns: int, slots: int, slack: float,
         limited = apply_mobility(seq, rng, limited_frac, limited_moves)
         territorial = apply_territory(seq, rng, territorial_frac)
         dealt = deal(seq, columns, rng, bury)
+        # Colmeia presa exige o verificador espacial: o combinatorio assume que
+        # qualquer colmeia da cor alcanca qualquer bloco da cor, o que so vale
+        # com reposicionamento livre.
+        # O combinatorio confere ordem de pilha e pressao de slot; o espacial
+        # confere que a estrategia de referencia sobrevive a essa ordem com as
+        # colmeias presas nos ancoradouros. Sao perguntas diferentes, entao com
+        # colmeia fixa o nivel tem de passar nas DUAS - trocar uma pela outra
+        # deixava um buraco de cada lado.
+        presa = any(h.get("moves", -1) == 0 for c in dealt for h in c)
         report = solve(board, dealt, slots=slots)
+        if presa and report["solvable"]:
+            esp = solve_spatial(board, dealt, slots=slots)
+            if not esp["solvable"]:
+                report["solvable"] = False
+                report["nodes"] += esp["nodes"]
+        report["spatial"] = presa
         last = (dealt, report, seed + attempt, limited, territorial)
         if report["solvable"]:
             return last
@@ -104,6 +119,14 @@ def main() -> int:
 
     diff = None if args.no_difficulty else analyze(board, dealt, args.slots)
 
+    # A atribuicao de blocos so serve ao verificador espacial, que ja rodou.
+    # Publicar ela seria mandar a solucao junto com o enigma - e engordar o
+    # arquivo em mil indices. O ancoradouro fica: e pequeno, e e o que permite
+    # reverificar um nivel ja publicado.
+    for col in dealt:
+        for hive in col:
+            hive.pop("cells", None)
+
     level = {
         "id": args.id or args.out.stem,
         "name": args.name,
@@ -136,7 +159,9 @@ def main() -> int:
         print(f"  {key} {PALETTE[key]['name']:<9} blocos={counts[key]:<4} "
               f"abelhas={bees:<4} folga={bees / counts[key]:.2f}")
     print(f"  colmeias={level['meta']['hives']} em {args.columns} colunas")
-    print(f"  solucionavel=SIM  guloso={'SIM' if report['greedy_ok'] else 'NAO'}"
+    prova = "combinatorio+espacial" if report.get("spatial") else "combinatorio"
+    print(f"  solucionavel=SIM  prova={prova}"
+          f"  guloso={'SIM' if report['greedy_ok'] else 'NAO'}"
           f"  nos={report['nodes']}  seed={used_seed}")
     if limited:
         total = sum(len(c) for c in dealt)
