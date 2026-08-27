@@ -1,0 +1,39 @@
+# Nivel 10: O Apiario. Duas pilhas de caixas com telhado, melgueiras e
+# ninho. Primeiro nivel com 100% das colmeias presas onde pousam, entao
+# cada cor e um bloco UNICO e continuo: cor picada em pedacos distantes e
+# derrota na hora, porque a colmeia planta num pedaco e nunca alcanca o
+# resto. As duas pilhas tem cores proprias justamente para isso - e
+# apicultor pinta caixa de cor diferente mesmo.
+# b=ceu o=sol w=nevoa y=polen n=terra r=papoula u=lavanda d=folha g=caule
+bbbbbbbbbbbbbbb..bbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbb..bbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbb..bbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbb..bbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbb..bbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbb..bbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbb..bbbbbbbbbbbbbbb
+bbboooooooooooo..bbbbbbbbbbbbbbb
+bbboooooooooooo..bbbbbbbbbbbbbbb
+bbbbwwwwwwwwwwb..bbbbbbbbbbbbbbb
+bbbbwwwwwwwwwwb..bbbbbbbbbbbbbbb
+bbbbwwwwwwwwwwb..bbbbbbbbbbbbbbb
+bbbbwwwwwwwwwwb..brrrrrrrrrrrrbb
+bbbbwwwwwwwwwwb..brrrrrrrrrrrrbb
+bbbbyyyyyyyyyyb..bbuuuuuuuuuubbb
+bbbbyyyyyyyyyyb..bbuuuuuuuuuubbb
+bbbbyyyyyyyyyyb..bbuuuuuuuuuubbb
+bbbbyyyyyyyyyyb..bbuuuuuuuuuubbb
+bbbbyyyyyyyyyyb..bbuuuuuuuuuubbb
+bbbbnnnnnnnnnnb..bbuuuuuuuuuubbb
+bbbbnnnnnnnnnnb..bbddddddddddbbb
+bbbbnnnnnnnnnnb..bbddddddddddbbb
+bbbbnnnnnnnnnnb..bbddddddddddbbb
+bbbbnnnnnnnnnnb..bbddddddddddbbb
+bbbbnnnnnnnnnnb..bbddddddddddbbb
+bbbbnnnnnnnnnnb..bbddddddddddbbb
+bbggggggggggggggggggggggggggggbb
+bbggggggggggggggggggggggggggggbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb

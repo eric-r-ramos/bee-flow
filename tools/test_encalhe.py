@@ -10,7 +10,7 @@ colmeia presa mas COM alvo no raio, e colmeia livre no mesmo ponto ruim.
 import asyncio, json
 from playwright.async_api import async_playwright
 
-URL = "http://127.0.0.1:8731/bee-flow-play.html"
+URL = "http://127.0.0.1:8731/web/bee-flow-play.html"
 
 # Tira a carta do topo da coluna e planta a colmeia num ponto dado, do mesmo
 # jeito que o bot faz. Tirar a carta da pilha e essencial: sao as abelhas DELA
