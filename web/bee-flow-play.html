@@ -1,4 +1,5 @@
 <title>Bee Flow</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Karla:wght@400;600;700&display=swap">
@@ -68,7 +69,11 @@
   button:focus-visible { outline: 2px solid var(--wax); outline-offset: 2px; }
   button.on { background: var(--comb); color: #24190A; border-color: var(--wax); }
 
-  #game { flex: 1 1 auto; width: 100%; display: block; touch-action: none; }
+  /* min-height:0 e obrigatorio: os atributos width/height do canvas lhe dao um
+     tamanho intrinseco, e num flex em coluna o min-height automatico e esse
+     tamanho - o canvas se recusa a encolher, come a faixa do #tip e vaza pela
+     borda de baixo, levando junto a fila de cores. */
+  #game { flex: 1 1 auto; min-height: 0; width: 100%; display: block; touch-action: none; }
 
   #tip {
     flex: 0 0 auto; padding: 5px 14px 10px; text-align: center;
@@ -105,6 +110,21 @@
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
     #over.show #card { animation: none; }
+  }
+
+  /* Celular em pe. A barra cabe numa linha so durante a partida - quem some
+     ali e o #brand, e quem o esconde e o syncChrome(), nao uma regra daqui:
+     na tela de rota ele e o unico texto que sobra, e apagar por largura
+     deixaria aquela tela muda. O que falta e tamanho: no telefone o padrao
+     rende texto que nao se le e botao que o polegar erra. */
+  @media (max-width: 460px) {
+    #hud { gap: 8px; padding: 6px 10px 4px; }
+    #stats { font-size: 13px; gap: 5px; }
+    #stats b { font-size: 20px; }
+    #stats i { height: 16px; margin: 0 4px; }
+    #ctl { gap: 5px; }
+    button { font-size: 13px; padding: 10px 12px; min-height: 42px; border-radius: 10px; }
+    #tip { font-size: 12px; padding: 4px 12px 8px; min-height: 22px; }
   }
 </style>
 
@@ -297,7 +317,11 @@ function layout() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const pad = 10, gap = 9;
-  const slotH = Math.min(70, H * .10), deckH = Math.min(120, H * .19);
+  // No celular em pe a imagem e limitada pela LARGURA: a altura sobrando vira
+  // margem beje morta acima e abaixo dela. Entao a faixa de baixo pode crescer
+  // de graca - o que ela toma nao encolhe uma celula sequer, e e ali que o
+  // dedo trabalha.
+  const slotH = Math.min(70, H * .10), deckH = Math.min(132, H * .21);
   const bw = W - pad * 2;
   const bh = H - slotH - deckH - gap * 2 - 6;
   boardRect = { x: pad, y: 0, w: bw, h: bh };
@@ -330,7 +354,10 @@ function layout() {
 
   const sy = bh + gap, dy = sy + slotH + gap;
   slotRects = row(slots.length, sy, slotH);
-  deckRects = row(columns.length, dy, Math.min(62, deckH * .5));
+  // A carta e alvo de ARRASTE, nao de toque: precisa de mais que os 44px de
+  // alvo minimo, senao o dedo cobre a cor e o numero justo quando comeca a
+  // puxar. Fica com a maior fatia da faixa; o resto ainda mostra a fila.
+  deckRects = row(columns.length, dy, Math.min(76, deckH * .62));
   deckSpace = deckH;   // altura total da faixa; o que sobra vira fila de cores
 
   // A rota: primeiro nível embaixo, o caminho sobe alternando os lados. A
