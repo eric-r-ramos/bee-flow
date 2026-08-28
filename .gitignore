@@ -1,6 +1,7 @@
 # Godot 4
 .godot/
 .import/
+*.import
 export.cfg
 export_presets.cfg
 *.translation
@@ -22,3 +23,10 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+# Capturas que os testes escrevem na raiz. Regeneraveis por definicao: sao a
+# saida deles, nao entrada de ninguem. Ficavam sujando `git status` a cada
+# rodada de gate.
+/t12_presa.png
+/wmap3_start.png
+/wmap3_done.png
